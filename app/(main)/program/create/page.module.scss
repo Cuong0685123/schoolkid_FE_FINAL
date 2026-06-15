@@ -1,0 +1,47 @@
+.uploadContainer {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+
+    .buttonsUpload {
+        display: flex;
+        gap: 5px;
+        margin-bottom: 10px;
+
+        .hiddenInput {
+            display: none;
+        }
+
+        .uploadBtn {
+            display: inline-block;
+            padding: 0.571rem 0.75rem;
+            background: #3f51b5;
+            color: #fff;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 500;
+
+            &:hover {
+                background: rgba(63, 81, 181, 0.92);
+            }
+        }
+    }
+}
+
+.previewImageContainer {
+    width: 200px;
+    height: auto;
+
+    img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+}
+
+.thumbnail {
+    width: 200px;
+    height: auto;
+    margin-top: 20px;
+}
