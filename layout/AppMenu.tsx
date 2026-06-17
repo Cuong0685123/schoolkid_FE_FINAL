@@ -74,6 +74,11 @@ const AppMenu = () => {
                     label: 'Site Content',
                     icon: 'pi pi-fw pi-cog',
                     to: '/site-content'
+                },
+                {
+                    label: 'Comments',
+                    icon: 'pi pi-fw pi-comments',
+                    to: '/comments'
                 }
             ]
         }
