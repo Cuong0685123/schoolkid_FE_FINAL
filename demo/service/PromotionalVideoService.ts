@@ -7,20 +7,36 @@ export type PromotionalVideo = {
     thumbnail_image_url: string;
 };
 
-export const normalizeDriveUrl = (url?: string) => {
-    if (!url) return '';
+export const getGoogleDriveFileId = (url?: string) => {
+    if (!url) return null;
 
     const idMatch = url.match(/id=([^&]+)/);
     if (idMatch) {
-        return `https://drive.usercontent.google.com/download?id=${idMatch[1]}`;
+        return idMatch[1];
     }
 
     const fileMatch = url.match(/\/file\/d\/([^/]+)/);
     if (fileMatch) {
-        return `https://drive.usercontent.google.com/download?id=${fileMatch[1]}`;
+        return fileMatch[1];
     }
 
-    return url;
+    return null;
+};
+
+export const normalizeDriveVideoUrl = (url?: string) => {
+    const fileId = getGoogleDriveFileId(url);
+
+    if (!fileId) return url || '';
+
+    return `https://drive.usercontent.google.com/download?id=${fileId}`;
+};
+
+export const normalizeDriveThumbnailUrl = (url?: string) => {
+    const fileId = getGoogleDriveFileId(url);
+
+    if (!fileId) return url || '';
+
+    return `https://drive.google.com/thumbnail?id=${fileId}&sz=w1000`;
 };
 
 export const getPromotionalVideos = async (): Promise<PromotionalVideo[]> => {

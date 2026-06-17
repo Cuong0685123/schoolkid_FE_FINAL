@@ -10,7 +10,11 @@ import { Dropdown } from 'primereact/dropdown';
 import { InputText } from 'primereact/inputtext';
 import { Tag } from 'primereact/tag';
 import { Toast } from 'primereact/toast';
-import { getApplications, updateApplication, type ApplicationRow } from '@/demo/service/ApplicationService';
+import {
+    getApplications,
+    updateApplication,
+    type ApplicationRow
+} from '@/demo/service/ApplicationService';
 
 const formatSubmittedAt = (value?: string) => {
     if (!value) {
@@ -44,7 +48,6 @@ const getAllowedStatus = (value?: string): 'pending' | 'approved' | 'rejected' =
 
 const formatStatusLabel = (value?: string) => {
     const status = getAllowedStatus(value);
-
     return status.charAt(0).toUpperCase() + status.slice(1);
 };
 
@@ -54,13 +57,28 @@ const baseStatusOptions = [
     { label: 'Rejected', value: 'rejected' }
 ];
 
-const formatFieldLabel = (key: string) =>
-    key
-        .split('_')
-        .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
-        .join(' ');
+const formatFieldLabel = (key: string) => {
+    const labels: Record<string, string> = {
+        id: 'Id',
+        parent_name: 'Parent Name',
+        parent_email: 'Parent Email',
+        parent_phone: 'Parent Phone',
+        child_name: 'Child Name',
+        child_age: 'Child Age',
+        program_id: 'Program Id',
+        message: 'Message',
+        submitted_at: 'Submitted At',
+        status: 'Status',
+        Program: 'Program'
+    };
 
-const formatFieldValue = (key: string, value: ApplicationRow[keyof ApplicationRow]) => {
+    return labels[key] || key;
+};
+
+const formatFieldValue = (
+    key: string,
+    value: ApplicationRow[keyof ApplicationRow]
+) => {
     if (value === undefined || value === null || value === '') {
         return '-';
     }
@@ -69,10 +87,24 @@ const formatFieldValue = (key: string, value: ApplicationRow[keyof ApplicationRo
         return formatSubmittedAt(value);
     }
 
+    if (typeof value === 'object') {
+        const objectValue = value as any;
+
+        return (
+            objectValue.name ||
+            objectValue.title ||
+            objectValue.full_name ||
+            objectValue.id ||
+            '-'
+        );
+    }
+
     return String(value);
 };
 
-const getStatusSeverity = (status?: string): 'success' | 'info' | 'warning' | 'danger' | undefined => {
+const getStatusSeverity = (
+    status?: string
+): 'success' | 'info' | 'warning' | 'danger' | undefined => {
     switch (getAllowedStatus(status)) {
         case 'approved':
             return 'success';
@@ -102,7 +134,7 @@ const ApplicationsPage = () => {
         const fetchApplications = async () => {
             try {
                 const data = await getApplications();
-                setApplications(data);
+                setApplications(Array.isArray(data) ? data : []);
             } catch (error) {
                 console.error(error);
                 toast.current?.show({
@@ -118,23 +150,15 @@ const ApplicationsPage = () => {
         void fetchApplications();
     }, []);
 
-    const messageBodyTemplate = (rowData: ApplicationRow) => {
-        if (!rowData.message) {
-            return '-';
-        }
+    const statusBodyTemplate = (rowData: ApplicationRow) => (
+        <Tag
+            value={formatStatusLabel(rowData.status)}
+            severity={getStatusSeverity(rowData.status)}
+        />
+    );
 
-        const compactMessage = rowData.message.replace(/\s+/g, ' ').trim();
-
-        if (compactMessage.length <= 60) {
-            return compactMessage;
-        }
-
-        return `${compactMessage.slice(0, 60)}...`;
-    };
-
-    const statusBodyTemplate = (rowData: ApplicationRow) => <Tag value={formatStatusLabel(rowData.status)} severity={getStatusSeverity(rowData.status)} />;
-
-    const submittedAtBodyTemplate = (rowData: ApplicationRow) => formatSubmittedAt(rowData.submitted_at);
+    const submittedAtBodyTemplate = (rowData: ApplicationRow) =>
+        formatSubmittedAt(rowData.submitted_at);
 
     const actionBodyTemplate = (rowData: ApplicationRow) => (
         <Button
@@ -152,7 +176,14 @@ const ApplicationsPage = () => {
     );
 
     const detailEntries = selectedApplication
-        ? Object.entries(selectedApplication).filter(([, value]) => value !== undefined && value !== null && value !== '')
+        ? Object.entries(selectedApplication).filter(
+              ([key, value]) =>
+                  key !== 'createdAt' &&
+                  key !== 'updatedAt' &&
+                  value !== undefined &&
+                  value !== null &&
+                  value !== ''
+          )
         : [];
 
     const onGlobalFilterChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -162,6 +193,7 @@ const ApplicationsPage = () => {
             ...currentFilters,
             global: { value, matchMode: FilterMatchMode.CONTAINS }
         }));
+
         setGlobalFilterValue(value);
     };
 
@@ -173,14 +205,33 @@ const ApplicationsPage = () => {
         try {
             setSavingStatus(true);
 
-            const updatedApplication = await updateApplication(selectedApplication.id, {
-                status: statusDraft
-            });
+           const response: any = await updateApplication(selectedApplication.id, {
+    status: statusDraft
+});
 
+const updatedApplication =
+    response?.application || response?.data || response || {};
             setApplications((currentApplications) =>
-                currentApplications.map((application) => (application.id === selectedApplication.id ? { ...application, ...updatedApplication, status: statusDraft } : application))
+                currentApplications.map((application) =>
+                    application.id === selectedApplication.id
+                        ? {
+                              ...application,
+                              ...updatedApplication,
+                              status: statusDraft
+                          }
+                        : application
+                )
             );
-            setSelectedApplication((currentApplication) => (currentApplication ? { ...currentApplication, ...updatedApplication, status: statusDraft } : currentApplication));
+
+            setSelectedApplication((currentApplication) =>
+                currentApplication
+                    ? {
+                          ...currentApplication,
+                          ...updatedApplication,
+                          status: statusDraft
+                      }
+                    : currentApplication
+            );
 
             toast.current?.show({
                 severity: 'success',
@@ -205,9 +256,15 @@ const ApplicationsPage = () => {
                 <h5 className="m-0">Applications</h5>
                 <span className="text-color-secondary">Application list</span>
             </div>
+
             <span className="p-input-icon-left w-full md:w-20rem">
                 <i className="pi pi-search" />
-                <InputText value={globalFilterValue} onChange={onGlobalFilterChange} placeholder="Search by name, email, or phone" className="w-full" />
+                <InputText
+                    value={globalFilterValue}
+                    onChange={onGlobalFilterChange}
+                    placeholder="Search by name, email, or phone"
+                    className="w-full"
+                />
             </span>
         </div>
     );
@@ -215,6 +272,7 @@ const ApplicationsPage = () => {
     return (
         <>
             <Toast ref={toast} />
+
             <div className="col-12">
                 <div className="card">
                     <DataTable
@@ -229,7 +287,12 @@ const ApplicationsPage = () => {
                         stripedRows
                         removableSort
                         filters={filters}
-                        globalFilterFields={['parent_name', 'parent_email', 'parent_phone']}
+                        globalFilterFields={[
+                            'parent_name',
+                            'parent_email',
+                            'parent_phone',
+                            'child_name'
+                        ]}
                         emptyMessage="No applications found"
                         header={header}
                     >
@@ -260,19 +323,41 @@ const ApplicationsPage = () => {
                         <div className="grid">
                             {detailEntries.map(([key, value]) => (
                                 <div key={key} className="col-12 md:col-6">
-                                    <div className="text-600 text-sm mb-2">{formatFieldLabel(key)}</div>
-                                    {key === 'status' ? <Tag value={formatStatusLabel(String(value))} severity={getStatusSeverity(String(value))} /> : <div className="text-900 line-height-3">{formatFieldValue(key, value)}</div>}
+                                    <div className="text-600 text-sm mb-2">
+                                        {formatFieldLabel(key)}
+                                    </div>
+
+                                    {key === 'status' ? (
+                                        <Tag
+                                            value={formatStatusLabel(String(value))}
+                                            severity={getStatusSeverity(String(value))}
+                                        />
+                                    ) : (
+                                        <div className="text-900 line-height-3">
+                                            {formatFieldValue(
+                                                key,
+                                                value as ApplicationRow[keyof ApplicationRow]
+                                            )}
+                                        </div>
+                                    )}
                                 </div>
                             ))}
                         </div>
 
                         <div className="border-top-1 surface-border pt-4">
-                            <div className="text-900 font-semibold mb-3">Update status</div>
+                            <div className="text-900 font-semibold mb-3">
+                                Update status
+                            </div>
+
                             <div className="flex flex-column gap-3 md:flex-row md:align-items-end">
                                 <div className="flex-1">
-                                    <label htmlFor="application-status" className="block text-700 mb-2">
+                                    <label
+                                        htmlFor="application-status"
+                                        className="block text-700 mb-2"
+                                    >
                                         Status
                                     </label>
+
                                     <Dropdown
                                         inputId="application-status"
                                         value={statusDraft}
@@ -282,7 +367,14 @@ const ApplicationsPage = () => {
                                         className="w-full"
                                     />
                                 </div>
-                                <Button type="button" label="Save status" icon="pi pi-check" loading={savingStatus} onClick={handleSaveStatus} />
+
+                                <Button
+                                    type="button"
+                                    label="Save status"
+                                    icon="pi pi-check"
+                                    loading={savingStatus}
+                                    onClick={handleSaveStatus}
+                                />
                             </div>
                         </div>
                     </div>

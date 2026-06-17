@@ -40,7 +40,7 @@ const AppBreadcrumb = () => {
                         : pathname + searchParams.toString() === '/' && (
                               <>
                                   <i className="pi pi-angle-right"></i>
-                                  <li key={'home'}>Sales Dashboard</li>
+                                  <li key={'home'}>SchoolKid Dashboard</li>
                               </>
                           )}
                 </ol>

@@ -8,7 +8,8 @@ import { Toast } from 'primereact/toast';
 import {
     PromotionalVideo,
     getPromotionalVideoById,
-    normalizeDriveUrl,
+    normalizeDriveThumbnailUrl,
+    normalizeDriveVideoUrl,
     updatePromotionalVideo
 } from '../../../../demo/service/PromotionalVideoService';
 
@@ -126,8 +127,8 @@ export default function VideoDetailPage() {
         );
     }
 
-    const thumbnailUrl = normalizeDriveUrl(video.thumbnail_image_url);
-    const videoUrl = normalizeDriveUrl(video.video_url);
+   const thumbnailUrl = normalizeDriveThumbnailUrl(video.thumbnail_image_url);
+const videoUrl = normalizeDriveVideoUrl(video.video_url);
 
     return (
         <div className="card">

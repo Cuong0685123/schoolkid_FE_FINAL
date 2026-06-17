@@ -9,7 +9,8 @@ import { useRouter } from 'next/navigation';
 import {
     deletePromotionalVideo,
     getPromotionalVideos,
-    normalizeDriveUrl,
+    normalizeDriveThumbnailUrl,
+    normalizeDriveVideoUrl,
     PromotionalVideo
 } from '../../../demo/service/PromotionalVideoService';
 
@@ -42,7 +43,7 @@ const PromotionalVideoPage = () => {
     }, []);
 
     const thumbnailTemplate = (rowData: PromotionalVideo) => {
-        const thumbnailUrl = normalizeDriveUrl(rowData.thumbnail_image_url);
+        const thumbnailUrl = normalizeDriveThumbnailUrl(rowData.thumbnail_image_url);
 
         return (
             <img
@@ -60,7 +61,7 @@ const PromotionalVideoPage = () => {
     };
 
     const videoTemplate = (rowData: PromotionalVideo) => {
-        const videoUrl = normalizeDriveUrl(rowData.video_url);
+        const videoUrl = normalizeDriveVideoUrl(rowData.video_url);
 
         return (
             <div className="flex flex-column gap-2">
