@@ -69,6 +69,11 @@ const AppMenu = () => {
                     label: 'Newsletter',
                     icon: 'pi pi-fw pi-envelope',
                     to: '/newsletter'
+                },
+                {
+                    label: 'Site Content',
+                    icon: 'pi pi-fw pi-cog',
+                    to: '/site-content'
                 }
             ]
         }
