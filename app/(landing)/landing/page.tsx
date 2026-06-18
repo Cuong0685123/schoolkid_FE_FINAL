@@ -1,439 +1,682 @@
 'use client';
-import React, { useContext, useEffect, useRef } from 'react';
+
+import React, { useEffect, useRef, useState } from 'react';
 import { Button } from 'primereact/button';
-import { StyleClass } from 'primereact/styleclass';
-import { LayoutContext } from '../../../layout/context/layoutcontext';
-import type { ColorScheme, NodeRef, Page } from '@/types';
 import { InputText } from 'primereact/inputtext';
-import PrimeReact, { PrimeReactContext } from 'primereact/api';
-import styles from './landing.module.scss';
-import { classNames } from 'primereact/utils';
+import { Toast } from 'primereact/toast';
+import { Carousel } from 'primereact/carousel';
 
-const LandingPage: Page = () => {
-    const { layoutConfig, setLayoutConfig } = useContext(LayoutContext);
-    const { changeTheme } = useContext(PrimeReactContext);
-    const menuRef = useRef<HTMLAnchorElement>(null);
-    const homeRef = useRef<HTMLDivElement>(null);
-    const homeButtonRef = useRef<HTMLAnchorElement>(null);
-    const parallaxBodyRef = useRef<HTMLDivElement>(null);
-    const featuresRef = useRef<HTMLDivElement>(null);
-    const featuresButtonRef = useRef<HTMLAnchorElement>(null);
-    const collaborationRef = useRef<HTMLDivElement>(null);
-    const collaborationButtonRef = useRef<HTMLAnchorElement>(null);
-    const eventsRef = useRef<HTMLDivElement>(null);
-    const eventsButtonRef = useRef<HTMLAnchorElement>(null);
-    const videoRef = useRef<HTMLDivElement>(null);
-    const videoButtonRef = useRef<HTMLAnchorElement>(null);
-    const scrollBehavior = (el: React.RefObject<HTMLDivElement>) => {
-        el.current?.scrollIntoView({ behavior: 'smooth' });
-    };
+import { getPrograms } from '../../../demo/service/ProgramService';
+import { getNewsArticles, type NewsArticle } from '../../../demo/service/NewsArticleService';
+import {
+    getPromotionalVideos,
+    normalizeDriveThumbnailUrl,
+    normalizeDriveVideoUrl,
+    type PromotionalVideo
+} from '../../../demo/service/PromotionalVideoService';
+import { createNewsletterSubscriber } from '../../../demo/service/NewsletterService';
+import { getSiteContents, type SiteContent } from '../../../demo/service/SiteContentService';
 
-    const scrollToElement = (el: React.RefObject<HTMLDivElement>) => {
-        setTimeout(() => {
-            el.current?.scrollIntoView({
-                behavior: 'smooth',
-                block: 'start',
-                inline: 'nearest'
+type ProgramRow = {
+    id: number | string;
+    name?: string;
+    description?: string;
+    type?: string;
+    ProgramEdus?: any[];
+    ProgramSports?: any[];
+    ProgramTeachers?: any[];
+};
+
+const COLORS = {
+    pink: '#ff5fa2',
+    yellow: '#ffc83d',
+    green: '#19c79f',
+    blue: '#6ecbff',
+    purple: '#b78cff',
+    cream: '#fffaf0',
+    lightPink: '#fff0f7',
+    lightYellow: '#fff8d6',
+    lightGreen: '#e9fff8'
+};
+
+const sectionStyle: React.CSSProperties = {
+    maxWidth: '1180px',
+    margin: '0 auto'
+};
+
+const buttonPink: React.CSSProperties = {
+    background: COLORS.pink,
+    borderColor: COLORS.pink,
+    fontWeight: 700
+};
+
+const buttonYellow: React.CSSProperties = {
+    background: COLORS.yellow,
+    borderColor: COLORS.yellow,
+    color: '#6b3b00',
+    fontWeight: 700
+};
+
+const titleStyle: React.CSSProperties = {
+    fontSize: 'clamp(2.4rem, 5vw, 4.8rem)',
+    fontWeight: 900,
+    lineHeight: 1.05
+};
+
+const getProgramChildren = (programs: ProgramRow[]) => {
+    const education = programs.flatMap((item) => item.ProgramEdus || []);
+    const sport = programs.flatMap((item) => item.ProgramSports || []);
+    return [...education, ...sport];
+};
+
+const getTeachers = (programs: ProgramRow[]) => {
+    return programs.flatMap((item) => item.ProgramTeachers || []);
+};
+
+const SectionTitle = ({
+    badge,
+    title,
+    desc
+}: {
+    badge?: string;
+    title: string;
+    desc?: string;
+}) => (
+    <div className="text-center mb-5">
+        {badge ? (
+            <div
+                className="inline-block px-4 py-2 border-round-3xl font-bold mb-3"
+                style={{ background: COLORS.lightYellow, color: COLORS.pink }}
+            >
+                {badge}
+            </div>
+        ) : null}
+
+        <h2 className="m-0 mb-3" style={{ ...titleStyle, fontSize: 'clamp(2.2rem, 4vw, 4rem)' }}>
+            {title}
+        </h2>
+
+        {desc ? <p className="text-600 text-lg line-height-3 m-0">{desc}</p> : null}
+    </div>
+);
+
+const DecorativeBubble = ({
+    style
+}: {
+    style: React.CSSProperties;
+}) => (
+    <div
+        style={{
+            position: 'absolute',
+            borderRadius: '999px',
+            opacity: 0.55,
+            zIndex: 0,
+            ...style
+        }}
+    />
+);
+
+export default function NangHongLandingPage() {
+    const toast = useRef<Toast>(null);
+
+    const [programs, setPrograms] = useState<ProgramRow[]>([]);
+    const [articles, setArticles] = useState<NewsArticle[]>([]);
+    const [videos, setVideos] = useState<PromotionalVideo[]>([]);
+    const [siteContent, setSiteContent] = useState<SiteContent | null>(null);
+    const [email, setEmail] = useState('');
+    const [subscribing, setSubscribing] = useState(false);
+
+    useEffect(() => {
+        const loadData = async () => {
+            const [programData, articleData, videoData, siteData] = await Promise.all([
+                getPrograms(),
+                getNewsArticles(),
+                getPromotionalVideos(),
+                getSiteContents()
+            ]);
+
+            setPrograms(Array.isArray(programData) ? programData : []);
+            setArticles(Array.isArray(articleData) ? articleData : []);
+            setVideos(Array.isArray(videoData) ? videoData : []);
+            setSiteContent(Array.isArray(siteData) && siteData.length > 0 ? siteData[0] : null);
+        };
+
+        loadData().catch(() => {
+            toast.current?.show({
+                severity: 'error',
+                summary: 'Error',
+                detail: 'Không tải được dữ liệu trang chủ',
+                life: 3000
             });
-        }, 200);
-    };
-    const handleMouseEnter = (event: React.MouseEvent<HTMLDivElement>) => {
-        if (event.currentTarget) event.currentTarget.style.background = 'linear-gradient(110.43deg, rgba(134,140,208,.5) 0.04%, rgba(255,87,89,.5) 100.11%)';
-    };
+        });
+    }, []);
 
-    const handleMouseLeave = (event: React.MouseEvent<HTMLDivElement>) => {
-        if (event.currentTarget) event.currentTarget.style.background = 'unset';
-    };
+    const featuredPrograms = getProgramChildren(programs);
+    const teachers = getTeachers(programs);
+    const latestNews = articles.slice(0, 3);
+    const latestVideo = videos[0];
 
-    const changeColorScheme = (colorScheme: ColorScheme) => {
-        changeTheme?.(layoutConfig.colorScheme, colorScheme, 'theme-link', () => {
-            setLayoutConfig((prevState) => ({
-                ...prevState,
-                colorScheme,
-                menuTheme: layoutConfig.colorScheme === 'dark' ? 'dark' : 'light'
-            }));
+    const displayPrograms =
+        featuredPrograms.length > 0
+            ? featuredPrograms
+            : [
+                  {
+                      id: 'p1',
+                      title: 'Lớp học vui',
+                      detail: 'Các hoạt động học tập nhẹ nhàng, giúp bé làm quen với môi trường lớp học.',
+                      thumbnail_url: ''
+                  },
+                  {
+                      id: 'p2',
+                      title: 'Lớp vận động',
+                      detail: 'Các trò chơi vận động giúp bé khỏe mạnh, nhanh nhẹn và tự tin hơn.',
+                      thumbnail_url: ''
+                  },
+                  {
+                      id: 'p3',
+                      title: 'Lớp sáng tạo',
+                      detail: 'Hoạt động vẽ, âm nhạc và thủ công giúp bé phát triển trí tưởng tượng.',
+                      thumbnail_url: ''
+                  }
+              ];
+
+    const displayTeachers =
+        teachers.length > 0
+            ? teachers
+            : [
+                  { id: 't1', full_name: 'Cô Nắng Hồng', role: 'Giáo viên mầm non', profile_image_url: '' },
+                  { id: 't2', full_name: 'Cô Hoa Mai', role: 'Giáo viên năng khiếu', profile_image_url: '' },
+                  { id: 't3', full_name: 'Cô Ánh Dương', role: 'Giáo viên chăm sóc trẻ', profile_image_url: '' },
+                  { id: 't4', full_name: 'Cô Bích Ngọc', role: 'Giáo viên lớp mẫu giáo', profile_image_url: '' }
+              ];
+
+    const scrollTo = (id: string) => {
+        document.getElementById(id)?.scrollIntoView({
+            behavior: 'smooth',
+            block: 'start'
         });
     };
 
-    useEffect(() => {
-        changeColorScheme('dark');
-        setLayoutConfig((prevState) => ({
-            ...prevState,
-            menuTheme: 'dark'
-        }));
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []);
+    const handleSubscribe = async () => {
+        if (!email.trim()) return;
 
-    return (
-        <div className="surface-ground">
-            <div style={{ height: '68px', backdropFilter: 'blur(17px)' }} className="flex justify-content-between align-items-center z-3 px-5 bg-black-alpha-40 top-0 w-full fixed">
-                <div>
-                    <img draggable={false} src="/layout/images/logo/logo.png" alt="" />
-                </div>
+        try {
+            setSubscribing(true);
+            await createNewsletterSubscriber({ email: email.trim() });
+            setEmail('');
 
-                <StyleClass nodeRef={menuRef as NodeRef} selector="@next" enterClassName="hidden" leaveToClassName="hidden" hideOnOutsideClick>
-                    <a ref={menuRef} className="cursor-pointer block lg:hidden text-white">
-                        <i className="pi pi-bars text-4xl"></i>
-                    </a>
-                </StyleClass>
+            toast.current?.show({
+                severity: 'success',
+                summary: 'Đăng ký thành công',
+                detail: 'Cảm ơn bạn đã theo dõi Mầm Non Nắng Hồng',
+                life: 3000
+            });
+        } catch {
+            toast.current?.show({
+                severity: 'error',
+                summary: 'Lỗi',
+                detail: 'Không thể đăng ký newsletter',
+                life: 3000
+            });
+        } finally {
+            setSubscribing(false);
+        }
+    };
 
-                <div id="menu" className="align-items-center flex-grow-1 hidden lg:flex absolute lg:static w-full lg:px-0 z-3 shadow-2 lg:shadow-none fadein" style={{ top: '68px', right: '0%' }}>
-                    <ul className="list-none p-3 lg:p-0 m-0 ml-auto flex lg:align-items-center select-none flex-column lg:flex-row cursor-pointer surface-0 lg:bg-transparent">
-                        <li>
-                            <StyleClass nodeRef={homeButtonRef as NodeRef} selector="#menu" enterClassName="hidden" leaveToClassName="hidden">
-                                <a ref={homeButtonRef} className="flex m-0 md:ml-5 px-0 py-3 text-900 line-height-3" href="#home">
-                                    <span>HOME</span>
-                                </a>
-                            </StyleClass>
-                        </li>
-                        <li>
-                            <StyleClass nodeRef={featuresButtonRef as NodeRef} selector="#menu" enterClassName="hidden" leaveToClassName="hidden">
-                                <a ref={featuresButtonRef} className="flex m-0 md:ml-5 px-0 py-3 text-900 line-height-3" href="#features" onClick={() => scrollToElement(featuresRef)}>
-                                    <span>FEATURES</span>
-                                </a>
-                            </StyleClass>
-                        </li>
-                        <li>
-                            <StyleClass nodeRef={collaborationButtonRef as NodeRef} selector="#menu" enterClassName="hidden" leaveToClassName="hidden">
-                                <a ref={collaborationButtonRef} className="flex m-0 md:ml-5 px-0 py-3 text-900 line-height-3" href="#collaboration" onClick={() => scrollToElement(collaborationRef)}>
-                                    <span>COLLABORATION</span>
-                                </a>
-                            </StyleClass>
-                        </li>
-                        <li>
-                            <StyleClass nodeRef={eventsButtonRef as NodeRef} selector="#menu" enterClassName="hidden" leaveToClassName="hidden">
-                                <a ref={eventsButtonRef} className="flex m-0 md:ml-5 px-0 py-3 text-900 line-height-3" href="#events" onClick={() => scrollToElement(eventsRef)}>
-                                    <span>EVENTS</span>
-                                </a>
-                            </StyleClass>
-                        </li>
-                        <li>
-                            <StyleClass nodeRef={videoButtonRef as NodeRef} selector="#menu" enterClassName="hidden" leaveToClassName="hidden">
-                                <a ref={videoButtonRef} className="flex m-0 md:ml-5 px-0 py-3 text-900 line-height-3" href="#video" onClick={() => scrollToElement(videoRef)}>
-                                    <span>VIDEO</span>
-                                </a>
-                            </StyleClass>
-                        </li>
-                        <li>
-                            <Button label="LET'S TRY" className="surface-900 text-0 m-0 mt-3 md:mt-0 md:ml-5"></Button>
-                        </li>
-                    </ul>
-                </div>
-            </div>
-            <div className="h-screen">
-                <div style={{ perspective: '101px' }} className="h-screen overflow-x-hidden overflow-y-auto absolute top-0 left-0 right-0 bottom-0">
-                    <div className="hidden lg:block absolute top-0 right-0 bottom-0 left-0 parallax__layer__0">
-                        <img draggable={false} src="/layout/images/landing/layer-0-opt.jpg" alt="layer-0" className="w-full h-full block absolute bottom-0" />
-                    </div>
-                    <div className="hidden lg:block absolute top-0 right-0 bottom-0 left-0 parallax__layer__1">
-                        <img draggable={false} src="/layout/images/landing/layer-1-opt.png" alt="layer-1" className="w-full block absolute bottom-0" />
-                    </div>
-
-                    <div className="hidden lg:flex absolute right-0 bottom-0 left-0 parallax__layer__3 justify-content-center" style={{ top: '27%' }}>
-                        <div>
-                            <h1 className="m-0 -mb-4 text-4xl text-white">LET&apos;S</h1>
-                            <h1 className="m-0 text-white" style={{ fontSize: '15rem' }}>
-                                EXPLORE
-                            </h1>
-                            <div className="flex -mt-4 justify-content-end">
-                                <h1 className="m-0 text-white text-4xl">TO ULTIMA</h1>
-                            </div>
-                        </div>
-                    </div>
-                    <div className="hidden lg:block absolute top-0 right-0 bottom-0 left-0 parallax__layer__2">
-                        <img draggable={false} src="/layout/images/landing/layer-2-opt.png" alt="layer-2" className="w-full block absolute bottom-0" />
-                    </div>
-
-                    <div className="absolute flex justify-content-center align-items-center w-full h-full parallax__layer__3" style={{ top: '112px' }}>
-                        <Button
-                            label="GET STARTED"
-                            onClick={() => scrollToElement(featuresRef)}
-                            style={{ backdropFilter: 'blur(7px)' }}
-                            className="text-900 bg-white-alpha-20 text-lg px-5 py-3 font-semibold hover:bg-white hover:text-0 border-round-xl border-white-alpha-30 border-1"
-                            text
-                        ></Button>
-                    </div>
-
-                    <div
-                        ref={homeRef}
-                        className="block lg:hidden h-28rem bg-center bg-no-repeat bg-cover"
+    const programTemplate = (item: any) => (
+        <div className="p-3">
+            <div
+                className="card text-center h-full"
+                style={{
+                    borderRadius: 32,
+                    minHeight: 350,
+                    background: 'linear-gradient(180deg,#ffffff 0%,#fff7fb 100%)',
+                    border: '3px solid #ffe0ef',
+                    boxShadow: '0 16px 35px rgba(255,95,162,.18)'
+                }}
+            >
+                {item.thumbnail_url ? (
+                    <img
+                        src={item.thumbnail_url}
+                        alt={item.title || 'Chương trình học'}
                         style={{
-                            top: '68px',
-                            background: "url('/layout/images/landing/landing-hero-image.jpg')"
+                            width: '100%',
+                            height: 170,
+                            objectFit: 'cover',
+                            borderRadius: 24,
+                            marginBottom: 18
+                        }}
+                    />
+                ) : (
+                    <div
+                        className="border-circle mx-auto mb-4 flex align-items-center justify-content-center"
+                        style={{
+                            width: 105,
+                            height: 105,
+                            background: COLORS.lightYellow,
+                            color: COLORS.yellow,
+                            border: '5px solid #fff'
                         }}
                     >
-                        <div className="flex justify-content-center align-items-center h-full">
-                            <div className="flex flex-column">
-                                <h1 className="m-0 text-base text-white">LET&apos;S</h1>
-                                <h1 className="m-0 text-white">EXPLORE</h1>
-                                <div className="flex justify-content-end">
-                                    <h1 className="m-0 text-white text-sm">TO ULTIMA</h1>
-                                </div>
-                                <div className="flex justify-content-center mt-2">
-                                    <Button
-                                        label="GET STARTED"
-                                        onClick={() => scrollBehavior(parallaxBodyRef)}
-                                        style={{ backdropFilter: 'blur(7px)' }}
-                                        text
-                                        className="text-900 text-xs bg-white-alpha-20 font-semibold hover:bg-white hover:text-0 border-white-alpha-30 border-1"
-                                    ></Button>
-                                </div>
-                            </div>
-                        </div>
+                        <i className="pi pi-sun text-5xl" />
                     </div>
-                    <div ref={parallaxBodyRef} className="lg:top-100 block absolute left-0 right-0 h-full z-2">
-                        <div>
-                            <div className="grid grid-nogutter p-2 lg:p-5" style={{ backgroundColor: '#000' }}>
-                                <div className="col-6 lg:col-3 flex align-items-center justify-content-center gap-3">
-                                    <img draggable={false} src="/layout/images/landing/landing-logo1.png" alt="" />
-                                </div>
-                                <div className="col-6 lg:col-3 flex align-items-center justify-content-center gap-3">
-                                    <img draggable={false} src="/layout/images/landing/landing-logo2.png" alt="" />
-                                </div>
-                                <div className="col-6 lg:col-3 flex align-items-center justify-content-center gap-3">
-                                    <img draggable={false} src="/layout/images/landing/landing-logo3.png" alt="" />
-                                </div>
-                                <div className="col-6 lg:col-3 flex align-items-center justify-content-center gap-3">
-                                    <img draggable={false} src="/layout/images/landing/landing-logo4.png" alt="" />
-                                </div>
-                            </div>
-                        </div>
-                        <div ref={featuresRef} className="pt-5" style={{ backgroundColor: '#000' }}>
-                            <div className="flex flex-column align-items-center gap-3">
-                                <div className="surface-500 text-white text-sm p-2 border-round-lg">FEATURES</div>
-                                <span className="text-white text-2xl uppercase">All you need is the Ultima.</span>
-                                <h1
-                                    className="m-0 text-6xl"
-                                    style={{
-                                        background: 'linear-gradient(110.43deg, #868cd0 0.04%, #ff5759 100.11%); background-clip: text; -webkit-background-clip: text; color: transparent'
-                                    }}
-                                >
-                                    ULTIMA
-                                </h1>
-                            </div>
-                            <div className="flex flex-column align-items-center">
-                                <div className="grid pt-6 p-4" style={{ maxWidth: '1200px' }}>
-                                    <div className="col-6 lg:col-4">
-                                        <div onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave} className="flex justify-content-center flex-column gap-3 border-1 border-50 border-round-2xl p-5 cursor-pointer h-full">
-                                            <i className="pi pi-palette text-4xl text-white"></i>
-                                            <span className="font-semibold text-white">Creative Design</span>
-                                            <span className="text-white">Unleash your brand`&apos;`s full potential with our creative design services.</span>
-                                            <span className="text-primary-300 font-medium flex align-items-center">
-                                                Learn more <i className="pi pi-arrow-right ml-2"></i>
-                                            </span>
-                                        </div>
-                                    </div>
-                                    <div className="col-6 lg:col-4">
-                                        <div onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave} className="flex justify-content-center flex-column gap-3 border-1 border-50 border-round-2xl p-5 cursor-pointer h-full">
-                                            <i className="pi pi-mobile text-4xl text-white"></i>
-                                            <span className="font-semibold text-white">Responsive Design</span>
-                                            <span className="text-white">Make sure your website looks great and functions seamlessly on any device with responsive design.</span>
-                                            <span className="text-primary-300 font-medium flex align-items-center">
-                                                Learn more <i className="pi pi-arrow-right ml-2"></i>
-                                            </span>
-                                        </div>
-                                    </div>
-                                    <div className="col-6 lg:col-4">
-                                        <div onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave} className="flex justify-content-center flex-column gap-3 border-1 border-50 border-round-2xl p-5 cursor-pointer h-full">
-                                            <i className="pi pi-sync text-4xl text-white"></i>
-                                            <span className="font-semibold text-white">Cross Browser Support</span>
-                                            <span className="text-white">Don`&apos;`t let browser compatibility hold you back. Our cross browser support ensures your website works perfectly on all browsers.</span>
-                                            <span className="text-primary-300 font-medium flex align-items-center">
-                                                Learn more <i className="pi pi-arrow-right ml-2"></i>
-                                            </span>
-                                        </div>
-                                    </div>
-                                    <div className="col-6 lg:col-4">
-                                        <div onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave} className="flex justify-content-center flex-column gap-3 border-1 border-50 border-round-2xl p-5 cursor-pointer h-full">
-                                            <i className="pi pi-th-large text-4xl text-white"></i>
-                                            <span className="font-semibold text-white">Well Organized</span>
-                                            <span className="text-white">Our well-organized approach guarantees a smooth design process from start to finish.</span>
-                                            <span className="text-primary-300 font-medium flex align-items-center">
-                                                Learn more <i className="pi pi-arrow-right ml-2"></i>
-                                            </span>
-                                        </div>
-                                    </div>
-                                    <div className="col-6 lg:col-4">
-                                        <div onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave} className="flex justify-content-center flex-column gap-3 border-1 border-50 border-round-2xl text-white p-5 cursor-pointer h-full">
-                                            <i className="pi pi-code text-4xl text-white"></i>
-                                            <span className="font-semibold text-white">Easy to Product</span>
-                                            <span className="text-white">We make product creation easy with straightforward and intuitive processes.</span>
-                                            <span className="text-primary-300 font-medium flex align-items-center">
-                                                Learn more <i className="pi pi-arrow-right ml-2"></i>
-                                            </span>
-                                        </div>
-                                    </div>
-                                    <div className="col-6 lg:col-4">
-                                        <div onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave} className="flex justify-content-center flex-column gap-3 border-1 border-50 border-round-2xl text-white p-5 cursor-pointer h-full">
-                                            <i className="pi pi-box text-4xl"></i>
-                                            <span className="font-semibold">Top Notch Quality</span>
-                                            <span>Expect top notch quality in all of our work, delivering exceptional results every time.</span>
-                                            <span className="text-primary-300 font-medium flex align-items-center">
-                                                Learn more <i className="pi pi-arrow-right ml-2"></i>
-                                            </span>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div ref={collaborationRef} style={{ maxWidth: '1200px' }} className="flex flex-column lg:flex-row gap-8 mt-6 py-6 px-4 w-full">
-                                    <div className="flex flex-column align-items-end justify-content-center">
-                                        <div className="surface-50 text-white text-sm p-2 border-round-lg mb-4">PLAY AS A TEAM</div>
-                                        <div>
-                                            <h1
-                                                className="m-0 text-6xl font-bold text-right"
-                                                style={{
-                                                    background: 'linear-gradient(110.43deg, #868cd0 0.04%, #ff5759 100.11%); background-clip: text; -webkit-background-clip: text; color: transparent'
-                                                }}
-                                            >
-                                                COLLABORATION
-                                            </h1>
-                                            <p className="text-white text-right mt-3">
-                                                The Earth is a very small stage in a vast cosmic arena. Think of the rivers of blood spilled by all those generals and emperors so that, in glory and triumph, they could become the momentary masters of
-                                                a fraction of a dot.
-                                            </p>
-                                        </div>
-                                    </div>
-                                    <img draggable={false} src="/layout/images/landing/collaboration-image.png" alt="" />
-                                </div>
-                                <div ref={eventsRef} style={{ maxWidth: '1200px' }} className="flex flex-column lg:flex-row gap-8 mt-6 py-6 px-4 w-full">
-                                    <img draggable={false} src="/layout/images/landing/easyfollow-image.png" alt="" />
-                                    <div className="flex flex-column align-items-start justify-content-center">
-                                        <div className="surface-50 text-white text-sm p-2 border-round-lg mb-4">EVENTS</div>
-                                        <div>
-                                            <h1
-                                                className="m-0 text-6xl font-bold"
-                                                style={{
-                                                    background: 'linear-gradient(110.43deg, #868cd0 0.04%, #ff5759 100.11%); background-clip: text; -webkit-background-clip: text; color: transparent'
-                                                }}
-                                            >
-                                                EASY FOLLOW
-                                            </h1>
-                                            <p className="text-white mt-2">
-                                                It has been said that astronomy is a humbling and character-building experience. There is perhaps no better demonstration of the folly of human conceits than this distant image of our tiny world.
-                                            </p>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div ref={videoRef} style={{ maxWidth: '1200px' }} className="flex gap-4 mt-6 py-6 flex-column align-items-center w-full">
-                                    <div className="surface-50 text-white text-sm p-2 border-round-lg">VIDEO</div>
-                                    <h1
-                                        className="m-0 text-6xl font-bold"
-                                        style={{
-                                            background: 'linear-gradient(110.43deg, #868cd0 0.04%, #ff5759 100.11%); background-clip: text; -webkit-background-clip: text; color: transparent'
-                                        }}
-                                    >
-                                        SHOWREELS
-                                    </h1>
-                                    <div className="mt-3 relative">
-                                        <iframe className="border-none border-round-lg z-3 max-w-full" width="600" height="400" src="https://www.youtube.com/embed/tgbNymZ7vqY" frameBorder="0" allowFullScreen></iframe>
-                                        <div className="absolute z-0" style={{ top: '-50px', left: '-50px' }}>
-                                            <img draggable={false} className="opacity-40" src="/layout/images/landing/landing-ellipse.png" alt="" />
-                                        </div>
-                                        <div className="absolute z-0" style={{ bottom: '-50px', right: '-50px', filter: 'blur(4px)' }}>
-                                            <img draggable="false" className="opacity-40" src="/layout/images/landing/landing-ellipse2.png" alt="" />
-                                        </div>
-                                        <div className="absolute z-0" style={{ bottom: '-50px', right: '10px', filter: 'blur(4px)' }}>
-                                            <img draggable="false" className="opacity-40" src="/layout/images/landing/landing-ellipse2.png" alt="" />
-                                        </div>
-                                    </div>
-                                </div>
-                                <div className="py-6 px-4 mt-6 w-full flex justify-content-center">
-                                    <div
-                                        className="p-5 flex flex-column gap-3 align-items-start justify-content-between lg:flex-row lg:align-items-center border-round-2xl w-full"
-                                        style={{
-                                            background: 'linear-gradient(110.43deg, #868cd0 0.04%, #ff5759 100.11%)',
-                                            maxWidth: '1200px'
-                                        }}
-                                    >
-                                        <div className="flex flex-column gap-2">
-                                            <h1 className="m-0 text-white font-bold text-2xl">NEWSLETTER</h1>
-                                            <p className="m-0 text-white">Sign up for our newsletter and stay up-to-date on the latest features and updates for our platform.</p>
-                                        </div>
-                                        <div className="flex align-items-center gap-2">
-                                            <InputText placeholder="Email Address" className={classNames('bg-transparent border-white border-round-md', styles['p-inputtext'])} />
-                                            <Button text className={classNames('text-white border-1 border-white border-round-md h-full', styles['p-button'], styles['join-button'])} label="JOIN" />
-                                        </div>
-                                    </div>
-                                </div>
-                                <div className="w-full px-4" style={{ maxWidth: '1200px' }}>
-                                    <div className="grid gap-3 lg:gap-0 lg:grid-nogutter pb-6">
-                                        <div className="col-12 lg:col-3">
-                                            <div className="w-full text-white flex flex-column gap-3">
-                                                <h1 className="m-0 font-medium text-sm text-500">CONTACT US</h1>
-                                                <div className="flex gap-5">
-                                                    <a href="#">
-                                                        <i className="pi pi-github text-white text-2xl"></i>
-                                                    </a>
-                                                    <a href="#">
-                                                        <i className="pi pi-twitter text-white text-2xl"></i>
-                                                    </a>
-                                                    <a href="#">
-                                                        <i className="pi pi-linkedin text-white text-2xl"></i>
-                                                    </a>
-                                                </div>
-                                                <p className="m-0 text-base lg:text-sm">
-                                                    (415) 931-1624 794 Mcallister <br />
-                                                    St San Francisco, 94102
-                                                </p>
-                                                <span className="text-base lg:text-sm">©Copyright 202X</span>
-                                            </div>
-                                        </div>
-                                        <div className="col-12 lg:col-3">
-                                            <div className="w-full text-white flex flex-column gap-3">
-                                                <h1 className="m-0 font-medium text-sm text-500">ABOUT US</h1>
-                                                <a href="#">
-                                                    <span className="text-base lg:text-sm block text-white">Our Values</span>
-                                                </a>
-                                                <a href="#">
-                                                    <span className="text-base lg:text-sm block text-white">Our Team</span>
-                                                </a>
-                                                <a href="#">
-                                                    <span className="text-base lg:text-sm block text-white">Our History</span>
-                                                </a>
-                                                <a href="#">
-                                                    <span className="text-base lg:text-sm block text-white">Career & Join Us</span>
-                                                </a>
-                                            </div>
-                                        </div>
-                                        <div className="col-12 lg:col-3">
-                                            <div className="w-full text-white flex flex-column gap-3">
-                                                <h1 className="m-0 font-medium text-sm text-500">SITE MAP</h1>
-                                                <a href="#">
-                                                    <span className="text-base lg:text-sm block text-white">Dashboard</span>
-                                                </a>
-                                                <a href="#">
-                                                    <span className="text-base lg:text-sm block text-white">CRUD</span>
-                                                </a>
-                                                <a href="#">
-                                                    <span className="text-base lg:text-sm block text-white">Invoice</span>
-                                                </a>
-                                                <a href="#">
-                                                    <span className="text-base lg:text-sm block text-white">Help </span>
-                                                </a>
-                                            </div>
-                                        </div>
-                                        <div className="col-12 lg:col-3">
-                                            <div className="w-full text-white flex flex-column gap-3">
-                                                <h1 className="m-0 font-medium text-sm text-500">CALENDAR</h1>
-                                                <a href="#">
-                                                    <span className="text-base lg:text-sm block text-white">Widgets</span>
-                                                </a>
-                                                <a href="#">
-                                                    <span className="text-base lg:text-sm block text-white">Documentation</span>
-                                                </a>
-                                                <a href="#">
-                                                    <span className="text-base lg:text-sm block text-white">Buy Now</span>
-                                                </a>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                )}
+
+                <h3 className="text-2xl mb-2">{item.title || 'Chương trình học'}</h3>
+
+                <p className="text-600 line-height-3">
+                    {item.detail || 'Hoạt động học tập vui nhộn và phù hợp với trẻ mầm non.'}
+                </p>
+
+                <Button label="Xem chi tiết" rounded text style={{ color: COLORS.pink, fontWeight: 700 }} />
             </div>
         </div>
     );
-};
 
-export default LandingPage;
+    const teacherTemplate = (teacher: any) => (
+        <div className="p-3">
+            <div
+                className="card text-center h-full"
+                style={{
+                    borderRadius: 32,
+                    minHeight: 350,
+                    background: 'linear-gradient(180deg,#ffffff 0%,#fff0f7 100%)',
+                    border: '3px solid #ffd6e8',
+                    boxShadow: '0 16px 35px rgba(25,199,159,.16)'
+                }}
+            >
+                {teacher.profile_image_url ? (
+                    <img
+                        src={teacher.profile_image_url}
+                        alt={teacher.full_name || 'Giáo viên'}
+                        style={{
+                            width: '100%',
+                            height: 235,
+                            objectFit: 'cover',
+                            borderRadius: 26
+                        }}
+                    />
+                ) : (
+                    <div
+                        className="mx-auto mb-4 border-circle flex align-items-center justify-content-center"
+                        style={{
+                            width: 145,
+                            height: 145,
+                            background: COLORS.lightPink,
+                            color: COLORS.pink,
+                            border: '6px solid #fff'
+                        }}
+                    >
+                        <i className="pi pi-heart-fill text-5xl" />
+                    </div>
+                )}
+
+                <h3 className="mb-1 text-2xl">{teacher.full_name || 'Giáo viên'}</h3>
+                <p className="text-600 m-0">{teacher.role || 'Giáo viên mầm non'}</p>
+            </div>
+        </div>
+    );
+
+    return (
+        <div style={{ background: COLORS.cream, color: '#263238', overflow: 'hidden' }}>
+            <Toast ref={toast} />
+
+            <header
+                className="fixed top-0 left-0 right-0 z-5"
+                style={{
+                    background: 'rgba(255,255,255,.94)',
+                    backdropFilter: 'blur(12px)',
+                    borderBottom: '1px solid #ffe0ed'
+                }}
+            >
+                <div className="flex align-items-center justify-content-between px-4 py-3" style={sectionStyle}>
+                    <div className="flex align-items-center gap-2">
+                        <div
+                            className="border-circle flex align-items-center justify-content-center"
+                            style={{
+                                width: 46,
+                                height: 46,
+                                background: `linear-gradient(135deg,${COLORS.yellow},${COLORS.pink})`,
+                                color: '#fff'
+                            }}
+                        >
+                            <i className="pi pi-sun text-xl" />
+                        </div>
+
+                        <div>
+                            <div className="font-bold text-2xl">Mầm Non Nắng Hồng</div>
+                            <div className="text-sm font-semibold" style={{ color: COLORS.green }}>
+                                Nơi bé học vui mỗi ngày
+                            </div>
+                        </div>
+                    </div>
+
+                    <nav className="hidden md:flex gap-4 align-items-center font-semibold">
+                        <button className="p-link" onClick={() => scrollTo('home')}>Trang chủ</button>
+                        <button className="p-link" onClick={() => scrollTo('about')}>Giới thiệu</button>
+                        <button className="p-link" onClick={() => scrollTo('programs')}>Chương trình</button>
+                        <button className="p-link" onClick={() => scrollTo('news')}>Tin tức</button>
+                        <button className="p-link" onClick={() => scrollTo('contact')}>Liên hệ</button>
+                    </nav>
+
+                    <Button label="Đăng ký ngay" rounded style={buttonPink} onClick={() => scrollTo('apply')} />
+                </div>
+            </header>
+
+            <main id="home" style={{ paddingTop: 84 }}>
+                <section
+                    className="px-4 py-8 relative"
+                    style={{
+                        background: `linear-gradient(135deg, ${COLORS.lightPink} 0%, ${COLORS.lightYellow} 48%, ${COLORS.lightGreen} 100%)`
+                    }}
+                >
+                    <DecorativeBubble style={{ width: 260, height: 260, background: COLORS.pink, top: -90, right: -80 }} />
+                    <DecorativeBubble style={{ width: 160, height: 160, background: COLORS.blue, bottom: 30, left: -50 }} />
+                    <DecorativeBubble style={{ width: 90, height: 90, background: COLORS.yellow, top: 140, left: '48%' }} />
+
+                    <div className="grid align-items-center relative z-1" style={sectionStyle}>
+                        <div className="col-12 lg:col-6">
+                            <div
+                                className="inline-block px-4 py-2 border-round-3xl font-bold mb-3"
+                                style={{ background: '#fff', color: COLORS.pink, boxShadow: '0 8px 18px rgba(255,95,162,.18)' }}
+                            >
+                                🌞 Trường Mầm Non Nắng Hồng
+                            </div>
+
+                            <h1 className="m-0 mb-4" style={titleStyle}>
+                                Mỗi ngày đến trường là một ngày vui
+                            </h1>
+
+                            <p className="text-xl line-height-3 text-700 mb-5">
+                                Môi trường học tập ấm áp, an toàn, nhiều màu sắc và tràn đầy yêu thương cho các bé.
+                            </p>
+
+                            <div className="flex gap-3 flex-wrap">
+                                <Button label="Tuyển sinh" rounded icon="pi pi-send" style={buttonYellow} onClick={() => scrollTo('apply')} />
+                                <Button
+                                    label="Xem chương trình"
+                                    rounded
+                                    outlined
+                                    icon="pi pi-arrow-right"
+                                    style={{ color: COLORS.pink, borderColor: COLORS.pink, fontWeight: 700 }}
+                                    onClick={() => scrollTo('programs')}
+                                />
+                            </div>
+                        </div>
+
+                        <div className="col-12 lg:col-6">
+                            <div
+                                className="relative overflow-hidden"
+                                style={{
+                                    borderRadius: '45% 55% 48% 52%',
+                                    border: '12px solid #ffffff',
+                                    boxShadow: '0 24px 60px rgba(255,95,162,.25)'
+                                }}
+                            >
+                                <img
+                                    src={latestVideo ? normalizeDriveThumbnailUrl(latestVideo.thumbnail_image_url) : '/layout/images/landing/landing-hero-image.jpg'}
+                                    alt="Mầm Non Nắng Hồng"
+                                    style={{ width: '100%', height: 450, objectFit: 'cover', display: 'block' }}
+                                />
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section id="programs" className="px-4 py-8 bg-white">
+                    <div style={sectionStyle}>
+                        <SectionTitle
+                            badge="Our Programs"
+                            title="Chương trình học vui nhộn"
+                            desc="Các hoạt động học tập, vui chơi, vận động và sáng tạo dành cho trẻ mầm non."
+                        />
+
+                        <Carousel
+                            value={displayPrograms}
+                            numVisible={3}
+                            numScroll={1}
+                            circular
+                            autoplayInterval={3000}
+                            showIndicators
+                            showNavigators
+                            responsiveOptions={[
+                                { breakpoint: '1024px', numVisible: 2, numScroll: 1 },
+                                { breakpoint: '768px', numVisible: 1, numScroll: 1 }
+                            ]}
+                            itemTemplate={programTemplate}
+                        />
+                    </div>
+                </section>
+
+                <section id="about" className="px-4 py-8 relative" style={{ background: COLORS.lightGreen }}>
+                    <DecorativeBubble style={{ width: 180, height: 180, background: COLORS.yellow, top: 40, right: -50 }} />
+
+                    <div className="grid align-items-center relative z-1" style={sectionStyle}>
+                        <div className="col-12 lg:col-6">
+                            <div
+                                className="overflow-hidden"
+                                style={{
+                                    borderRadius: '45% 55% 55% 45%',
+                                    border: '10px solid #fff',
+                                    boxShadow: '0 18px 40px rgba(25,199,159,.2)'
+                                }}
+                            >
+                                <img
+                                    src="/layout/images/landing/landing-hero-image.jpg"
+                                    alt="Giới thiệu Mầm Non Nắng Hồng"
+                                    style={{ width: '100%', height: 380, objectFit: 'cover', display: 'block' }}
+                                />
+                            </div>
+                        </div>
+
+                        <div className="col-12 lg:col-6">
+                            <h2 className="m-0 mb-3" style={{ ...titleStyle, fontSize: 'clamp(2.2rem, 4vw, 4.2rem)' }}>
+                                Mỗi bé đều là một mặt trời nhỏ cần được yêu thương.
+                            </h2>
+
+                            <p className="text-700 text-lg line-height-3">
+                                {siteContent?.about_section_quote || 'Đội ngũ giáo viên tận tâm đồng hành cùng bé trong từng bước phát triển.'}
+                            </p>
+
+                            <div className="grid mt-4">
+                                {[
+                                    { value: siteContent?.stat_years_experience || '14+', label: 'Năm kinh nghiệm', color: COLORS.green },
+                                    { value: siteContent?.stat_students_info || '500+', label: 'Học sinh mỗi năm', color: COLORS.yellow },
+                                    { value: siteContent?.stat_awards_info || '20+', label: 'Thành tích', color: COLORS.pink }
+                                ].map((item) => (
+                                    <div key={item.label} className="col-4">
+                                        <div className="card text-center h-full" style={{ borderRadius: 22 }}>
+                                            <div className="font-bold text-4xl" style={{ color: item.color }}>{item.value}</div>
+                                            <div className="text-600 mt-2">{item.label}</div>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section className="px-4 py-8 bg-white">
+                    <div style={sectionStyle}>
+                        <SectionTitle
+                            badge="Teachers"
+                            title="Đội ngũ giáo viên"
+                            desc="Các cô giáo yêu trẻ, tận tâm và luôn tạo cảm giác an toàn cho bé."
+                        />
+
+                        <Carousel
+                            value={displayTeachers}
+                            numVisible={4}
+                            numScroll={1}
+                            circular
+                            autoplayInterval={2500}
+                            showIndicators
+                            showNavigators
+                            responsiveOptions={[
+                                { breakpoint: '1024px', numVisible: 2, numScroll: 1 },
+                                { breakpoint: '768px', numVisible: 1, numScroll: 1 }
+                            ]}
+                            itemTemplate={teacherTemplate}
+                        />
+                    </div>
+                </section>
+
+                <section id="video" className="px-4 py-8" style={{ background: `linear-gradient(135deg,${COLORS.green},${COLORS.blue})` }}>
+                    <div className="grid align-items-center text-white" style={sectionStyle}>
+                        <div className="col-12 lg:col-5">
+                            <h2 className="m-0 mb-3" style={{ ...titleStyle, fontSize: 'clamp(2.2rem, 4vw, 4rem)' }}>Video giới thiệu</h2>
+                            <p className="text-lg line-height-3">Cùng nhìn lại môi trường học tập vui tươi tại Mầm Non Nắng Hồng.</p>
+
+                            {latestVideo ? (
+                                <Button
+                                    label="Mở video"
+                                    rounded
+                                    severity="warning"
+                                    icon="pi pi-play"
+                                    onClick={() => window.open(normalizeDriveVideoUrl(latestVideo.video_url), '_blank')}
+                                />
+                            ) : null}
+                        </div>
+
+                        <div className="col-12 lg:col-7">
+                            <div className="card" style={{ borderRadius: 28 }}>
+                                {latestVideo ? (
+                                    <video
+                                        src={normalizeDriveVideoUrl(latestVideo.video_url)}
+                                        poster={normalizeDriveThumbnailUrl(latestVideo.thumbnail_image_url)}
+                                        controls
+                                        style={{ width: '100%', maxHeight: 420, borderRadius: 20, background: '#000' }}
+                                    />
+                                ) : (
+                                    <p>Chưa có video giới thiệu.</p>
+                                )}
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section id="apply" className="px-4 py-8 bg-white">
+                    <div
+                        className="text-center p-6"
+                        style={{
+                            ...sectionStyle,
+                            borderRadius: 36,
+                            background: `linear-gradient(135deg,${COLORS.lightYellow},${COLORS.lightPink})`,
+                            border: '3px dashed #ffc1dc'
+                        }}
+                    >
+                        <h2 className="m-0 mb-3" style={{ ...titleStyle, fontSize: 'clamp(2.2rem, 4vw, 4rem)' }}>Tuyển sinh năm học mới</h2>
+
+                        <p className="text-700 text-lg line-height-3">
+                            Thời gian tuyển sinh: {siteContent?.admission_period || 'Đang mở'}.
+                            Phụ huynh có thể liên hệ nhà trường để được tư vấn chi tiết.
+                        </p>
+
+                        <Button label="Liên hệ tư vấn" rounded icon="pi pi-phone" style={buttonPink} onClick={() => scrollTo('contact')} />
+                    </div>
+                </section>
+
+                <section id="news" className="px-4 py-8" style={{ background: COLORS.lightPink }}>
+                    <div style={sectionStyle}>
+                        <SectionTitle
+                            badge="News"
+                            title="Tin tức Nắng Hồng"
+                            desc="Những hoạt động và thông báo mới nhất của nhà trường."
+                        />
+
+                        <div className="grid">
+                            {latestNews.map((article) => (
+                                <div key={article.id} className="col-12 md:col-4">
+                                    <div
+                                        className="card h-full"
+                                        style={{
+                                            borderRadius: 28,
+                                            border: '3px solid #ffd6e8',
+                                            boxShadow: '0 12px 28px rgba(255,95,162,.13)'
+                                        }}
+                                    >
+                                        {article.thumbnail_url ? (
+                                            <img
+                                                src={article.thumbnail_url}
+                                                alt={article.title}
+                                                style={{ width: '100%', height: 190, objectFit: 'cover', borderRadius: 22 }}
+                                            />
+                                        ) : null}
+
+                                        <h3 className="text-2xl">{article.title}</h3>
+
+                                        <p className="text-600 line-height-3">
+                                            {article.content ? `${article.content.replace(/\s+/g, ' ').slice(0, 120)}...` : 'Chưa có nội dung.'}
+                                        </p>
+
+                                        <div className="text-sm text-500">
+                                            bởi {article.author_name || 'Admin'} · {article.Comments?.length || 0} bình luận
+                                        </div>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                </section>
+
+                <section className="px-4 py-8">
+                    <div
+                        className="p-5 text-white"
+                        style={{
+                            ...sectionStyle,
+                            borderRadius: 36,
+                            background: `linear-gradient(135deg,${COLORS.pink},${COLORS.yellow},${COLORS.green})`,
+                            boxShadow: '0 18px 45px rgba(255,95,162,.22)'
+                        }}
+                    >
+                        <div className="grid align-items-center">
+                            <div className="col-12 lg:col-6">
+                                <h2 className="text-4xl font-bold mt-0">Đăng ký nhận tin</h2>
+                                <p className="text-lg">Nhận thông tin mới nhất về tuyển sinh và hoạt động của trường.</p>
+                            </div>
+
+                            <div className="col-12 lg:col-6">
+                                <div className="flex flex-column sm:flex-row gap-2">
+                                    <InputText
+                                        value={email}
+                                        onChange={(event) => setEmail(event.target.value)}
+                                        placeholder="Email của phụ huynh"
+                                        className="w-full"
+                                    />
+
+                                    <Button label="Đăng ký" rounded severity="warning" loading={subscribing} onClick={handleSubscribe} />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </main>
+
+            <footer id="contact" className="px-4 py-6 bg-white">
+                <div className="grid" style={sectionStyle}>
+                    <div className="col-12 md:col-4">
+                        <h2>Mầm Non Nắng Hồng</h2>
+                        <p className="text-600 line-height-3">
+                            {siteContent?.footer_description || 'Nơi bé được yêu thương, vui chơi và phát triển mỗi ngày.'}
+                        </p>
+                    </div>
+
+                    <div className="col-12 md:col-4">
+                        <h3>Liên kết nhanh</h3>
+                        <p>Giới thiệu</p>
+                        <p>Chương trình</p>
+                        <p>Tin tức</p>
+                        <p>Liên hệ</p>
+                    </div>
+
+                    <div className="col-12 md:col-4">
+                        <h3>Liên hệ</h3>
+                        <p>{siteContent?.address || 'Thành phố Hồ Chí Minh'}</p>
+                        <p>{siteContent?.phone_number || '012-345-6789'}</p>
+                        <p>{siteContent?.support_email || 'support@nanghong.edu.vn'}</p>
+                    </div>
+                </div>
+            </footer>
+        </div>
+    );
+}

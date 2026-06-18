@@ -6,8 +6,8 @@ interface LandingLayoutProps {
 }
 
 export const metadata: Metadata = {
-    title: 'PrimeReact Ultima',
-    description: 'The ultimate collection of design-agnostic, flexible and accessible React UI Components.'
+    title: 'SchoolKid',
+    description: 'SchoolKid education programs for children.'
 };
 
 export default function LandingLayout({ children }: LandingLayoutProps) {
