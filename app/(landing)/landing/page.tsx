@@ -5,7 +5,7 @@ import { Button } from 'primereact/button';
 import { InputText } from 'primereact/inputtext';
 import { Toast } from 'primereact/toast';
 import { Carousel } from 'primereact/carousel';
-
+import { createApplication } from '../../../demo/service/ApplicationService';
 import { getPrograms } from '../../../demo/service/ProgramService';
 import { getNewsArticles, type NewsArticle } from '../../../demo/service/NewsArticleService';
 import {
@@ -125,7 +125,14 @@ export default function NangHongLandingPage() {
     const [siteContent, setSiteContent] = useState<SiteContent | null>(null);
     const [email, setEmail] = useState('');
     const [subscribing, setSubscribing] = useState(false);
-
+const [applying, setApplying] = useState(false);
+const [parentName, setParentName] = useState('');
+const [parentPhone, setParentPhone] = useState('');
+const [parentEmail, setParentEmail] = useState('');
+const [childName, setChildName] = useState('');
+const [childAge, setChildAge] = useState('');
+const [selectedProgramId, setSelectedProgramId] = useState('');
+const [message, setMessage] = useState('');
     useEffect(() => {
         const loadData = async () => {
             const [programData, articleData, videoData, siteData] = await Promise.all([
@@ -222,6 +229,64 @@ export default function NangHongLandingPage() {
             setSubscribing(false);
         }
     };
+    const handleApply = async () => {
+    if (!parentName.trim() || !parentPhone.trim() || !childName.trim()) {
+        toast.current?.show({
+            severity: 'warn',
+            summary: 'Thiếu thông tin',
+            detail: 'Vui lòng nhập tên phụ huynh, số điện thoại và tên bé',
+            life: 3000
+        });
+        return;
+
+    }
+    if (!selectedProgramId) {
+    toast.current?.show({
+        severity: 'warn',
+        summary: 'Thiếu chương trình',
+        detail: 'Vui lòng chọn chương trình cho bé',
+        life: 3000
+    });
+    return;
+}
+
+    try {
+        setApplying(true);
+
+       await createApplication({
+    parent_name: parentName.trim(),
+    parent_phone: parentPhone.trim(),
+    parent_email: parentEmail.trim(),
+    child_name: childName.trim(),
+    child_age: Number(childAge) || undefined,
+    program_id: Number(selectedProgramId),
+    message: message.trim()
+});
+
+        toast.current?.show({
+            severity: 'success',
+            summary: 'Đăng ký thành công',
+            detail: 'Nhà trường sẽ liên hệ phụ huynh trong thời gian sớm nhất',
+            life: 3000
+        });
+
+        setParentName('');
+        setParentPhone('');
+        setParentEmail('');
+        setChildName('');
+        setChildAge('');
+        setMessage('');
+    } catch {
+        toast.current?.show({
+            severity: 'error',
+            summary: 'Lỗi',
+            detail: 'Không thể gửi thông tin đăng ký',
+            life: 3000
+        });
+    } finally {
+        setApplying(false);
+    }
+};
 
     const programTemplate = (item: any) => (
         <div className="p-3">
@@ -555,26 +620,153 @@ export default function NangHongLandingPage() {
                     </div>
                 </section>
 
-                <section id="apply" className="px-4 py-8 bg-white">
-                    <div
-                        className="text-center p-6"
-                        style={{
-                            ...sectionStyle,
-                            borderRadius: 36,
-                            background: `linear-gradient(135deg,${COLORS.lightYellow},${COLORS.lightPink})`,
-                            border: '3px dashed #ffc1dc'
-                        }}
-                    >
-                        <h2 className="m-0 mb-3" style={{ ...titleStyle, fontSize: 'clamp(2.2rem, 4vw, 4rem)' }}>Tuyển sinh năm học mới</h2>
+<section id="apply" className="px-4 py-8 bg-white">
+    <div
+        className="p-5"
+        style={{
+            ...sectionStyle,
+            borderRadius: 36,
+            background: `linear-gradient(135deg,${COLORS.lightYellow},${COLORS.lightPink})`,
+            border: '3px dashed #ffc1dc',
+            boxShadow: '0 18px 45px rgba(255,95,162,.16)'
+        }}
+    >
+        <div className="grid align-items-center">
+            <div className="col-12 lg:col-5">
+                <div
+                    className="inline-block px-4 py-2 border-round-3xl font-bold mb-3"
+                    style={{ background: '#fff', color: COLORS.pink }}
+                >
+                    Tuyển sinh
+                </div>
 
-                        <p className="text-700 text-lg line-height-3">
-                            Thời gian tuyển sinh: {siteContent?.admission_period || 'Đang mở'}.
-                            Phụ huynh có thể liên hệ nhà trường để được tư vấn chi tiết.
-                        </p>
+                <h2
+                    className="m-0 mb-3"
+                    style={{
+                        ...titleStyle,
+                        fontSize: 'clamp(2.2rem, 4vw, 4rem)'
+                    }}
+                >
+                    Đăng ký tư vấn cho bé
+                </h2>
 
-                        <Button label="Liên hệ tư vấn" rounded icon="pi pi-phone" style={buttonPink} onClick={() => scrollTo('contact')} />
+                <p className="text-700 text-lg line-height-3">
+                    Thời gian tuyển sinh:{' '}
+                    {siteContent?.admission_period || 'Đang mở'}.
+                    Phụ huynh vui lòng để lại thông tin, nhà trường sẽ liên hệ tư vấn sớm nhất.
+                </p>
+            </div>
+
+            <div className="col-12 lg:col-7">
+                <div className="card" style={{ borderRadius: 28 }}>
+                    <div className="grid">
+                        <div className="col-12 md:col-6">
+                            <label className="block mb-2 font-bold">
+                                Tên phụ huynh *
+                            </label>
+                            <InputText
+                                value={parentName}
+                                onChange={(event) => setParentName(event.target.value)}
+                                className="w-full"
+                                placeholder="Nguyễn Văn A"
+                            />
+                        </div>
+
+                        <div className="col-12 md:col-6">
+                            <label className="block mb-2 font-bold">
+                                Số điện thoại *
+                            </label>
+                            <InputText
+                                value={parentPhone}
+                                onChange={(event) => setParentPhone(event.target.value)}
+                                className="w-full"
+                                placeholder="090..."
+                            />
+                        </div>
+
+                        <div className="col-12 md:col-6">
+                            <label className="block mb-2 font-bold">
+                                Email
+                            </label>
+                            <InputText
+                                value={parentEmail}
+                                onChange={(event) => setParentEmail(event.target.value)}
+                                className="w-full"
+                                placeholder="phuhuynh@email.com"
+                            />
+                        </div>
+
+                        <div className="col-12 md:col-6">
+                            <label className="block mb-2 font-bold">
+                                Tên bé *
+                            </label>
+                            <InputText
+                                value={childName}
+                                onChange={(event) => setChildName(event.target.value)}
+                                className="w-full"
+                                placeholder="Tên của bé"
+                            />
+                        </div>
+
+                        <div className="col-12 md:col-6">
+                            <label className="block mb-2 font-bold">
+                                Tuổi của bé
+                            </label>
+                            <InputText
+                                value={childAge}
+                                onChange={(event) => setChildAge(event.target.value)}
+                                className="w-full"
+                                placeholder="3"
+                            />
+                        </div>
+                        <div className="col-12 md:col-6"></div>
+<div className="col-12 md:col-6">
+    <label className="block mb-2 font-bold">
+        Chương trình *
+    </label>
+
+    <select
+        value={selectedProgramId}
+        onChange={(event) => setSelectedProgramId(event.target.value)}
+        className="w-full p-inputtext p-component"
+    >
+        <option value="">Chọn chương trình</option>
+
+        {programs.map((program) => (
+            <option key={program.id} value={program.id}>
+                {program.name}
+            </option>
+        ))}
+    </select>
+</div>
+                        <div className="col-12">
+                            <label className="block mb-2 font-bold">
+                                Lời nhắn
+                            </label>
+                            <InputText
+                                value={message}
+                                onChange={(event) => setMessage(event.target.value)}
+                                className="w-full"
+                                placeholder="Phụ huynh cần tư vấn lớp học, học phí..."
+                            />
+                        </div>
+
+                        <div className="col-12">
+                            <Button
+                                label="Gửi đăng ký"
+                                icon="pi pi-send"
+                                rounded
+                                loading={applying}
+                                style={buttonPink}
+                                onClick={handleApply}
+                            />
+                        </div>
                     </div>
-                </section>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
 
                 <section id="news" className="px-4 py-8" style={{ background: COLORS.lightPink }}>
                     <div style={sectionStyle}>

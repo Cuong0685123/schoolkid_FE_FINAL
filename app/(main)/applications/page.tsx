@@ -88,16 +88,17 @@ const formatFieldValue = (
     }
 
     if (typeof value === 'object') {
-        const objectValue = value as any;
+    const objectValue = value as any;
 
-        return (
-            objectValue.name ||
-            objectValue.title ||
-            objectValue.full_name ||
-            objectValue.id ||
-            '-'
-        );
-    }
+    return (
+        objectValue.name ||
+        objectValue.title ||
+        objectValue.description ||
+        objectValue.full_name ||
+        objectValue.id ||
+        '-'
+    );
+}
 
     return String(value);
 };
@@ -176,15 +177,16 @@ const ApplicationsPage = () => {
     );
 
     const detailEntries = selectedApplication
-        ? Object.entries(selectedApplication).filter(
-              ([key, value]) =>
-                  key !== 'createdAt' &&
-                  key !== 'updatedAt' &&
-                  value !== undefined &&
-                  value !== null &&
-                  value !== ''
-          )
-        : [];
+    ? Object.entries(selectedApplication).filter(
+          ([key, value]) =>
+              key !== 'createdAt' &&
+              key !== 'updatedAt' &&
+              key !== 'program_id' &&
+              value !== undefined &&
+              value !== null &&
+              value !== ''
+      )
+    : [];
 
     const onGlobalFilterChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { value } = e.target;
@@ -249,6 +251,11 @@ const updatedApplication =
             setSavingStatus(false);
         }
     };
+const programBodyTemplate = (rowData: any) => {
+    console.log('PROGRAM CELL DATA:', rowData.Program);
+
+    return rowData.Program?.name || `Program ID ${rowData.program_id || '-'}`;
+};
 
     const header = (
         <div className="flex flex-column gap-3 md:flex-row md:align-items-center md:justify-content-between">
@@ -300,9 +307,15 @@ const updatedApplication =
                         <Column field="parent_name" header="Parent" sortable style={{ minWidth: '12rem' }} />
                         <Column field="parent_email" header="Email" sortable style={{ minWidth: '16rem' }} />
                         <Column field="child_name" header="Child" sortable style={{ minWidth: '12rem' }} />
+                       <Column
+    header="Program"
+    body={(rowData: any) => programBodyTemplate(rowData)}
+    style={{ minWidth: '14rem' }}
+/>
                         <Column field="status" header="Status" body={statusBodyTemplate} sortable style={{ minWidth: '10rem' }} />
                         <Column field="submitted_at" header="Submitted" body={submittedAtBodyTemplate} sortable style={{ minWidth: '12rem' }} />
                         <Column header="Action" body={actionBodyTemplate} style={{ minWidth: '10rem' }} frozen alignFrozen="right" />
+                        
                     </DataTable>
                 </div>
             </div>
