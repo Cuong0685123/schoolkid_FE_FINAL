@@ -16,7 +16,7 @@ import {
 } from '../../../demo/service/PromotionalVideoService';
 import { createNewsletterSubscriber } from '../../../demo/service/NewsletterService';
 import { getSiteContents, type SiteContent } from '../../../demo/service/SiteContentService';
-
+import { useRouter } from 'next/navigation';
 type ProgramRow = {
     id: number | string;
     name?: string;
@@ -118,7 +118,7 @@ const DecorativeBubble = ({
 
 export default function NangHongLandingPage() {
     const toast = useRef<Toast>(null);
-
+const router = useRouter();
     const [programs, setPrograms] = useState<ProgramRow[]>([]);
     const [articles, setArticles] = useState<NewsArticle[]>([]);
     const [videos, setVideos] = useState<PromotionalVideo[]>([]);
@@ -333,7 +333,15 @@ const [message, setMessage] = useState('');
                     {item.detail || 'Hoạt động học tập vui nhộn và phù hợp với trẻ mầm non.'}
                 </p>
 
-                <Button label="Xem chi tiết" rounded text style={{ color: COLORS.pink, fontWeight: 700 }} />
+                <Button
+    label="Xem chi tiết"
+    rounded
+    text
+    style={{ color: COLORS.pink }}
+    onClick={() =>
+        router.push(`/landing/programs/${item.program_id || item.id}`)
+    }
+/>
             </div>
         </div>
     );
