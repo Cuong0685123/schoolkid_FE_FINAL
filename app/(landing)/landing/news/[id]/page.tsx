@@ -5,6 +5,18 @@ import { useParams, useRouter } from 'next/navigation';
 import { Button } from 'primereact/button';
 import { getNewsArticleById } from '../../../../../demo/service/NewsArticleService';
 
+
+
+
+const normalizeDriveThumbnailUrl = (url?: string) => {
+    if (!url) return '';
+
+    const match = url.match(/id=([^&]+)/);
+
+    if (!match) return url;
+
+    return `https://drive.google.com/thumbnail?id=${match[1]}&sz=w1000`;
+};
 export default function NewsDetailPage() {
     const params = useParams();
     const router = useRouter();
@@ -80,7 +92,7 @@ export default function NewsDetailPage() {
                 >
                     {article.thumbnail_url && (
                         <img
-                            src={article.thumbnail_url}
+                           src={normalizeDriveThumbnailUrl(article.thumbnail_url)}
                             alt={article.title}
                             style={{
                                 width: '100%',

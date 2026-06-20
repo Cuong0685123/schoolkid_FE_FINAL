@@ -160,7 +160,16 @@ const [message, setMessage] = useState('');
 
     const featuredPrograms = getProgramChildren(programs);
     const teachers = getTeachers(programs);
-    const latestNews = articles.slice(0, 3);
+    const normalizeDriveThumbnailUrl = (url?: string) => {
+    if (!url) return '';
+
+    const match = url.match(/id=([^&]+)/);
+
+    if (!match) return url;
+
+    return `https://drive.google.com/thumbnail?id=${match[1]}&sz=w1000`;
+};
+    const latestNews = articles;
     const latestVideo = videos[0];
 
     const displayPrograms =
@@ -797,7 +806,7 @@ const [message, setMessage] = useState('');
                                     >
                                         {article.thumbnail_url ? (
                                             <img
-                                                src={article.thumbnail_url}
+                                                src={normalizeDriveThumbnailUrl(article.thumbnail_url)}
                                                 alt={article.title}
                                                 style={{ width: '100%', height: 190, objectFit: 'cover', borderRadius: 22 }}
                                             />
