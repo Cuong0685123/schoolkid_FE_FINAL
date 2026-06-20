@@ -11,6 +11,8 @@ export type SiteContent = {
     stat_awards_info?: string;
     footer_description?: string;
     about_section_quote?: string;
+    hero_image_url?: string;
+about_image_url?: string;
 };
 
 export type SiteContentPayload = {
@@ -24,6 +26,8 @@ export type SiteContentPayload = {
     stat_awards_info?: string;
     footer_description?: string;
     about_section_quote?: string;
+    hero_image_url?: string;
+about_image_url?: string;
 };
 
 export const getSiteContents = async (): Promise<SiteContent[]> => {

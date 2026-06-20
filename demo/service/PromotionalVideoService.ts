@@ -39,6 +39,27 @@ export const normalizeDriveThumbnailUrl = (url?: string) => {
     return `https://drive.google.com/thumbnail?id=${fileId}&sz=w1000`;
 };
 
+export const getYoutubeEmbedUrl = (url?: string) => {
+    if (!url) return '';
+
+    const watchMatch = url.match(/v=([^&]+)/);
+    if (watchMatch) {
+        return `https://www.youtube.com/embed/${watchMatch[1]}`;
+    }
+
+    const shortMatch = url.match(/youtu\.be\/([^?]+)/);
+    if (shortMatch) {
+        return `https://www.youtube.com/embed/${shortMatch[1]}`;
+    }
+
+    const embedMatch = url.match(/youtube\.com\/embed\/([^?]+)/);
+    if (embedMatch) {
+        return `https://www.youtube.com/embed/${embedMatch[1]}`;
+    }
+
+    return '';
+};
+
 export const getPromotionalVideos = async (): Promise<PromotionalVideo[]> => {
     const response = await fetch(`${API_URL}/api/promotional-videos`, {
         method: 'GET',

@@ -12,11 +12,13 @@ import {
     getPromotionalVideos,
     normalizeDriveThumbnailUrl,
     normalizeDriveVideoUrl,
+    getYoutubeEmbedUrl,
     type PromotionalVideo
 } from '../../../demo/service/PromotionalVideoService';
 import { createNewsletterSubscriber } from '../../../demo/service/NewsletterService';
 import { getSiteContents, type SiteContent } from '../../../demo/service/SiteContentService';
 import { useRouter } from 'next/navigation';
+import { landingText } from './lang';
 type ProgramRow = {
     id: number | string;
     name?: string;
@@ -118,21 +120,23 @@ const DecorativeBubble = ({
 
 export default function NangHongLandingPage() {
     const toast = useRef<Toast>(null);
-const router = useRouter();
+    const router = useRouter();
+    const [lang, setLang] = useState<'vi' | 'en'>('vi');
+    const t = landingText[lang];
     const [programs, setPrograms] = useState<ProgramRow[]>([]);
     const [articles, setArticles] = useState<NewsArticle[]>([]);
     const [videos, setVideos] = useState<PromotionalVideo[]>([]);
     const [siteContent, setSiteContent] = useState<SiteContent | null>(null);
     const [email, setEmail] = useState('');
     const [subscribing, setSubscribing] = useState(false);
-const [applying, setApplying] = useState(false);
-const [parentName, setParentName] = useState('');
-const [parentPhone, setParentPhone] = useState('');
-const [parentEmail, setParentEmail] = useState('');
-const [childName, setChildName] = useState('');
-const [childAge, setChildAge] = useState('');
-const [selectedProgramId, setSelectedProgramId] = useState('');
-const [message, setMessage] = useState('');
+    const [applying, setApplying] = useState(false);
+    const [parentName, setParentName] = useState('');
+    const [parentPhone, setParentPhone] = useState('');
+    const [parentEmail, setParentEmail] = useState('');
+    const [childName, setChildName] = useState('');
+    const [childAge, setChildAge] = useState('');
+    const [selectedProgramId, setSelectedProgramId] = useState('');
+    const [message, setMessage] = useState('');
     useEffect(() => {
         const loadData = async () => {
             const [programData, articleData, videoData, siteData] = await Promise.all([
@@ -152,7 +156,7 @@ const [message, setMessage] = useState('');
             toast.current?.show({
                 severity: 'error',
                 summary: 'Error',
-                detail: 'Không tải được dữ liệu trang chủ',
+                detail: t.loadError,
                 life: 3000
             });
         });
@@ -160,16 +164,7 @@ const [message, setMessage] = useState('');
 
     const featuredPrograms = getProgramChildren(programs);
     const teachers = getTeachers(programs);
-    const normalizeDriveThumbnailUrl = (url?: string) => {
-    if (!url) return '';
-
-    const match = url.match(/id=([^&]+)/);
-
-    if (!match) return url;
-
-    return `https://drive.google.com/thumbnail?id=${match[1]}&sz=w1000`;
-};
-    const latestNews = articles;
+    const latestNews = articles.slice(0, 3);
     const latestVideo = videos[0];
 
     const displayPrograms =
@@ -178,20 +173,20 @@ const [message, setMessage] = useState('');
             : [
                   {
                       id: 'p1',
-                      title: 'Lớp học vui',
-                      detail: 'Các hoạt động học tập nhẹ nhàng, giúp bé làm quen với môi trường lớp học.',
+                      title: t.fallbackProgramTitle1,
+                      detail: t.fallbackProgramDetail1,
                       thumbnail_url: ''
                   },
                   {
                       id: 'p2',
-                      title: 'Lớp vận động',
-                      detail: 'Các trò chơi vận động giúp bé khỏe mạnh, nhanh nhẹn và tự tin hơn.',
+                      title: t.fallbackProgramTitle2,
+                      detail: t.fallbackProgramDetail2,
                       thumbnail_url: ''
                   },
                   {
                       id: 'p3',
-                      title: 'Lớp sáng tạo',
-                      detail: 'Hoạt động vẽ, âm nhạc và thủ công giúp bé phát triển trí tưởng tượng.',
+                      title: t.fallbackProgramTitle3,
+                      detail: t.fallbackProgramDetail3,
                       thumbnail_url: ''
                   }
               ];
@@ -200,10 +195,10 @@ const [message, setMessage] = useState('');
         teachers.length > 0
             ? teachers
             : [
-                  { id: 't1', full_name: 'Cô Nắng Hồng', role: 'Giáo viên mầm non', profile_image_url: '' },
-                  { id: 't2', full_name: 'Cô Hoa Mai', role: 'Giáo viên năng khiếu', profile_image_url: '' },
-                  { id: 't3', full_name: 'Cô Ánh Dương', role: 'Giáo viên chăm sóc trẻ', profile_image_url: '' },
-                  { id: 't4', full_name: 'Cô Bích Ngọc', role: 'Giáo viên lớp mẫu giáo', profile_image_url: '' }
+                  { id: 't1', full_name: t.fallbackTeacher1, role: t.kindergartenTeacher, profile_image_url: '' },
+                  { id: 't2', full_name: t.fallbackTeacher2, role: t.talentTeacher, profile_image_url: '' },
+                  { id: 't3', full_name: t.fallbackTeacher3, role: t.careTeacher, profile_image_url: '' },
+                  { id: 't4', full_name: t.fallbackTeacher4, role: t.classTeacher, profile_image_url: '' }
               ];
 
     const scrollTo = (id: string) => {
@@ -223,15 +218,15 @@ const [message, setMessage] = useState('');
 
             toast.current?.show({
                 severity: 'success',
-                summary: 'Đăng ký thành công',
-                detail: 'Cảm ơn bạn đã theo dõi Mầm Non Nắng Hồng',
+                summary: t.subscribeSuccessSummary,
+                detail: t.subscribeSuccessDetail,
                 life: 3000
             });
         } catch {
             toast.current?.show({
                 severity: 'error',
-                summary: 'Lỗi',
-                detail: 'Không thể đăng ký newsletter',
+                summary: t.errorSummary,
+                detail: t.subscribeError,
                 life: 3000
             });
         } finally {
@@ -242,8 +237,8 @@ const [message, setMessage] = useState('');
     if (!parentName.trim() || !parentPhone.trim() || !childName.trim()) {
         toast.current?.show({
             severity: 'warn',
-            summary: 'Thiếu thông tin',
-            detail: 'Vui lòng nhập tên phụ huynh, số điện thoại và tên bé',
+            summary: t.applyMissingSummary,
+            detail: t.applyMissingDetail,
             life: 3000
         });
         return;
@@ -252,8 +247,8 @@ const [message, setMessage] = useState('');
     if (!selectedProgramId) {
     toast.current?.show({
         severity: 'warn',
-        summary: 'Thiếu chương trình',
-        detail: 'Vui lòng chọn chương trình cho bé',
+        summary: t.applyMissingProgramSummary,
+        detail: t.applyMissingProgramDetail,
         life: 3000
     });
     return;
@@ -274,8 +269,8 @@ const [message, setMessage] = useState('');
 
         toast.current?.show({
             severity: 'success',
-            summary: 'Đăng ký thành công',
-            detail: 'Nhà trường sẽ liên hệ phụ huynh trong thời gian sớm nhất',
+            summary: t.applySuccessSummary,
+            detail: t.applySuccessDetail,
             life: 3000
         });
 
@@ -288,8 +283,8 @@ const [message, setMessage] = useState('');
     } catch {
         toast.current?.show({
             severity: 'error',
-            summary: 'Lỗi',
-            detail: 'Không thể gửi thông tin đăng ký',
+            summary: t.errorSummary,
+            detail: t.applyError,
             life: 3000
         });
     } finally {
@@ -312,7 +307,7 @@ const [message, setMessage] = useState('');
                 {item.thumbnail_url ? (
                     <img
                         src={item.thumbnail_url}
-                        alt={item.title || 'Chương trình học'}
+                        alt={item.title || t.programAlt}
                         style={{
                             width: '100%',
                             height: 170,
@@ -336,14 +331,14 @@ const [message, setMessage] = useState('');
                     </div>
                 )}
 
-                <h3 className="text-2xl mb-2">{item.title || 'Chương trình học'}</h3>
+                <h3 className="text-2xl mb-2">{item.title || t.programAlt}</h3>
 
                 <p className="text-600 line-height-3">
-                    {item.detail || 'Hoạt động học tập vui nhộn và phù hợp với trẻ mầm non.'}
+                    {item.detail || t.programFallbackDetail}
                 </p>
 
                 <Button
-    label="Xem chi tiết"
+    label={t.viewDetail}
     rounded
     text
     style={{ color: COLORS.pink }}
@@ -370,7 +365,7 @@ const [message, setMessage] = useState('');
                 {teacher.profile_image_url ? (
                     <img
                         src={teacher.profile_image_url}
-                        alt={teacher.full_name || 'Giáo viên'}
+                        alt={teacher.full_name || t.teacherAlt}
                         style={{
                             width: '100%',
                             height: 235,
@@ -393,8 +388,8 @@ const [message, setMessage] = useState('');
                     </div>
                 )}
 
-                <h3 className="mb-1 text-2xl">{teacher.full_name || 'Giáo viên'}</h3>
-                <p className="text-600 m-0">{teacher.role || 'Giáo viên mầm non'}</p>
+                <h3 className="mb-1 text-2xl">{teacher.full_name || t.teacherAlt}</h3>
+                <p className="text-600 m-0">{teacher.role || t.kindergartenTeacher}</p>
             </div>
         </div>
     );
@@ -426,22 +421,30 @@ const [message, setMessage] = useState('');
                         </div>
 
                         <div>
-                            <div className="font-bold text-2xl">Mầm Non Nắng Hồng</div>
+                            <div className="font-bold text-2xl">{t.brandName}</div>
                             <div className="text-sm font-semibold" style={{ color: COLORS.green }}>
-                                Nơi bé học vui mỗi ngày
+                                {t.slogan}
                             </div>
                         </div>
                     </div>
 
                     <nav className="hidden md:flex gap-4 align-items-center font-semibold">
-                        <button className="p-link" onClick={() => scrollTo('home')}>Trang chủ</button>
-                        <button className="p-link" onClick={() => scrollTo('about')}>Giới thiệu</button>
-                        <button className="p-link" onClick={() => scrollTo('programs')}>Chương trình</button>
-                        <button className="p-link" onClick={() => scrollTo('news')}>Tin tức</button>
-                        <button className="p-link" onClick={() => scrollTo('contact')}>Liên hệ</button>
+                        <button className="p-link" onClick={() => scrollTo('home')}>{t.navHome}</button>
+                        <button className="p-link" onClick={() => scrollTo('about')}>{t.navAbout}</button>
+                        <button className="p-link" onClick={() => scrollTo('programs')}>{t.navPrograms}</button>
+                        <button className="p-link" onClick={() => scrollTo('news')}>{t.navNews}</button>
+                        <button className="p-link" onClick={() => scrollTo('contact')}>{t.navContact}</button>
                     </nav>
 
-                    <Button label="Đăng ký ngay" rounded style={buttonPink} onClick={() => scrollTo('apply')} />
+                    <Button
+                        label={lang === 'vi' ? 'EN' : 'VI'}
+                        rounded
+                        outlined
+                        style={{ color: COLORS.pink, borderColor: COLORS.pink, fontWeight: 700 }}
+                        onClick={() => setLang(lang === 'vi' ? 'en' : 'vi')}
+                    />
+
+                    <Button label={t.applyNow} rounded style={buttonPink} onClick={() => scrollTo('apply')} />
                 </div>
             </header>
 
@@ -462,21 +465,21 @@ const [message, setMessage] = useState('');
                                 className="inline-block px-4 py-2 border-round-3xl font-bold mb-3"
                                 style={{ background: '#fff', color: COLORS.pink, boxShadow: '0 8px 18px rgba(255,95,162,.18)' }}
                             >
-                                🌞 Trường Mầm Non Nắng Hồng
+                                {t.heroBadge}
                             </div>
 
                             <h1 className="m-0 mb-4" style={titleStyle}>
-                                Mỗi ngày đến trường là một ngày vui
+                                {t.heroTitle}
                             </h1>
 
                             <p className="text-xl line-height-3 text-700 mb-5">
-                                Môi trường học tập ấm áp, an toàn, nhiều màu sắc và tràn đầy yêu thương cho các bé.
+                                {t.heroDesc}
                             </p>
 
                             <div className="flex gap-3 flex-wrap">
-                                <Button label="Tuyển sinh" rounded icon="pi pi-send" style={buttonYellow} onClick={() => scrollTo('apply')} />
+                                <Button label={t.admission} rounded icon="pi pi-send" style={buttonYellow} onClick={() => scrollTo('apply')} />
                                 <Button
-                                    label="Xem chương trình"
+                                    label={t.viewPrograms}
                                     rounded
                                     outlined
                                     icon="pi pi-arrow-right"
@@ -496,10 +499,15 @@ const [message, setMessage] = useState('');
                                 }}
                             >
                                 <img
-                                    src={latestVideo ? normalizeDriveThumbnailUrl(latestVideo.thumbnail_image_url) : '/layout/images/landing/landing-hero-image.jpg'}
-                                    alt="Mầm Non Nắng Hồng"
-                                    style={{ width: '100%', height: 450, objectFit: 'cover', display: 'block' }}
-                                />
+    src={
+        siteContent?.hero_image_url
+            ? normalizeDriveThumbnailUrl(siteContent.hero_image_url)
+            : '/layout/images/landing/landing-hero-image.jpg'
+    }
+    referrerPolicy="no-referrer"
+    alt={t.brandName}
+    style={{ width: '100%', height: 450, objectFit: 'cover', display: 'block' }}
+/>
                             </div>
                         </div>
                     </div>
@@ -508,9 +516,9 @@ const [message, setMessage] = useState('');
                 <section id="programs" className="px-4 py-8 bg-white">
                     <div style={sectionStyle}>
                         <SectionTitle
-                            badge="Our Programs"
-                            title="Chương trình học vui nhộn"
-                            desc="Các hoạt động học tập, vui chơi, vận động và sáng tạo dành cho trẻ mầm non."
+                            badge={t.programsBadge}
+                            title={t.programsTitle}
+                            desc={t.programsDesc}
                         />
 
                         <Carousel
@@ -544,27 +552,32 @@ const [message, setMessage] = useState('');
                                 }}
                             >
                                 <img
-                                    src="/layout/images/landing/landing-hero-image.jpg"
-                                    alt="Giới thiệu Mầm Non Nắng Hồng"
-                                    style={{ width: '100%', height: 380, objectFit: 'cover', display: 'block' }}
-                                />
+    src={
+        siteContent?.about_image_url
+            ? normalizeDriveThumbnailUrl(siteContent.about_image_url)
+            : '/layout/images/landing/landing-hero-image.jpg'
+    }
+    referrerPolicy="no-referrer"
+    alt={t.aboutAlt}
+    style={{ width: '100%', height: 380, objectFit: 'cover', display: 'block' }}
+/>
                             </div>
                         </div>
 
                         <div className="col-12 lg:col-6">
                             <h2 className="m-0 mb-3" style={{ ...titleStyle, fontSize: 'clamp(2.2rem, 4vw, 4.2rem)' }}>
-                                Mỗi bé đều là một mặt trời nhỏ cần được yêu thương.
+                                {t.aboutTitle}
                             </h2>
 
                             <p className="text-700 text-lg line-height-3">
-                                {siteContent?.about_section_quote || 'Đội ngũ giáo viên tận tâm đồng hành cùng bé trong từng bước phát triển.'}
+                                {siteContent?.about_section_quote || t.aboutDefaultQuote}
                             </p>
 
                             <div className="grid mt-4">
                                 {[
-                                    { value: siteContent?.stat_years_experience || '14+', label: 'Năm kinh nghiệm', color: COLORS.green },
-                                    { value: siteContent?.stat_students_info || '500+', label: 'Học sinh mỗi năm', color: COLORS.yellow },
-                                    { value: siteContent?.stat_awards_info || '20+', label: 'Thành tích', color: COLORS.pink }
+                                    { value: siteContent?.stat_years_experience || '14+', label: t.yearsExperience, color: COLORS.green },
+                                    { value: siteContent?.stat_students_info || '500+', label: t.studentsPerYear, color: COLORS.yellow },
+                                    { value: siteContent?.stat_awards_info || '20+', label: t.achievements, color: COLORS.pink }
                                 ].map((item) => (
                                     <div key={item.label} className="col-4">
                                         <div className="card text-center h-full" style={{ borderRadius: 22 }}>
@@ -581,9 +594,9 @@ const [message, setMessage] = useState('');
                 <section className="px-4 py-8 bg-white">
                     <div style={sectionStyle}>
                         <SectionTitle
-                            badge="Teachers"
-                            title="Đội ngũ giáo viên"
-                            desc="Các cô giáo yêu trẻ, tận tâm và luôn tạo cảm giác an toàn cho bé."
+                            badge={t.teachersBadge}
+                            title={t.teachersTitle}
+                            desc={t.teachersDesc}
                         />
 
                         <Carousel
@@ -606,12 +619,12 @@ const [message, setMessage] = useState('');
                 <section id="video" className="px-4 py-8" style={{ background: `linear-gradient(135deg,${COLORS.green},${COLORS.blue})` }}>
                     <div className="grid align-items-center text-white" style={sectionStyle}>
                         <div className="col-12 lg:col-5">
-                            <h2 className="m-0 mb-3" style={{ ...titleStyle, fontSize: 'clamp(2.2rem, 4vw, 4rem)' }}>Video giới thiệu</h2>
-                            <p className="text-lg line-height-3">Cùng nhìn lại môi trường học tập vui tươi tại Mầm Non Nắng Hồng.</p>
+                            <h2 className="m-0 mb-3" style={{ ...titleStyle, fontSize: 'clamp(2.2rem, 4vw, 4rem)' }}>{t.videoTitle}</h2>
+                            <p className="text-lg line-height-3">{t.videoDesc}</p>
 
                             {latestVideo ? (
                                 <Button
-                                    label="Mở video"
+                                    label={t.openVideo}
                                     rounded
                                     severity="warning"
                                     icon="pi pi-play"
@@ -620,20 +633,25 @@ const [message, setMessage] = useState('');
                             ) : null}
                         </div>
 
-                        <div className="col-12 lg:col-7">
-                            <div className="card" style={{ borderRadius: 28 }}>
-                                {latestVideo ? (
-                                    <video
-                                        src={normalizeDriveVideoUrl(latestVideo.video_url)}
-                                        poster={normalizeDriveThumbnailUrl(latestVideo.thumbnail_image_url)}
-                                        controls
-                                        style={{ width: '100%', maxHeight: 420, borderRadius: 20, background: '#000' }}
-                                    />
-                                ) : (
-                                    <p>Chưa có video giới thiệu.</p>
-                                )}
-                            </div>
-                        </div>
+                      <div className="col-12 lg:col-7">
+    <div className="card" style={{ borderRadius: 28 }}>
+        {latestVideo ? (
+            <iframe
+                src={getYoutubeEmbedUrl(latestVideo.video_url)}
+                title={latestVideo.title}
+                allowFullScreen
+                style={{
+                    width: '100%',
+                    height: 420,
+                    border: 'none',
+                    borderRadius: 20
+                }}
+            />
+        ) : (
+            <p>{t.noVideo}</p>
+        )}
+    </div>
+</div>
                     </div>
                 </section>
 
@@ -654,7 +672,7 @@ const [message, setMessage] = useState('');
                     className="inline-block px-4 py-2 border-round-3xl font-bold mb-3"
                     style={{ background: '#fff', color: COLORS.pink }}
                 >
-                    Tuyển sinh
+                    {t.applyBadge}
                 </div>
 
                 <h2
@@ -664,13 +682,13 @@ const [message, setMessage] = useState('');
                         fontSize: 'clamp(2.2rem, 4vw, 4rem)'
                     }}
                 >
-                    Đăng ký tư vấn cho bé
+                    {t.applyTitle}
                 </h2>
 
                 <p className="text-700 text-lg line-height-3">
-                    Thời gian tuyển sinh:{' '}
-                    {siteContent?.admission_period || 'Đang mở'}.
-                    Phụ huynh vui lòng để lại thông tin, nhà trường sẽ liên hệ tư vấn sớm nhất.
+                    {t.applyDescPrefix}{' '}
+                    {siteContent?.admission_period || t.openNow}.
+                    {t.applyDescSuffix}
                 </p>
             </div>
 
@@ -679,67 +697,67 @@ const [message, setMessage] = useState('');
                     <div className="grid">
                         <div className="col-12 md:col-6">
                             <label className="block mb-2 font-bold">
-                                Tên phụ huynh *
+                                {t.parentName}
                             </label>
                             <InputText
                                 value={parentName}
                                 onChange={(event) => setParentName(event.target.value)}
                                 className="w-full"
-                                placeholder="Nguyễn Văn A"
+                                placeholder={t.parentNamePlaceholder}
                             />
                         </div>
 
                         <div className="col-12 md:col-6">
                             <label className="block mb-2 font-bold">
-                                Số điện thoại *
+                                {t.phone}
                             </label>
                             <InputText
                                 value={parentPhone}
                                 onChange={(event) => setParentPhone(event.target.value)}
                                 className="w-full"
-                                placeholder="090..."
+                                placeholder={t.phonePlaceholder}
                             />
                         </div>
 
                         <div className="col-12 md:col-6">
                             <label className="block mb-2 font-bold">
-                                Email
+                                {t.email}
                             </label>
                             <InputText
                                 value={parentEmail}
                                 onChange={(event) => setParentEmail(event.target.value)}
                                 className="w-full"
-                                placeholder="phuhuynh@email.com"
+                                placeholder={t.emailPlaceholder}
                             />
                         </div>
 
                         <div className="col-12 md:col-6">
                             <label className="block mb-2 font-bold">
-                                Tên bé *
+                                {t.childName}
                             </label>
                             <InputText
                                 value={childName}
                                 onChange={(event) => setChildName(event.target.value)}
                                 className="w-full"
-                                placeholder="Tên của bé"
+                                placeholder={t.childNamePlaceholder}
                             />
                         </div>
 
                         <div className="col-12 md:col-6">
                             <label className="block mb-2 font-bold">
-                                Tuổi của bé
+                                {t.childAge}
                             </label>
                             <InputText
                                 value={childAge}
                                 onChange={(event) => setChildAge(event.target.value)}
                                 className="w-full"
-                                placeholder="3"
+                                placeholder={t.childAgePlaceholder}
                             />
                         </div>
                         <div className="col-12 md:col-6"></div>
 <div className="col-12 md:col-6">
     <label className="block mb-2 font-bold">
-        Chương trình *
+        {t.programRequired}
     </label>
 
     <select
@@ -747,7 +765,7 @@ const [message, setMessage] = useState('');
         onChange={(event) => setSelectedProgramId(event.target.value)}
         className="w-full p-inputtext p-component"
     >
-        <option value="">Chọn chương trình</option>
+        <option value="">{t.selectProgram}</option>
 
         {programs.map((program) => (
             <option key={program.id} value={program.id}>
@@ -758,19 +776,19 @@ const [message, setMessage] = useState('');
 </div>
                         <div className="col-12">
                             <label className="block mb-2 font-bold">
-                                Lời nhắn
+                                {t.message}
                             </label>
                             <InputText
                                 value={message}
                                 onChange={(event) => setMessage(event.target.value)}
                                 className="w-full"
-                                placeholder="Phụ huynh cần tư vấn lớp học, học phí..."
+                                placeholder={t.messagePlaceholder}
                             />
                         </div>
 
                         <div className="col-12">
                             <Button
-                                label="Gửi đăng ký"
+                                label={t.submitApplication}
                                 icon="pi pi-send"
                                 rounded
                                 loading={applying}
@@ -788,9 +806,9 @@ const [message, setMessage] = useState('');
                 <section id="news" className="px-4 py-8" style={{ background: COLORS.lightPink }}>
                     <div style={sectionStyle}>
                         <SectionTitle
-                            badge="News"
-                            title="Tin tức Nắng Hồng"
-                            desc="Những hoạt động và thông báo mới nhất của nhà trường."
+                            badge={t.newsBadge}
+                            title={t.newsTitle}
+                            desc={t.newsDesc}
                         />
 
                         <div className="grid">
@@ -815,14 +833,14 @@ const [message, setMessage] = useState('');
                                         <h3 className="text-2xl">{article.title}</h3>
 
                                         <p className="text-600 line-height-3">
-                                            {article.content ? `${article.content.replace(/\s+/g, ' ').slice(0, 120)}...` : 'Chưa có nội dung.'}
+                                            {article.content ? `${article.content.replace(/\s+/g, ' ').slice(0, 120)}...` : t.noContent}
                                         </p>
 
                                         <div className="text-sm text-500">
-                                            bởi {article.author_name || 'Admin'} · {article.Comments?.length || 0} bình luận
+                                            {t.byAuthor} {article.author_name || 'Admin'}
                                         </div>
                                         <Button
-    label="Đọc thêm"
+    label={t.readMore}
     icon="pi pi-arrow-right"
     text
     className="mt-3"
@@ -848,8 +866,8 @@ const [message, setMessage] = useState('');
                     >
                         <div className="grid align-items-center">
                             <div className="col-12 lg:col-6">
-                                <h2 className="text-4xl font-bold mt-0">Đăng ký nhận tin</h2>
-                                <p className="text-lg">Nhận thông tin mới nhất về tuyển sinh và hoạt động của trường.</p>
+                                <h2 className="text-4xl font-bold mt-0">{t.newsletterTitle}</h2>
+                                <p className="text-lg">{t.newsletterDesc}</p>
                             </div>
 
                             <div className="col-12 lg:col-6">
@@ -857,11 +875,11 @@ const [message, setMessage] = useState('');
                                     <InputText
                                         value={email}
                                         onChange={(event) => setEmail(event.target.value)}
-                                        placeholder="Email của phụ huynh"
+                                        placeholder={t.newsletterPlaceholder}
                                         className="w-full"
                                     />
 
-                                    <Button label="Đăng ký" rounded severity="warning" loading={subscribing} onClick={handleSubscribe} />
+                                    <Button label={t.subscribe} rounded severity="warning" loading={subscribing} onClick={handleSubscribe} />
                                 </div>
                             </div>
                         </div>
@@ -872,23 +890,23 @@ const [message, setMessage] = useState('');
             <footer id="contact" className="px-4 py-6 bg-white">
                 <div className="grid" style={sectionStyle}>
                     <div className="col-12 md:col-4">
-                        <h2>Mầm Non Nắng Hồng</h2>
+                        <h2>{t.brandName}</h2>
                         <p className="text-600 line-height-3">
-                            {siteContent?.footer_description || 'Nơi bé được yêu thương, vui chơi và phát triển mỗi ngày.'}
+                            {siteContent?.footer_description || t.footerDefault}
                         </p>
                     </div>
 
                     <div className="col-12 md:col-4">
-                        <h3>Liên kết nhanh</h3>
-                        <p>Giới thiệu</p>
-                        <p>Chương trình</p>
-                        <p>Tin tức</p>
-                        <p>Liên hệ</p>
+                        <h3>{t.quickLinks}</h3>
+                        <p>{t.footerAbout}</p>
+                        <p>{t.footerPrograms}</p>
+                        <p>{t.footerNews}</p>
+                        <p>{t.footerContact}</p>
                     </div>
 
                     <div className="col-12 md:col-4">
-                        <h3>Liên hệ</h3>
-                        <p>{siteContent?.address || 'Thành phố Hồ Chí Minh'}</p>
+                        <h3>{t.contactTitle}</h3>
+                        <p>{siteContent?.address || t.defaultAddress}</p>
                         <p>{siteContent?.phone_number || '012-345-6789'}</p>
                         <p>{siteContent?.support_email || 'support@nanghong.edu.vn'}</p>
                     </div>

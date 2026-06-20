@@ -12,7 +12,7 @@ export default function CreatePromotionalVideoPage() {
     const toast = useRef<Toast>(null);
 
     const [title, setTitle] = useState('');
-    const [videoFile, setVideoFile] = useState<File | null>(null);
+    const [videoUrl, setVideoUrl] = useState('');
     const [thumbnailFile, setThumbnailFile] = useState<File | null>(null);
     const [saving, setSaving] = useState(false);
 
@@ -29,21 +29,11 @@ export default function CreatePromotionalVideoPage() {
             return;
         }
 
-        if (!videoFile) {
+        if (!videoUrl.trim()) {
             toast.current?.show({
                 severity: 'warn',
-                summary: 'Missing video',
-                detail: 'Please choose video file',
-                life: 3000
-            });
-            return;
-        }
-
-        if (!thumbnailFile) {
-            toast.current?.show({
-                severity: 'warn',
-                summary: 'Missing thumbnail',
-                detail: 'Please choose thumbnail image',
+                summary: 'Missing Youtube URL',
+                detail: 'Please enter Youtube URL',
                 life: 3000
             });
             return;
@@ -54,8 +44,11 @@ export default function CreatePromotionalVideoPage() {
 
             const formData = new FormData();
             formData.append('title', title.trim());
-            formData.append('videoFile', videoFile);
-            formData.append('thumbnailFile', thumbnailFile);
+            formData.append('video_url', videoUrl.trim());
+
+            if (thumbnailFile) {
+                formData.append('thumbnailFile', thumbnailFile);
+            }
 
             await createPromotionalVideo(formData);
 
@@ -87,7 +80,7 @@ export default function CreatePromotionalVideoPage() {
                 <div>
                     <h2 className="m-0">Create Promotional Video</h2>
                     <p className="text-500 mt-2 mb-0">
-                        Upload school promotional video and thumbnail.
+                        Add a YouTube promotional video and optional thumbnail.
                     </p>
                 </div>
 
@@ -115,6 +108,20 @@ export default function CreatePromotionalVideoPage() {
                 </div>
 
                 <div>
+                    <label htmlFor="videoUrl" className="block mb-2 font-bold">
+                        Youtube URL
+                    </label>
+                    <InputText
+                        id="videoUrl"
+                        value={videoUrl}
+                        onChange={(event) => setVideoUrl(event.target.value)}
+                        className="w-full"
+                        disabled={saving}
+                        placeholder="https://www.youtube.com/watch?v=..."
+                    />
+                </div>
+
+                <div>
                     <label htmlFor="thumbnailFile" className="block mb-2 font-bold">
                         Thumbnail Image
                     </label>
@@ -127,28 +134,17 @@ export default function CreatePromotionalVideoPage() {
                             setThumbnailFile(event.target.files?.[0] || null)
                         }
                     />
-                </div>
 
-                <div>
-                    <label htmlFor="videoFile" className="block mb-2 font-bold">
-                        Video File
-                    </label>
-                    <input
-                        id="videoFile"
-                        type="file"
-                        accept="video/*"
-                        disabled={saving}
-                        onChange={(event) =>
-                            setVideoFile(event.target.files?.[0] || null)
-                        }
-                    />
+                    <p className="text-500 mt-2 mb-0">
+                        Optional. If empty, YouTube will show its default thumbnail.
+                    </p>
                 </div>
 
                 <div className="flex gap-2">
                     <Button
                         type="submit"
                         label="Create"
-                        icon="pi pi-upload"
+                        icon="pi pi-check"
                         loading={saving}
                     />
 

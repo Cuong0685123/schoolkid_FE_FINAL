@@ -29,7 +29,8 @@ export default function SiteContentPage() {
     const [statAwardsInfo, setStatAwardsInfo] = useState('');
     const [footerDescription, setFooterDescription] = useState('');
     const [aboutSectionQuote, setAboutSectionQuote] = useState('');
-
+const [heroImageUrl, setHeroImageUrl] = useState('');
+const [aboutImageUrl, setAboutImageUrl] = useState('');
     const fillForm = (data: SiteContent) => {
         setRecord(data);
         setId(data.id || 1);
@@ -42,6 +43,9 @@ export default function SiteContentPage() {
         setStatAwardsInfo(data.stat_awards_info || '');
         setFooterDescription(data.footer_description || '');
         setAboutSectionQuote(data.about_section_quote || '');
+        setHeroImageUrl(data.hero_image_url || '');
+setAboutImageUrl(data.about_image_url || '');
+        
     };
 
     const loadSiteContent = async () => {
@@ -83,7 +87,9 @@ export default function SiteContentPage() {
                 stat_students_info: statStudentsInfo.trim(),
                 stat_awards_info: statAwardsInfo.trim(),
                 footer_description: footerDescription.trim(),
-                about_section_quote: aboutSectionQuote.trim()
+                about_section_quote: aboutSectionQuote.trim(),
+                hero_image_url: heroImageUrl.trim(),
+about_image_url: aboutImageUrl.trim()
             };
 
             if (record) {
@@ -270,6 +276,61 @@ export default function SiteContentPage() {
                         className="w-full"
                     />
                 </div>
+                <div className="col-12 md:col-6">
+    <label htmlFor="heroImageUrl" className="block mb-2 font-bold">
+        Hero Image URL
+    </label>
+    <InputText
+        id="heroImageUrl"
+        value={heroImageUrl}
+        disabled={saving}
+        onChange={(event) => setHeroImageUrl(event.target.value)}
+        className="w-full"
+        placeholder="https://drive.google.com/thumbnail?id=..."
+    />
+
+    {heroImageUrl ? (
+        <img
+            src={heroImageUrl}
+            alt="Hero Preview"
+            style={{
+                width: '100%',
+                maxHeight: 180,
+                objectFit: 'cover',
+                borderRadius: 12,
+                marginTop: 12
+            }}
+        />
+    ) : null}
+</div>
+
+<div className="col-12 md:col-6">
+    <label htmlFor="aboutImageUrl" className="block mb-2 font-bold">
+        About Image URL
+    </label>
+    <InputText
+        id="aboutImageUrl"
+        value={aboutImageUrl}
+        disabled={saving}
+        onChange={(event) => setAboutImageUrl(event.target.value)}
+        className="w-full"
+        placeholder="https://drive.google.com/thumbnail?id=..."
+    />
+
+    {aboutImageUrl ? (
+        <img
+            src={aboutImageUrl}
+            alt="About Preview"
+            style={{
+                width: '100%',
+                maxHeight: 180,
+                objectFit: 'cover',
+                borderRadius: 12,
+                marginTop: 12
+            }}
+        />
+    ) : null}
+</div>
 
                 <div className="col-12">
                     <label htmlFor="aboutSectionQuote" className="block mb-2 font-bold">
