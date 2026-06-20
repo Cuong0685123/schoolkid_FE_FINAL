@@ -27,7 +27,7 @@ export default function CreateNewsArticlePage() {
 
     const [title, setTitle] = useState('');
     const [slug, setSlug] = useState('');
-    const [thumbnailUrl, setThumbnailUrl] = useState('');
+    const [thumbnailFile, setThumbnailFile] = useState<File | null>(null);
     const [content, setContent] = useState('');
     const [authorName, setAuthorName] = useState('');
     const [publishedAt, setPublishedAt] = useState<Date | null>(new Date());
@@ -57,14 +57,21 @@ export default function CreateNewsArticlePage() {
         try {
             setSaving(true);
 
-            await createNewsArticle({
-                title: title.trim(),
-                slug: slug.trim() || generateSlug(title),
-                thumbnail_url: thumbnailUrl.trim(),
-                content: content.trim(),
-                author_name: authorName.trim() || 'Admin SchoolKid',
-                published_at: publishedAt ? publishedAt.toISOString() : new Date().toISOString()
-            });
+            const formData = new FormData();
+            formData.append('title', title.trim());
+            formData.append('slug', slug.trim() || generateSlug(title));
+            formData.append('content', content.trim());
+            formData.append('author_name', authorName.trim() || 'Admin SchoolKid');
+            formData.append(
+                'published_at',
+                publishedAt ? publishedAt.toISOString() : new Date().toISOString()
+            );
+
+            if (thumbnailFile) {
+                formData.append('thumbnailFile', thumbnailFile);
+            }
+
+            await createNewsArticle(formData as any);
 
             toast.current?.show({
                 severity: 'success',
@@ -136,17 +143,24 @@ export default function CreateNewsArticlePage() {
                 </div>
 
                 <div>
-                    <label htmlFor="thumbnailUrl" className="block mb-2 font-bold">
-                        Thumbnail URL
+                    <label htmlFor="thumbnailFile" className="block mb-2 font-bold">
+                        Thumbnail Image
                     </label>
-                    <InputText
-                        id="thumbnailUrl"
-                        value={thumbnailUrl}
-                        onChange={(event) => setThumbnailUrl(event.target.value)}
-                        className="w-full"
+                    <input
+                        id="thumbnailFile"
+                        type="file"
+                        accept="image/*"
                         disabled={saving}
-                        placeholder="https://example.com/image.jpg"
+                        onChange={(event) =>
+                            setThumbnailFile(event.target.files?.[0] || null)
+                        }
                     />
+
+                    {thumbnailFile ? (
+                        <p className="text-500 mt-2 mb-0">
+                            Selected: {thumbnailFile.name}
+                        </p>
+                    ) : null}
                 </div>
 
                 <div>

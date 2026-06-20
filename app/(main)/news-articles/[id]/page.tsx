@@ -25,6 +25,26 @@ const generateSlug = (value: string) => {
         .replace(/-+/g, '-');
 };
 
+const getGoogleDriveFileId = (url?: string) => {
+    if (!url) return null;
+
+    const idMatch = url.match(/id=([^&]+)/);
+    if (idMatch) return idMatch[1];
+
+    const fileMatch = url.match(/\/file\/d\/([^/]+)/);
+    if (fileMatch) return fileMatch[1];
+
+    return null;
+};
+
+const normalizeDriveThumbnailUrl = (url?: string) => {
+    const fileId = getGoogleDriveFileId(url);
+
+    if (!fileId) return url || '';
+
+    return `https://drive.google.com/thumbnail?id=${fileId}&sz=w1000`;
+};
+
 export default function EditNewsArticlePage() {
     const params = useParams();
     const router = useRouter();
@@ -149,6 +169,8 @@ export default function EditNewsArticlePage() {
         );
     }
 
+    const previewThumbnailUrl = normalizeDriveThumbnailUrl(thumbnailUrl);
+
     return (
         <div className="card">
             <Toast ref={toast} />
@@ -204,15 +226,15 @@ export default function EditNewsArticlePage() {
                         onChange={(event) => setThumbnailUrl(event.target.value)}
                         className="w-full"
                         disabled={saving}
-                        placeholder="https://example.com/image.jpg"
+                        placeholder="https://drive.google.com/uc?id=..."
                     />
                 </div>
 
-                {thumbnailUrl ? (
+                {previewThumbnailUrl ? (
                     <div>
                         <h4>Current Thumbnail</h4>
                         <img
-                            src={thumbnailUrl}
+                            src={previewThumbnailUrl}
                             alt={title}
                             style={{
                                 width: '300px',

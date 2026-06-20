@@ -812,6 +812,14 @@ const [message, setMessage] = useState('');
                                         <div className="text-sm text-500">
                                             bởi {article.author_name || 'Admin'} · {article.Comments?.length || 0} bình luận
                                         </div>
+                                        <Button
+    label="Đọc thêm"
+    icon="pi pi-arrow-right"
+    text
+    className="mt-3"
+    style={{ color: COLORS.pink }}
+    onClick={() => router.push(`/landing/news/${article.id}`)}
+/>
                                     </div>
                                 </div>
                             ))}

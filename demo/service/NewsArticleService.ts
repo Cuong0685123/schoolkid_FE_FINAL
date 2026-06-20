@@ -56,13 +56,19 @@ export const getNewsArticleById = async (
     return response.json();
 };
 
-export const createNewsArticle = async (payload: NewsArticlePayload) => {
+export const createNewsArticle = async (
+    payload: NewsArticlePayload | FormData
+) => {
+    const isFormData = payload instanceof FormData;
+
     const response = await fetch(`${API_URL}/api/news-articles`, {
         method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(payload)
+        headers: isFormData
+            ? undefined
+            : {
+                  'Content-Type': 'application/json'
+              },
+        body: isFormData ? payload : JSON.stringify(payload)
     });
 
     if (!response.ok) {
