@@ -11,7 +11,6 @@ import { getNewsArticles, type NewsArticle } from '../../../demo/service/NewsArt
 import {
     getPromotionalVideos,
     normalizeDriveThumbnailUrl,
-    normalizeDriveVideoUrl,
     getYoutubeEmbedUrl,
     type PromotionalVideo
 } from '../../../demo/service/PromotionalVideoService';
@@ -19,6 +18,7 @@ import { createNewsletterSubscriber } from '../../../demo/service/NewsletterServ
 import { getSiteContents, type SiteContent } from '../../../demo/service/SiteContentService';
 import { useRouter } from 'next/navigation';
 import { landingText } from './lang';
+import styles from './landing.module.scss';
 type ProgramRow = {
     id: number | string;
     name?: string;
@@ -30,15 +30,16 @@ type ProgramRow = {
 };
 
 const COLORS = {
-    pink: '#ff5fa2',
-    yellow: '#ffc83d',
-    green: '#19c79f',
-    blue: '#6ecbff',
-    purple: '#b78cff',
-    cream: '#fffaf0',
-    lightPink: '#fff0f7',
-    lightYellow: '#fff8d6',
-    lightGreen: '#e9fff8'
+    pink: '#ff4fa3',
+    yellow: '#ffd85c',
+    green: '#27d3aa',
+    blue: '#75d9ff',
+    purple: '#ff8fc7',
+    orange: '#ffad5f',
+    cream: '#fff0f7',
+    lightPink: '#ffe6f2',
+    lightYellow: '#fff4bd',
+    lightGreen: '#e9fbff'
 };
 
 const sectionStyle: React.CSSProperties = {
@@ -47,22 +48,25 @@ const sectionStyle: React.CSSProperties = {
 };
 
 const buttonPink: React.CSSProperties = {
-    background: COLORS.pink,
+    background: `linear-gradient(135deg, ${COLORS.pink}, #f72585)`,
     borderColor: COLORS.pink,
-    fontWeight: 700
+    fontWeight: 800,
+    boxShadow: '0 12px 28px rgba(255,79,163,.28)'
 };
 
 const buttonYellow: React.CSSProperties = {
-    background: COLORS.yellow,
+    background: `linear-gradient(135deg, ${COLORS.yellow}, ${COLORS.orange})`,
     borderColor: COLORS.yellow,
     color: '#6b3b00',
-    fontWeight: 700
+    fontWeight: 800,
+    boxShadow: '0 12px 28px rgba(255,173,95,.26)'
 };
 
 const titleStyle: React.CSSProperties = {
-    fontSize: 'clamp(2.4rem, 5vw, 4.8rem)',
-    fontWeight: 900,
-    lineHeight: 1.05
+    fontSize: 'clamp(2.5rem, 5.4vw, 5rem)',
+    fontWeight: 950,
+    lineHeight: 1.06,
+    letterSpacing: '-0.045em'
 };
 
 const getProgramChildren = (programs: ProgramRow[]) => {
@@ -84,7 +88,7 @@ const SectionTitle = ({
     title: string;
     desc?: string;
 }) => (
-    <div className="text-center mb-5">
+    <div className={`text-center mb-5 ${styles.sectionTitle} ${styles.fadeUp}`}>
         {badge ? (
             <div
                 className="inline-block px-4 py-2 border-round-3xl font-bold mb-3"
@@ -108,10 +112,11 @@ const DecorativeBubble = ({
     style: React.CSSProperties;
 }) => (
     <div
+        className={styles.bubbleDrift}
         style={{
             position: 'absolute',
             borderRadius: '999px',
-            opacity: 0.55,
+            opacity: 0.72,
             zIndex: 0,
             ...style
         }}
@@ -137,6 +142,7 @@ export default function NangHongLandingPage() {
     const [childAge, setChildAge] = useState('');
     const [selectedProgramId, setSelectedProgramId] = useState('');
     const [message, setMessage] = useState('');
+    const [showFirework, setShowFirework] = useState(false);
     useEffect(() => {
         const loadData = async () => {
             const [programData, articleData, videoData, siteData] = await Promise.all([
@@ -274,6 +280,9 @@ export default function NangHongLandingPage() {
             life: 3000
         });
 
+        setShowFirework(true);
+        window.setTimeout(() => setShowFirework(false), 1900);
+
         setParentName('');
         setParentPhone('');
         setParentEmail('');
@@ -295,17 +304,18 @@ export default function NangHongLandingPage() {
     const programTemplate = (item: any) => (
         <div className="p-3">
             <div
-                className="card text-center h-full"
+                className={`card text-center h-full ${styles.cardHover} ${styles.rainbowCard}`}
                 style={{
                     borderRadius: 32,
                     minHeight: 350,
-                    background: 'linear-gradient(180deg,#ffffff 0%,#fff7fb 100%)',
-                    border: '3px solid #ffe0ef',
-                    boxShadow: '0 16px 35px rgba(255,95,162,.18)'
+                    background: 'linear-gradient(180deg,#ffffff 0%,#fff0fb 100%)',
+                    border: '3px solid #ffc1e3',
+                    boxShadow: '0 16px 35px rgba(255,47,146,.22)'
                 }}
             >
                 {item.thumbnail_url ? (
                     <img
+                        className={styles.imageHover}
                         src={item.thumbnail_url}
                         alt={item.title || t.programAlt}
                         style={{
@@ -338,6 +348,7 @@ export default function NangHongLandingPage() {
                 </p>
 
                 <Button
+    className={styles.buttonPop}
     label={t.viewDetail}
     rounded
     text
@@ -353,17 +364,18 @@ export default function NangHongLandingPage() {
     const teacherTemplate = (teacher: any) => (
         <div className="p-3">
             <div
-                className="card text-center h-full"
+                className={`card text-center h-full ${styles.cardHover} ${styles.rainbowCard}`}
                 style={{
                     borderRadius: 32,
                     minHeight: 350,
-                    background: 'linear-gradient(180deg,#ffffff 0%,#fff0f7 100%)',
-                    border: '3px solid #ffd6e8',
-                    boxShadow: '0 16px 35px rgba(25,199,159,.16)'
+                    background: 'linear-gradient(180deg,#ffffff 0%,#efffff 100%)',
+                    border: '3px solid #a7fff0',
+                    boxShadow: '0 16px 35px rgba(0,200,150,.2)'
                 }}
             >
                 {teacher.profile_image_url ? (
                     <img
+                        className={styles.imageHover}
                         src={teacher.profile_image_url}
                         alt={teacher.full_name || t.teacherAlt}
                         style={{
@@ -395,25 +407,38 @@ export default function NangHongLandingPage() {
     );
 
     return (
-        <div style={{ background: COLORS.cream, color: '#263238', overflow: 'hidden' }}>
+        <div className={styles.landingRoot} style={{ color: '#263238', overflow: 'hidden' }}>
             <Toast ref={toast} />
 
+            {showFirework ? (
+                <div className={styles.fireworkOverlay}>
+                    <div className={styles.boomOne} />
+                    <div className={styles.boomTwo} />
+                    <div className={styles.boomThree} />
+                    <div className={`${styles.sparkleDot} ${styles.sparkleOne}`} />
+                    <div className={`${styles.sparkleDot} ${styles.sparkleTwo}`} />
+                    <div className={`${styles.sparkleDot} ${styles.sparkleThree}`} />
+                    <div className={`${styles.sparkleDot} ${styles.sparkleFour}`} />
+                    <div className={styles.fireworkMessage}>🎉 Đăng ký thành công!</div>
+                </div>
+            ) : null}
+
             <header
-                className="fixed top-0 left-0 right-0 z-5"
+                className={`fixed top-0 left-0 right-0 z-5 ${styles.glassHeader}`}
                 style={{
-                    background: 'rgba(255,255,255,.94)',
-                    backdropFilter: 'blur(12px)',
-                    borderBottom: '1px solid #ffe0ed'
+                    background: 'rgba(255, 240, 247, .82)',
+                    backdropFilter: 'blur(16px)',
+                    borderBottom: '1px solid rgba(255, 79, 163, .16)'
                 }}
             >
-                <div className="flex align-items-center justify-content-between px-4 py-3" style={sectionStyle}>
+                <div className={`flex align-items-center justify-content-between px-4 py-3 ${styles.headerPill}`} style={sectionStyle}>
                     <div className="flex align-items-center gap-2">
                         <div
-                            className="border-circle flex align-items-center justify-content-center"
+                            className={`border-circle flex align-items-center justify-content-center ${styles.logoPulse}`}
                             style={{
                                 width: 46,
                                 height: 46,
-                                background: `linear-gradient(135deg,${COLORS.yellow},${COLORS.pink})`,
+                                background: `linear-gradient(135deg,${COLORS.yellow},${COLORS.pink},${COLORS.blue})`,
                                 color: '#fff'
                             }}
                         >
@@ -429,11 +454,11 @@ export default function NangHongLandingPage() {
                     </div>
 
                     <nav className="hidden md:flex gap-4 align-items-center font-semibold">
-                        <button className="p-link" onClick={() => scrollTo('home')}>{t.navHome}</button>
-                        <button className="p-link" onClick={() => scrollTo('about')}>{t.navAbout}</button>
-                        <button className="p-link" onClick={() => scrollTo('programs')}>{t.navPrograms}</button>
-                        <button className="p-link" onClick={() => scrollTo('news')}>{t.navNews}</button>
-                        <button className="p-link" onClick={() => scrollTo('contact')}>{t.navContact}</button>
+                        <button className={`p-link ${styles.navLink}`} onClick={() => scrollTo('home')}>{t.navHome}</button>
+                        <button className={`p-link ${styles.navLink}`} onClick={() => scrollTo('about')}>{t.navAbout}</button>
+                        <button className={`p-link ${styles.navLink}`} onClick={() => scrollTo('programs')}>{t.navPrograms}</button>
+                        <button className={`p-link ${styles.navLink}`} onClick={() => scrollTo('news')}>{t.navNews}</button>
+                        <button className={`p-link ${styles.navLink}`} onClick={() => scrollTo('contact')}>{t.navContact}</button>
                     </nav>
 
                     <Button
@@ -444,31 +469,39 @@ export default function NangHongLandingPage() {
                         onClick={() => setLang(lang === 'vi' ? 'en' : 'vi')}
                     />
 
-                    <Button label={t.applyNow} rounded style={buttonPink} onClick={() => scrollTo('apply')} />
+                    <Button className={styles.buttonPop} label={t.applyNow} rounded style={buttonPink} onClick={() => scrollTo('apply')} />
                 </div>
             </header>
 
             <main id="home" style={{ paddingTop: 84 }}>
                 <section
-                    className="px-4 py-8 relative"
+                    className={`px-4 py-8 relative ${styles.heroSection}`}
                     style={{
-                        background: `linear-gradient(135deg, ${COLORS.lightPink} 0%, ${COLORS.lightYellow} 48%, ${COLORS.lightGreen} 100%)`
+                        background: `linear-gradient(135deg, #ffe8f3 0%, #fff2c8 58%, #e9f8ff 100%)`
                     }}
                 >
                     <DecorativeBubble style={{ width: 260, height: 260, background: COLORS.pink, top: -90, right: -80 }} />
-                    <DecorativeBubble style={{ width: 160, height: 160, background: COLORS.blue, bottom: 30, left: -50 }} />
-                    <DecorativeBubble style={{ width: 90, height: 90, background: COLORS.yellow, top: 140, left: '48%' }} />
+                    <DecorativeBubble style={{ width: 170, height: 170, background: COLORS.blue, bottom: 34, left: -54 }} />
+                    <DecorativeBubble style={{ width: 100, height: 100, background: COLORS.yellow, top: 150, left: '48%' }} />
+                    <div className={styles.cloudOne} />
+                    <div className={styles.cloudTwo} />
+                    <div className={styles.starOne}>✦</div>
+                    <div className={styles.starTwo}>✦</div>
+                    <div className={`${styles.cuteIcon} ${styles.iconSun}`}>🌞</div>
+                    <div className={`${styles.cuteIcon} ${styles.iconFlower}`}>🌼</div>
+                    <div className={`${styles.cuteIcon} ${styles.iconHeart}`}>💗</div>
+                    <div className={`${styles.cuteIcon} ${styles.iconRocket}`}>🚀</div>
 
                     <div className="grid align-items-center relative z-1" style={sectionStyle}>
-                        <div className="col-12 lg:col-6">
+                        <div className={`col-12 lg:col-6 ${styles.fadeUp}`}>
                             <div
-                                className="inline-block px-4 py-2 border-round-3xl font-bold mb-3"
+                                className={`inline-block px-4 py-2 border-round-3xl font-bold mb-3 ${styles.badgeCandy}`}
                                 style={{ background: '#fff', color: COLORS.pink, boxShadow: '0 8px 18px rgba(255,95,162,.18)' }}
                             >
                                 {t.heroBadge}
                             </div>
 
-                            <h1 className="m-0 mb-4" style={titleStyle}>
+                            <h1 className={`m-0 mb-4 ${styles.heroTitle}`} style={titleStyle}>
                                 {t.heroTitle}
                             </h1>
 
@@ -477,21 +510,38 @@ export default function NangHongLandingPage() {
                             </p>
 
                             <div className="flex gap-3 flex-wrap">
-                                <Button label={t.admission} rounded icon="pi pi-send" style={buttonYellow} onClick={() => scrollTo('apply')} />
+                                <Button className={styles.buttonPop} label={t.admission} rounded icon="pi pi-send" style={buttonYellow} onClick={() => scrollTo('apply')} />
                                 <Button
+                                    className={styles.buttonPop}
                                     label={t.viewPrograms}
                                     rounded
                                     outlined
                                     icon="pi pi-arrow-right"
-                                    style={{ color: COLORS.pink, borderColor: COLORS.pink, fontWeight: 700 }}
+                                    style={{ color: COLORS.pink, borderColor: COLORS.pink, fontWeight: 800, background: 'rgba(255,255,255,.74)' }}
                                     onClick={() => scrollTo('programs')}
                                 />
+                            </div>
+
+                            <div className={`grid mt-5 ${styles.heroStats}`}>
+                                {[
+                                    { value: siteContent?.stat_years_experience || '10+', label: t.yearsExperience, icon: '💖', color: COLORS.pink },
+                                    { value: siteContent?.stat_students_info || '500+', label: t.studentsPerYear, icon: '🌈', color: COLORS.blue },
+                                    { value: siteContent?.stat_awards_info || '30+', label: t.achievements, icon: '⭐', color: COLORS.orange }
+                                ].map((item) => (
+                                    <div key={item.label} className="col-12 sm:col-4">
+                                        <div className={styles.heroStatCard}>
+                                            <div className={styles.heroStatIcon}>{item.icon}</div>
+                                            <div className="font-bold text-2xl" style={{ color: item.color }}>{item.value}</div>
+                                            <div className="text-600 text-sm mt-1">{item.label}</div>
+                                        </div>
+                                    </div>
+                                ))}
                             </div>
                         </div>
 
                         <div className="col-12 lg:col-6">
                             <div
-                                className="relative overflow-hidden"
+                                className={`relative overflow-hidden ${styles.floatSlow} ${styles.heroImageWrap}`}
                                 style={{
                                     borderRadius: '45% 55% 48% 52%',
                                     border: '12px solid #ffffff',
@@ -499,21 +549,25 @@ export default function NangHongLandingPage() {
                                 }}
                             >
                                 <img
-    src={
-        siteContent?.hero_image_url
-            ? normalizeDriveThumbnailUrl(siteContent.hero_image_url)
-            : '/layout/images/landing/landing-hero-image.jpg'
-    }
-    referrerPolicy="no-referrer"
-    alt={t.brandName}
-    style={{ width: '100%', height: 450, objectFit: 'cover', display: 'block' }}
-/>
+                                    className={styles.imageHover}
+                                    src={
+                                        siteContent?.hero_image_url
+                                            ? normalizeDriveThumbnailUrl(siteContent.hero_image_url)
+                                            : '/layout/images/landing/landing-hero-image.jpg'
+                                    }
+                                    referrerPolicy="no-referrer"
+                                    alt={t.brandName}
+                                    style={{ width: '100%', height: 450, objectFit: 'cover', display: 'block' }}
+                                />
+                                <div className={`${styles.heroSticker} ${styles.heroStickerOne}`}>💛</div>
+                                <div className={`${styles.heroSticker} ${styles.heroStickerTwo}`}>☀️</div>
+                                <div className={styles.heroSpeech}>Mỗi ngày đến trường là một ngày vui ✨</div>
                             </div>
                         </div>
                     </div>
                 </section>
 
-                <section id="programs" className="px-4 py-8 bg-white">
+                <section id="programs" className={`px-4 py-8 ${styles.pinkSection} ${styles.colorfulSection}`}>
                     <div style={sectionStyle}>
                         <SectionTitle
                             badge={t.programsBadge}
@@ -538,7 +592,7 @@ export default function NangHongLandingPage() {
                     </div>
                 </section>
 
-                <section id="about" className="px-4 py-8 relative" style={{ background: COLORS.lightGreen }}>
+                <section id="about" className={`px-4 py-8 relative ${styles.aboutSection} ${styles.softSection}`}>
                     <DecorativeBubble style={{ width: 180, height: 180, background: COLORS.yellow, top: 40, right: -50 }} />
 
                     <div className="grid align-items-center relative z-1" style={sectionStyle}>
@@ -552,15 +606,16 @@ export default function NangHongLandingPage() {
                                 }}
                             >
                                 <img
-    src={
-        siteContent?.about_image_url
-            ? normalizeDriveThumbnailUrl(siteContent.about_image_url)
-            : '/layout/images/landing/landing-hero-image.jpg'
-    }
-    referrerPolicy="no-referrer"
-    alt={t.aboutAlt}
-    style={{ width: '100%', height: 380, objectFit: 'cover', display: 'block' }}
-/>
+                                    className={styles.imageHover}
+                                    src={
+                                        siteContent?.about_image_url
+                                            ? normalizeDriveThumbnailUrl(siteContent.about_image_url)
+                                            : '/layout/images/landing/landing-hero-image.jpg'
+                                    }
+                                    referrerPolicy="no-referrer"
+                                    alt={t.aboutAlt}
+                                    style={{ width: '100%', height: 380, objectFit: 'cover', display: 'block' }}
+                                />
                             </div>
                         </div>
 
@@ -591,7 +646,7 @@ export default function NangHongLandingPage() {
                     </div>
                 </section>
 
-                <section className="px-4 py-8 bg-white">
+                <section className={`px-4 py-8 ${styles.pinkSection} ${styles.colorfulSection}`}>
                     <div style={sectionStyle}>
                         <SectionTitle
                             badge={t.teachersBadge}
@@ -616,7 +671,7 @@ export default function NangHongLandingPage() {
                     </div>
                 </section>
 
-                <section id="video" className="px-4 py-8" style={{ background: `linear-gradient(135deg,${COLORS.green},${COLORS.blue})` }}>
+                <section id="video" className={`px-4 py-8 ${styles.videoSection}`} style={{ background: `linear-gradient(135deg,${COLORS.green},${COLORS.blue},${COLORS.purple})` }}>
                     <div className="grid align-items-center text-white" style={sectionStyle}>
                         <div className="col-12 lg:col-5">
                             <h2 className="m-0 mb-3" style={{ ...titleStyle, fontSize: 'clamp(2.2rem, 4vw, 4rem)' }}>{t.videoTitle}</h2>
@@ -628,40 +683,41 @@ export default function NangHongLandingPage() {
                                     rounded
                                     severity="warning"
                                     icon="pi pi-play"
-                                    onClick={() => window.open(normalizeDriveVideoUrl(latestVideo.video_url), '_blank')}
+                                    onClick={() => window.open(latestVideo.video_url, '_blank')}
                                 />
                             ) : null}
                         </div>
 
-                      <div className="col-12 lg:col-7">
-    <div className="card" style={{ borderRadius: 28 }}>
-        {latestVideo ? (
-            <iframe
-                src={getYoutubeEmbedUrl(latestVideo.video_url)}
-                title={latestVideo.title}
-                allowFullScreen
-                style={{
-                    width: '100%',
-                    height: 420,
-                    border: 'none',
-                    borderRadius: 20
-                }}
-            />
-        ) : (
-            <p>{t.noVideo}</p>
-        )}
-    </div>
-</div>
+                        <div className="col-12 lg:col-7">
+                            <div className={`card ${styles.videoCard}`} style={{ borderRadius: 28 }}>
+                                {latestVideo ? (
+                                    <iframe
+                                        src={getYoutubeEmbedUrl(latestVideo.video_url)}
+                                        title={latestVideo.title}
+                                        allowFullScreen
+                                        style={{
+                                            width: '100%',
+                                            height: 420,
+                                            border: 'none',
+                                            borderRadius: 20,
+                                            background: '#000'
+                                        }}
+                                    />
+                                ) : (
+                                    <p>{t.noVideo}</p>
+                                )}
+                            </div>
+                        </div>
                     </div>
                 </section>
 
-<section id="apply" className="px-4 py-8 bg-white">
+<section id="apply" className={`px-4 py-8 ${styles.pinkSection} ${styles.colorfulSection}`}>
     <div
-        className="p-5"
+        className={`p-5 ${styles.applyBox}`}
         style={{
             ...sectionStyle,
             borderRadius: 36,
-            background: `linear-gradient(135deg,${COLORS.lightYellow},${COLORS.lightPink})`,
+            background: `linear-gradient(135deg,#fff6c9,#ffe2f1,#e7f8ff)`,
             border: '3px dashed #ffc1dc',
             boxShadow: '0 18px 45px rgba(255,95,162,.16)'
         }}
@@ -788,6 +844,7 @@ export default function NangHongLandingPage() {
 
                         <div className="col-12">
                             <Button
+                                className={styles.buttonPop}
                                 label={t.submitApplication}
                                 icon="pi pi-send"
                                 rounded
@@ -803,7 +860,7 @@ export default function NangHongLandingPage() {
     </div>
 </section>
 
-                <section id="news" className="px-4 py-8" style={{ background: COLORS.lightPink }}>
+                <section id="news" className={`px-4 py-8 ${styles.newsSection}`} style={{ background: COLORS.lightPink }}>
                     <div style={sectionStyle}>
                         <SectionTitle
                             badge={t.newsBadge}
@@ -815,15 +872,16 @@ export default function NangHongLandingPage() {
                             {latestNews.map((article) => (
                                 <div key={article.id} className="col-12 md:col-4">
                                     <div
-                                        className="card h-full"
+                                        className={`card h-full ${styles.cardHover} ${styles.rainbowCard}`}
                                         style={{
                                             borderRadius: 28,
-                                            border: '3px solid #ffd6e8',
-                                            boxShadow: '0 12px 28px rgba(255,95,162,.13)'
+                                            border: '3px solid #ffc1e3',
+                                            boxShadow: '0 12px 28px rgba(255,47,146,.18)'
                                         }}
                                     >
                                         {article.thumbnail_url ? (
                                             <img
+                                                className={styles.imageHover}
                                                 src={normalizeDriveThumbnailUrl(article.thumbnail_url)}
                                                 alt={article.title}
                                                 style={{ width: '100%', height: 190, objectFit: 'cover', borderRadius: 22 }}
@@ -854,13 +912,13 @@ export default function NangHongLandingPage() {
                     </div>
                 </section>
 
-                <section className="px-4 py-8">
+                <section className={`px-4 py-8 ${styles.softSection}`}>
                     <div
-                        className="p-5 text-white"
+                        className={`p-5 text-white ${styles.newsletterBox}`}
                         style={{
                             ...sectionStyle,
                             borderRadius: 36,
-                            background: `linear-gradient(135deg,${COLORS.pink},${COLORS.yellow},${COLORS.green})`,
+                            background: `linear-gradient(135deg,${COLORS.pink},${COLORS.orange},${COLORS.yellow},${COLORS.blue})`,
                             boxShadow: '0 18px 45px rgba(255,95,162,.22)'
                         }}
                     >
@@ -887,7 +945,7 @@ export default function NangHongLandingPage() {
                 </section>
             </main>
 
-            <footer id="contact" className="px-4 py-6 bg-white">
+            <footer id="contact" className={`px-4 py-6 bg-white ${styles.footerGlow}`}>
                 <div className="grid" style={sectionStyle}>
                     <div className="col-12 md:col-4">
                         <h2>{t.brandName}</h2>
