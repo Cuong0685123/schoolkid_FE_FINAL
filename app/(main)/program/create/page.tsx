@@ -56,6 +56,8 @@ const dropdownValues = [
 
 const TOAST_LIFE = 4000;
 
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'https://schoolkid-plprt7vge-cuong0685123s-projects.vercel.app';
+
 const Program = () => {
     const toast = useRef<Toast>(null);
     const router = useRouter();
@@ -183,7 +185,7 @@ const Program = () => {
                 form.append('thumbnail_url', file);
             }
 
-            const res = await fetch(`http://localhost:8080/api/programs/education`, {
+            const res = await fetch(`${API_BASE_URL}/api/programs/education`, {
                 method: 'POST',
                 body: form // ❗ KHÔNG set Content-Type
             });
@@ -223,7 +225,7 @@ const Program = () => {
                 form.append('thumbnail_url', file);
             }
 
-            const res = await fetch(`http://localhost:8080/api/programs/sport`, {
+            const res = await fetch(`${API_BASE_URL}/api/programs/sport`, {
                 method: 'POST',
                 body: form // ❗ KHÔNG set Content-Type
             });
@@ -263,7 +265,7 @@ const Program = () => {
                 form.append('profile_image_url', file);
             }
 
-            const res = await fetch(`http://localhost:8080/api/programs/teacher`, {
+            const res = await fetch(`${API_BASE_URL}/api/programs/teacher`, {
                 method: 'POST',
                 body: form // ❗ KHÔNG set Content-Type
             });
@@ -288,7 +290,7 @@ const Program = () => {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const res = await fetch('http://localhost:8080/api/programs/');
+                const res = await fetch(`${API_BASE_URL}/api/programs/`);
                 const json: Program[] = await res.json();
                 // console.log("json:", json);
                 const educationProgram = json.find((item) => item.type === 'edu');

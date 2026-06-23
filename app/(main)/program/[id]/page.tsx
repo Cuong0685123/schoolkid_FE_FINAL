@@ -56,6 +56,8 @@ const dropdownValues = [
     { name: 'teacher', code: 'teacher' }
 ];
 
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'https://schoolkid-plprt7vge-cuong0685123s-projects.vercel.app';
+
 export default function ProgramDetail() {
     const params = useParams();
     const toast = useRef<Toast | null>(null);
@@ -77,7 +79,7 @@ export default function ProgramDetail() {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const res = await fetch('http://localhost:8080/api/programs/' + params.id);
+                const res = await fetch(`${API_BASE_URL}/api/programs/${params.id}`);
                 const json = await res.json();
                 console.log("json:", json);
                 setFormData({
@@ -173,7 +175,7 @@ export default function ProgramDetail() {
         setLoading(true);
 
         try {
-            const res = await fetch(`http://localhost:8080/api/programs/${itemType}/${itemId}`, {
+            const res = await fetch(`${API_BASE_URL}/api/programs/${itemType}/${itemId}`, {
                 method: 'DELETE'
             });
 
@@ -229,7 +231,7 @@ export default function ProgramDetail() {
         setLoading(true);
 
         try {
-            const res = await fetch('http://localhost:8080/api/programs/' + params.id, {
+            const res = await fetch(`${API_BASE_URL}/api/programs/${params.id}`,  {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json'
@@ -276,7 +278,7 @@ export default function ProgramDetail() {
                 form.append('thumbnail_url', file);
             }
 
-            const res = await fetch(`http://localhost:8080/api/programs/education/${educationId}`, {
+            const res = await fetch(`${API_BASE_URL}/api/programs/education/${educationId}`, {
                 method: 'PUT',
                 body: form // ❗ KHÔNG set Content-Type
             });
@@ -321,7 +323,7 @@ export default function ProgramDetail() {
                 form.append('thumbnail_url', file);
             }
 
-            const res = await fetch(`http://localhost:8080/api/programs/sport/${sportId}`, {
+            const res = await fetch(`${API_BASE_URL}/api/programs/sport/${sportId}`, {
                 method: 'PUT',
                 body: form // ❗ KHÔNG set Content-Type
             });
@@ -366,7 +368,7 @@ export default function ProgramDetail() {
                 form.append('profile_image_url', file);
             }
 
-            const res = await fetch(`http://localhost:8080/api/programs/teacher/${teacherId}`, {
+            const res = await fetch(`${API_BASE_URL}/api/programs/teacher/${teacherId}`, {
                 method: 'PUT',
                 body: form // ❗ KHÔNG set Content-Type
             });
