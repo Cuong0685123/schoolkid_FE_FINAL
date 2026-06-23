@@ -30,16 +30,16 @@ type ProgramRow = {
 };
 
 const COLORS = {
-    pink: '#ff4fa3',
-    yellow: '#ffd85c',
-    green: '#27d3aa',
-    blue: '#75d9ff',
-    purple: '#ff8fc7',
-    orange: '#ffad5f',
-    cream: '#fff0f7',
-    lightPink: '#ffe6f2',
-    lightYellow: '#fff4bd',
-    lightGreen: '#e9fbff'
+    pink: '#ff2f92',
+    yellow: '#ffcf24',
+    green: '#00c896',
+    blue: '#23b7ff',
+    purple: '#9b5cff',
+    orange: '#ff8a00',
+    cream: '#fff7e8',
+    lightPink: '#ffe1f0',
+    lightYellow: '#fff2a8',
+    lightGreen: '#d8fff3'
 };
 
 const sectionStyle: React.CSSProperties = {
@@ -48,25 +48,23 @@ const sectionStyle: React.CSSProperties = {
 };
 
 const buttonPink: React.CSSProperties = {
-    background: `linear-gradient(135deg, ${COLORS.pink}, #f72585)`,
+    background: COLORS.pink,
     borderColor: COLORS.pink,
-    fontWeight: 800,
-    boxShadow: '0 12px 28px rgba(255,79,163,.28)'
+    fontWeight: 700
 };
 
 const buttonYellow: React.CSSProperties = {
-    background: `linear-gradient(135deg, ${COLORS.yellow}, ${COLORS.orange})`,
+    background: COLORS.yellow,
     borderColor: COLORS.yellow,
     color: '#6b3b00',
-    fontWeight: 800,
-    boxShadow: '0 12px 28px rgba(255,173,95,.26)'
+    fontWeight: 700
 };
 
 const titleStyle: React.CSSProperties = {
-    fontSize: 'clamp(2.5rem, 5.4vw, 5rem)',
-    fontWeight: 950,
-    lineHeight: 1.06,
-    letterSpacing: '-0.045em'
+    fontSize: 'clamp(2.35rem, 5vw, 4.6rem)',
+    fontWeight: 900,
+    lineHeight: 1.08,
+    letterSpacing: '-0.04em'
 };
 
 const getProgramChildren = (programs: ProgramRow[]) => {
@@ -123,6 +121,20 @@ const DecorativeBubble = ({
     />
 );
 
+const SectionFloatingIcons = ({
+    icons
+}: {
+    icons: string[];
+}) => (
+    <div className={styles.sectionFloatingIcons} aria-hidden="true">
+        {icons.map((icon, index) => (
+            <span key={`${icon}-${index}`} className={`${styles.sectionIcon} ${styles[`sectionIcon${index + 1}`] || ''}`}>
+                {icon}
+            </span>
+        ))}
+    </div>
+);
+
 export default function NangHongLandingPage() {
     const toast = useRef<Toast>(null);
     const router = useRouter();
@@ -142,7 +154,6 @@ export default function NangHongLandingPage() {
     const [childAge, setChildAge] = useState('');
     const [selectedProgramId, setSelectedProgramId] = useState('');
     const [message, setMessage] = useState('');
-    const [showFirework, setShowFirework] = useState(false);
     useEffect(() => {
         const loadData = async () => {
             const [programData, articleData, videoData, siteData] = await Promise.all([
@@ -280,9 +291,6 @@ export default function NangHongLandingPage() {
             life: 3000
         });
 
-        setShowFirework(true);
-        window.setTimeout(() => setShowFirework(false), 1900);
-
         setParentName('');
         setParentPhone('');
         setParentEmail('');
@@ -407,38 +415,25 @@ export default function NangHongLandingPage() {
     );
 
     return (
-        <div className={styles.landingRoot} style={{ color: '#263238', overflow: 'hidden' }}>
+        <div className={styles.landingRoot} style={{ background: COLORS.cream, color: '#263238', overflow: 'hidden' }}>
             <Toast ref={toast} />
-
-            {showFirework ? (
-                <div className={styles.fireworkOverlay}>
-                    <div className={styles.boomOne} />
-                    <div className={styles.boomTwo} />
-                    <div className={styles.boomThree} />
-                    <div className={`${styles.sparkleDot} ${styles.sparkleOne}`} />
-                    <div className={`${styles.sparkleDot} ${styles.sparkleTwo}`} />
-                    <div className={`${styles.sparkleDot} ${styles.sparkleThree}`} />
-                    <div className={`${styles.sparkleDot} ${styles.sparkleFour}`} />
-                    <div className={styles.fireworkMessage}>🎉 Đăng ký thành công!</div>
-                </div>
-            ) : null}
 
             <header
                 className={`fixed top-0 left-0 right-0 z-5 ${styles.glassHeader}`}
                 style={{
-                    background: 'rgba(255, 240, 247, .82)',
-                    backdropFilter: 'blur(16px)',
-                    borderBottom: '1px solid rgba(255, 79, 163, .16)'
+                    background: 'rgba(255,255,255,.94)',
+                    backdropFilter: 'blur(12px)',
+                    borderBottom: '1px solid #ffc1df'
                 }}
             >
-                <div className={`flex align-items-center justify-content-between px-4 py-3 ${styles.headerPill}`} style={sectionStyle}>
+                <div className="flex align-items-center justify-content-between px-4 py-3" style={sectionStyle}>
                     <div className="flex align-items-center gap-2">
                         <div
                             className={`border-circle flex align-items-center justify-content-center ${styles.logoPulse}`}
                             style={{
                                 width: 46,
                                 height: 46,
-                                background: `linear-gradient(135deg,${COLORS.yellow},${COLORS.pink},${COLORS.blue})`,
+                                background: `linear-gradient(135deg,${COLORS.yellow},${COLORS.pink},${COLORS.purple})`,
                                 color: '#fff'
                             }}
                         >
@@ -469,30 +464,28 @@ export default function NangHongLandingPage() {
                         onClick={() => setLang(lang === 'vi' ? 'en' : 'vi')}
                     />
 
-                    <Button className={styles.buttonPop} label={t.applyNow} rounded style={buttonPink} onClick={() => scrollTo('apply')} />
+                    <Button label={t.applyNow} rounded style={buttonPink} onClick={() => scrollTo('apply')} />
                 </div>
             </header>
 
             <main id="home" style={{ paddingTop: 84 }}>
                 <section
-                    className={`px-4 py-8 relative ${styles.heroSection}`}
+                    className={`px-4 py-8 relative ${styles.heroSection} ${styles.sectionMotion}`}
                     style={{
-                        background: `linear-gradient(135deg, #ffe8f3 0%, #fff2c8 58%, #e9f8ff 100%)`
+                        background: `linear-gradient(135deg, ${COLORS.lightPink} 0%, ${COLORS.lightYellow} 45%, ${COLORS.lightGreen} 100%)`
                     }}
                 >
                     <DecorativeBubble style={{ width: 260, height: 260, background: COLORS.pink, top: -90, right: -80 }} />
-                    <DecorativeBubble style={{ width: 170, height: 170, background: COLORS.blue, bottom: 34, left: -54 }} />
-                    <DecorativeBubble style={{ width: 100, height: 100, background: COLORS.yellow, top: 150, left: '48%' }} />
-                    <div className={styles.cloudOne} />
-                    <div className={styles.cloudTwo} />
-                    <div className={styles.starOne}>✦</div>
-                    <div className={styles.starTwo}>✦</div>
-                    <div className={`${styles.cuteIcon} ${styles.iconSun}`}>🌞</div>
-                    <div className={`${styles.cuteIcon} ${styles.iconFlower}`}>🌼</div>
-                    <div className={`${styles.cuteIcon} ${styles.iconHeart}`}>💗</div>
-                    <div className={`${styles.cuteIcon} ${styles.iconRocket}`}>🚀</div>
+                    <DecorativeBubble style={{ width: 160, height: 160, background: COLORS.blue, bottom: 30, left: -50 }} />
+                    <DecorativeBubble style={{ width: 90, height: 90, background: COLORS.yellow, top: 140, left: '48%' }} />
+                    <div className={`${styles.firework} ${styles.fireworkOne}`} />
+                    <div className={`${styles.firework} ${styles.fireworkTwo}`} />
+                    <div className={`${styles.firework} ${styles.fireworkThree}`} />
+                    <div className={`${styles.confettiDot} ${styles.dotOne}`} />
+                    <div className={`${styles.confettiDot} ${styles.dotTwo}`} />
+                    <div className={`${styles.confettiDot} ${styles.dotThree}`} />
 
-                    <div className="grid align-items-center relative z-1" style={sectionStyle}>
+                    <div className={`grid align-items-center relative z-1 ${styles.sectionContentMotion}`} style={sectionStyle}>
                         <div className={`col-12 lg:col-6 ${styles.fadeUp}`}>
                             <div
                                 className={`inline-block px-4 py-2 border-round-3xl font-bold mb-3 ${styles.badgeCandy}`}
@@ -517,25 +510,9 @@ export default function NangHongLandingPage() {
                                     rounded
                                     outlined
                                     icon="pi pi-arrow-right"
-                                    style={{ color: COLORS.pink, borderColor: COLORS.pink, fontWeight: 800, background: 'rgba(255,255,255,.74)' }}
+                                    style={{ color: COLORS.pink, borderColor: COLORS.pink, fontWeight: 700 }}
                                     onClick={() => scrollTo('programs')}
                                 />
-                            </div>
-
-                            <div className={`grid mt-5 ${styles.heroStats}`}>
-                                {[
-                                    { value: siteContent?.stat_years_experience || '10+', label: t.yearsExperience, icon: '💖', color: COLORS.pink },
-                                    { value: siteContent?.stat_students_info || '500+', label: t.studentsPerYear, icon: '🌈', color: COLORS.blue },
-                                    { value: siteContent?.stat_awards_info || '30+', label: t.achievements, icon: '⭐', color: COLORS.orange }
-                                ].map((item) => (
-                                    <div key={item.label} className="col-12 sm:col-4">
-                                        <div className={styles.heroStatCard}>
-                                            <div className={styles.heroStatIcon}>{item.icon}</div>
-                                            <div className="font-bold text-2xl" style={{ color: item.color }}>{item.value}</div>
-                                            <div className="text-600 text-sm mt-1">{item.label}</div>
-                                        </div>
-                                    </div>
-                                ))}
                             </div>
                         </div>
 
@@ -559,16 +536,14 @@ export default function NangHongLandingPage() {
                                     alt={t.brandName}
                                     style={{ width: '100%', height: 450, objectFit: 'cover', display: 'block' }}
                                 />
-                                <div className={`${styles.heroSticker} ${styles.heroStickerOne}`}>💛</div>
-                                <div className={`${styles.heroSticker} ${styles.heroStickerTwo}`}>☀️</div>
-                                <div className={styles.heroSpeech}>Mỗi ngày đến trường là một ngày vui ✨</div>
                             </div>
                         </div>
                     </div>
                 </section>
 
-                <section id="programs" className={`px-4 py-8 ${styles.pinkSection} ${styles.colorfulSection}`}>
-                    <div style={sectionStyle}>
+                <section id="programs" className={`px-4 py-8 ${styles.pinkSection} ${styles.colorfulSection} ${styles.sectionMotion}`}>
+                    <SectionFloatingIcons icons={['🎈', '🌸', '⭐', '🧸']} />
+                    <div className={styles.sectionContentMotion} style={sectionStyle}>
                         <SectionTitle
                             badge={t.programsBadge}
                             title={t.programsTitle}
@@ -592,10 +567,11 @@ export default function NangHongLandingPage() {
                     </div>
                 </section>
 
-                <section id="about" className={`px-4 py-8 relative ${styles.aboutSection} ${styles.softSection}`}>
+                <section id="about" className={`px-4 py-8 relative ${styles.aboutSection} ${styles.softSection} ${styles.sectionMotion}`}>
+                    <SectionFloatingIcons icons={['☁️', '💖', '🌼', '🌈']} />
                     <DecorativeBubble style={{ width: 180, height: 180, background: COLORS.yellow, top: 40, right: -50 }} />
 
-                    <div className="grid align-items-center relative z-1" style={sectionStyle}>
+                    <div className={`grid align-items-center relative z-1 ${styles.sectionContentMotion}`} style={sectionStyle}>
                         <div className="col-12 lg:col-6">
                             <div
                                 className="overflow-hidden"
@@ -635,7 +611,7 @@ export default function NangHongLandingPage() {
                                     { value: siteContent?.stat_awards_info || '20+', label: t.achievements, color: COLORS.pink }
                                 ].map((item) => (
                                     <div key={item.label} className="col-4">
-                                        <div className="card text-center h-full" style={{ borderRadius: 22 }}>
+                                        <div className={`card text-center h-full ${styles.cardHover}`} style={{ borderRadius: 22 }}>
                                             <div className="font-bold text-4xl" style={{ color: item.color }}>{item.value}</div>
                                             <div className="text-600 mt-2">{item.label}</div>
                                         </div>
@@ -646,8 +622,9 @@ export default function NangHongLandingPage() {
                     </div>
                 </section>
 
-                <section className={`px-4 py-8 ${styles.pinkSection} ${styles.colorfulSection}`}>
-                    <div style={sectionStyle}>
+                <section className={`px-4 py-8 ${styles.pinkSection} ${styles.colorfulSection} ${styles.sectionMotion}`}>
+                    <SectionFloatingIcons icons={['🎨', '🧸', '🌟', '💛']} />
+                    <div className={styles.sectionContentMotion} style={sectionStyle}>
                         <SectionTitle
                             badge={t.teachersBadge}
                             title={t.teachersTitle}
@@ -671,8 +648,9 @@ export default function NangHongLandingPage() {
                     </div>
                 </section>
 
-                <section id="video" className={`px-4 py-8 ${styles.videoSection}`} style={{ background: `linear-gradient(135deg,${COLORS.green},${COLORS.blue},${COLORS.purple})` }}>
-                    <div className="grid align-items-center text-white" style={sectionStyle}>
+                <section id="video" className={`px-4 py-8 ${styles.videoSection} ${styles.sectionMotion}`} style={{ background: `linear-gradient(135deg,${COLORS.green},${COLORS.blue},${COLORS.purple})` }}>
+                    <SectionFloatingIcons icons={['🎬', '✨', '☁️', '💙']} />
+                    <div className={`grid align-items-center text-white ${styles.sectionContentMotion}`} style={sectionStyle}>
                         <div className="col-12 lg:col-5">
                             <h2 className="m-0 mb-3" style={{ ...titleStyle, fontSize: 'clamp(2.2rem, 4vw, 4rem)' }}>{t.videoTitle}</h2>
                             <p className="text-lg line-height-3">{t.videoDesc}</p>
@@ -711,13 +689,14 @@ export default function NangHongLandingPage() {
                     </div>
                 </section>
 
-<section id="apply" className={`px-4 py-8 ${styles.pinkSection} ${styles.colorfulSection}`}>
+<section id="apply" className={`px-4 py-8 ${styles.pinkSection} ${styles.colorfulSection} ${styles.sectionMotion}`}>
+    <SectionFloatingIcons icons={['📝', '💌', '🌸', '⭐']} />
     <div
         className={`p-5 ${styles.applyBox}`}
         style={{
             ...sectionStyle,
             borderRadius: 36,
-            background: `linear-gradient(135deg,#fff6c9,#ffe2f1,#e7f8ff)`,
+            background: `linear-gradient(135deg,${COLORS.lightYellow},${COLORS.lightPink},${COLORS.lightGreen})`,
             border: '3px dashed #ffc1dc',
             boxShadow: '0 18px 45px rgba(255,95,162,.16)'
         }}
@@ -749,7 +728,7 @@ export default function NangHongLandingPage() {
             </div>
 
             <div className="col-12 lg:col-7">
-                <div className="card" style={{ borderRadius: 28 }}>
+                <div className={`card ${styles.cardHover}`} style={{ borderRadius: 28 }}>
                     <div className="grid">
                         <div className="col-12 md:col-6">
                             <label className="block mb-2 font-bold">
@@ -844,7 +823,6 @@ export default function NangHongLandingPage() {
 
                         <div className="col-12">
                             <Button
-                                className={styles.buttonPop}
                                 label={t.submitApplication}
                                 icon="pi pi-send"
                                 rounded
@@ -860,8 +838,9 @@ export default function NangHongLandingPage() {
     </div>
 </section>
 
-                <section id="news" className={`px-4 py-8 ${styles.newsSection}`} style={{ background: COLORS.lightPink }}>
-                    <div style={sectionStyle}>
+                <section id="news" className={`px-4 py-8 ${styles.newsSection} ${styles.sectionMotion}`} style={{ background: COLORS.lightPink }}>
+                    <SectionFloatingIcons icons={['📰', '🎈', '💖', '🌼']} />
+                    <div className={styles.sectionContentMotion} style={sectionStyle}>
                         <SectionTitle
                             badge={t.newsBadge}
                             title={t.newsTitle}
@@ -912,13 +891,14 @@ export default function NangHongLandingPage() {
                     </div>
                 </section>
 
-                <section className={`px-4 py-8 ${styles.softSection}`}>
+                <section className={`px-4 py-8 ${styles.softSection} ${styles.sectionMotion}`}>
+                    <SectionFloatingIcons icons={['📬', '⭐', '💛', '☁️']} />
                     <div
-                        className={`p-5 text-white ${styles.newsletterBox}`}
+                        className={`p-5 text-white ${styles.newsletterBox} ${styles.sectionContentMotion}`}
                         style={{
                             ...sectionStyle,
                             borderRadius: 36,
-                            background: `linear-gradient(135deg,${COLORS.pink},${COLORS.orange},${COLORS.yellow},${COLORS.blue})`,
+                            background: `linear-gradient(135deg,${COLORS.pink},${COLORS.orange},${COLORS.yellow},${COLORS.green},${COLORS.blue})`,
                             boxShadow: '0 18px 45px rgba(255,95,162,.22)'
                         }}
                     >
@@ -945,8 +925,9 @@ export default function NangHongLandingPage() {
                 </section>
             </main>
 
-            <footer id="contact" className={`px-4 py-6 bg-white ${styles.footerGlow}`}>
-                <div className="grid" style={sectionStyle}>
+            <footer id="contact" className={`px-4 py-6 bg-white ${styles.footerGlow} ${styles.sectionMotion}`}>
+                <SectionFloatingIcons icons={['🌻', '☁️', '💗', '⭐']} />
+                <div className={`grid ${styles.sectionContentMotion}`} style={sectionStyle}>
                     <div className="col-12 md:col-4">
                         <h2>{t.brandName}</h2>
                         <p className="text-600 line-height-3">
