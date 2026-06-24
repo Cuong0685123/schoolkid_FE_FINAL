@@ -178,45 +178,26 @@ export default function NangHongLandingPage() {
             });
         });
     }, []);
+const getImageUrl = (url?: string) => {
+    if (!url) return '';
 
+    const idMatch =
+        url.match(/[?&]id=([^&]+)/) ||
+        url.match(/\/file\/d\/([^/]+)/) ||
+        url.match(/\/d\/([^/]+)/);
+
+    if (!idMatch) return url;
+
+    return `https://drive.google.com/thumbnail?id=${idMatch[1]}&sz=w1000`;
+};
     const featuredPrograms = getProgramChildren(programs);
     const teachers = getTeachers(programs);
     const latestNews = articles.slice(0, 3);
     const latestVideo = videos[0];
 
-    const displayPrograms =
-        featuredPrograms.length > 0
-            ? featuredPrograms
-            : [
-                  {
-                      id: 'p1',
-                      title: t.fallbackProgramTitle1,
-                      detail: t.fallbackProgramDetail1,
-                      thumbnail_url: ''
-                  },
-                  {
-                      id: 'p2',
-                      title: t.fallbackProgramTitle2,
-                      detail: t.fallbackProgramDetail2,
-                      thumbnail_url: ''
-                  },
-                  {
-                      id: 'p3',
-                      title: t.fallbackProgramTitle3,
-                      detail: t.fallbackProgramDetail3,
-                      thumbnail_url: ''
-                  }
-              ];
+    const displayPrograms = featuredPrograms;
 
-    const displayTeachers =
-        teachers.length > 0
-            ? teachers
-            : [
-                  { id: 't1', full_name: t.fallbackTeacher1, role: t.kindergartenTeacher, profile_image_url: '' },
-                  { id: 't2', full_name: t.fallbackTeacher2, role: t.talentTeacher, profile_image_url: '' },
-                  { id: 't3', full_name: t.fallbackTeacher3, role: t.careTeacher, profile_image_url: '' },
-                  { id: 't4', full_name: t.fallbackTeacher4, role: t.classTeacher, profile_image_url: '' }
-              ];
+    const displayTeachers = teachers;
 
     const scrollTo = (id: string) => {
         document.getElementById(id)?.scrollIntoView({
@@ -321,33 +302,28 @@ export default function NangHongLandingPage() {
                     boxShadow: '0 16px 35px rgba(255,47,146,.22)'
                 }}
             >
-                {item.thumbnail_url ? (
-                    <img
-                        className={styles.imageHover}
-                        src={item.thumbnail_url}
-                        alt={item.title || t.programAlt}
-                        style={{
-                            width: '100%',
-                            height: 170,
-                            objectFit: 'cover',
-                            borderRadius: 24,
-                            marginBottom: 18
-                        }}
-                    />
-                ) : (
-                    <div
-                        className="border-circle mx-auto mb-4 flex align-items-center justify-content-center"
-                        style={{
-                            width: 105,
-                            height: 105,
-                            background: COLORS.lightYellow,
-                            color: COLORS.yellow,
-                            border: '5px solid #fff'
-                        }}
-                    >
-                        <i className="pi pi-sun text-5xl" />
-                    </div>
-                )}
+                {item.thumbnail_url && (
+   <img
+    src={normalizeDriveThumbnailUrl(item.thumbnail_url)}
+    alt={item.title}
+    onLoad={() => {
+        console.log("IMAGE LOADED:", item.title);
+    }}
+    onError={() => {
+        console.log("IMAGE ERROR:", item.thumbnail_url);
+        console.log(
+            "CONVERTED:",
+            normalizeDriveThumbnailUrl(item.thumbnail_url)
+        );
+    }}
+    style={{
+        width: '100%',
+        height: 170,
+        objectFit: 'cover',
+        borderRadius: 24
+    }}
+/>
+)}
 
                 <h3 className="text-2xl mb-2">{item.title || t.programAlt}</h3>
 
@@ -381,18 +357,39 @@ export default function NangHongLandingPage() {
                     boxShadow: '0 16px 35px rgba(0,200,150,.2)'
                 }}
             >
-                {teacher.profile_image_url ? (
-                    <img
-                        className={styles.imageHover}
-                        src={teacher.profile_image_url}
-                        alt={teacher.full_name || t.teacherAlt}
-                        style={{
-                            width: '100%',
-                            height: 235,
-                            objectFit: 'cover',
-                            borderRadius: 26
-                        }}
-                    />
+               {teacher.profile_image_url ? (
+    <img
+        className={styles.imageHover}
+        src={normalizeDriveThumbnailUrl(teacher.profile_image_url)}
+        alt={teacher.full_name || t.teacherAlt}
+        onLoad={() => {
+            console.log(
+                'TEACHER IMAGE LOADED:',
+                teacher.full_name,
+                teacher.profile_image_url
+            );
+        }}
+        onError={() => {
+            console.log(
+                'TEACHER IMAGE ERROR:',
+                teacher.profile_image_url
+            );
+
+            console.log(
+                'TEACHER CONVERTED:',
+                normalizeDriveThumbnailUrl(
+                    teacher.profile_image_url
+                )
+            );
+        }}
+        referrerPolicy="no-referrer"
+        style={{
+            width: '100%',
+            height: 235,
+            objectFit: 'cover',
+            borderRadius: 26
+        }}
+    />
                 ) : (
                     <div
                         className="mx-auto mb-4 border-circle flex align-items-center justify-content-center"
@@ -526,16 +523,21 @@ export default function NangHongLandingPage() {
                                 }}
                             >
                                 <img
-                                    className={styles.imageHover}
-                                    src={
-                                        siteContent?.hero_image_url
-                                            ? normalizeDriveThumbnailUrl(siteContent.hero_image_url)
-                                            : '/layout/images/landing/landing-hero-image.jpg'
-                                    }
-                                    referrerPolicy="no-referrer"
-                                    alt={t.brandName}
-                                    style={{ width: '100%', height: 450, objectFit: 'cover', display: 'block' }}
-                                />
+    className={styles.imageHover}
+    src={
+        latestVideo?.thumbnail_image_url
+            ? normalizeDriveThumbnailUrl(latestVideo.thumbnail_image_url)
+            : ''
+    }
+    referrerPolicy="no-referrer"
+    alt={latestVideo?.title || t.brandName}
+    style={{
+        width: '100%',
+        height: 450,
+        objectFit: 'cover',
+        display: 'block'
+    }}
+/>
                             </div>
                         </div>
                     </div>
@@ -582,16 +584,21 @@ export default function NangHongLandingPage() {
                                 }}
                             >
                                 <img
-                                    className={styles.imageHover}
-                                    src={
-                                        siteContent?.about_image_url
-                                            ? normalizeDriveThumbnailUrl(siteContent.about_image_url)
-                                            : '/layout/images/landing/landing-hero-image.jpg'
-                                    }
-                                    referrerPolicy="no-referrer"
-                                    alt={t.aboutAlt}
-                                    style={{ width: '100%', height: 380, objectFit: 'cover', display: 'block' }}
-                                />
+    className={styles.imageHover}
+    src={
+        latestVideo?.thumbnail_image_url
+            ? normalizeDriveThumbnailUrl(latestVideo.thumbnail_image_url)
+            : ''
+    }
+    referrerPolicy="no-referrer"
+    alt={latestVideo?.title || t.brandName}
+    style={{
+        width: '100%',
+        height: 450,
+        objectFit: 'cover',
+        display: 'block'
+    }}
+/>
                             </div>
                         </div>
 
@@ -667,25 +674,65 @@ export default function NangHongLandingPage() {
                         </div>
 
                         <div className="col-12 lg:col-7">
-                            <div className={`card ${styles.videoCard}`} style={{ borderRadius: 28 }}>
-                                {latestVideo ? (
-                                    <iframe
-                                        src={getYoutubeEmbedUrl(latestVideo.video_url)}
-                                        title={latestVideo.title}
-                                        allowFullScreen
-                                        style={{
-                                            width: '100%',
-                                            height: 420,
-                                            border: 'none',
-                                            borderRadius: 20,
-                                            background: '#000'
-                                        }}
-                                    />
-                                ) : (
-                                    <p>{t.noVideo}</p>
-                                )}
-                            </div>
-                        </div>
+    <div
+        className={`card ${styles.videoCard}`}
+        style={{
+            borderRadius: 28,
+            overflow: 'hidden'
+        }}
+    >
+        {latestVideo ? (
+            <div
+                style={{
+                    position: 'relative',
+                    width: '100%',
+                    height: 420,
+                    borderRadius: 20,
+                    overflow: 'hidden',
+                    background: '#000'
+                }}
+            >
+                {latestVideo?.video_url && (
+    <iframe
+        src={getYoutubeEmbedUrl(latestVideo.video_url)}
+        title={latestVideo.title}
+        allowFullScreen
+        style={{
+            width: '100%',
+            height: '100%',
+            border: 'none',
+            display: 'block'
+        }}
+    />
+)}
+
+                <button
+                    type="button"
+                    onClick={() => window.open(latestVideo.video_url, '_blank')}
+                    style={{
+                        position: 'absolute',
+                        top: '50%',
+                        left: '50%',
+                        transform: 'translate(-50%, -50%)',
+                        width: 86,
+                        height: 86,
+                        borderRadius: '50%',
+                        border: 'none',
+                        background: '#ff2f92',
+                        color: '#fff',
+                        fontSize: 34,
+                        cursor: 'pointer',
+                        boxShadow: '0 12px 30px rgba(255,47,146,.35)'
+                    }}
+                >
+                    ▶
+                </button>
+            </div>
+        ) : (
+            <p>{t.noVideo}</p>
+        )}
+    </div>
+</div>
                     </div>
                 </section>
 
@@ -861,7 +908,7 @@ export default function NangHongLandingPage() {
                                         {article.thumbnail_url ? (
                                             <img
                                                 className={styles.imageHover}
-                                                src={normalizeDriveThumbnailUrl(article.thumbnail_url)}
+                                                src={getImageUrl(article.thumbnail_url)}
                                                 alt={article.title}
                                                 style={{ width: '100%', height: 190, objectFit: 'cover', borderRadius: 22 }}
                                             />

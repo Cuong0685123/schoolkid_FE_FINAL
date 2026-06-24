@@ -154,35 +154,19 @@ export default function ProgramDetailPage() {
                                         border: '3px solid #ffe0ef'
                                     }}
                                 >
-                                    {item.thumbnail_url ? (
-                                        <img
-                                            src={item.thumbnail_url}
-                                            alt={item.title || item.full_name}
-                                            style={{
-                                                width: '100%',
-                                                height: 180,
-                                                objectFit: 'cover',
-                                                borderRadius: 20,
-                                                marginBottom: 16
-                                            }}
-                                        />
-                                    ) : (
-                                        <div
-                                            style={{
-                                                width: 90,
-                                                height: 90,
-                                                borderRadius: '50%',
-                                                background: '#fff8d6',
-                                                display: 'flex',
-                                                alignItems: 'center',
-                                                justifyContent: 'center',
-                                                color: '#ffc83d',
-                                                marginBottom: 16
-                                            }}
-                                        >
-                                            <i className="pi pi-sun text-4xl" />
-                                        </div>
-                                    )}
+                                  {item.thumbnail_url && (
+    <img
+        src={item.thumbnail_url}
+        alt={item.title || item.full_name}
+        style={{
+            width: '100%',
+            height: 180,
+            objectFit: 'cover',
+            borderRadius: 20,
+            marginBottom: 16
+        }}
+    />
+)}
 
                                     <h3>{item.title || item.full_name || 'Lớp học'}</h3>
 
