@@ -188,7 +188,7 @@ const getImageUrl = (url?: string) => {
 
     if (!idMatch) return url;
 
-    return `https://drive.google.com/thumbnail?id=${idMatch[1]}&sz=w1000`;
+    return `https://lh3.googleusercontent.com/d/${idMatch[1]}=w1000`;
 };
     const featuredPrograms = getProgramChildren(programs);
     const teachers = getTeachers(programs);
@@ -304,7 +304,7 @@ const getImageUrl = (url?: string) => {
             >
                 {item.thumbnail_url && (
    <img
-    src={normalizeDriveThumbnailUrl(item.thumbnail_url)}
+   src={getImageUrl(item.thumbnail_url)}
     alt={item.title}
     onLoad={() => {
         console.log("IMAGE LOADED:", item.title);
@@ -360,7 +360,7 @@ const getImageUrl = (url?: string) => {
                {teacher.profile_image_url ? (
     <img
         className={styles.imageHover}
-        src={normalizeDriveThumbnailUrl(teacher.profile_image_url)}
+        src={getImageUrl(teacher.profile_image_url)}
         alt={teacher.full_name || t.teacherAlt}
         onLoad={() => {
             console.log(
