@@ -7,9 +7,11 @@ import { Column } from 'primereact/column';
 import { Button } from 'primereact/button';
 import { Toast } from 'primereact/toast';
 import { classNames } from 'primereact/utils';
-import { getPrograms } from '../../../demo/service/ProgramService';
+import { getPrograms, createProgram } from '../../../demo/service/ProgramService';
 import { useRouter } from 'next/navigation';
-
+import { Dialog } from 'primereact/dialog';
+import { InputText } from 'primereact/inputtext';
+import { Dropdown } from 'primereact/dropdown';
 type ProgramRow = {
     id: string | number;
     name?: string;
@@ -26,7 +28,20 @@ const Program = () => {
     const [programs, setPrograms] = useState<ProgramRow[]>([]);
     const [loading, setLoading] = useState(true);
     const router = useRouter();
+const [parentDialogVisible, setParentDialogVisible] = useState(false);
+const [parentSaving, setParentSaving] = useState(false);
 
+const [parentForm, setParentForm] = useState({
+    name: '',
+    description: '',
+    type: ''
+});
+
+const parentTypeOptions = [
+    { label: 'Education', value: 'edu' },
+    { label: 'Sport', value: 'sport' },
+    { label: 'Teacher', value: 'teacher' }
+];
     const loadPrograms = async () => {
         try {
             setLoading(true);
@@ -47,7 +62,62 @@ const Program = () => {
     useEffect(() => {
         loadPrograms();
     }, []);
+const handleCreateParentProgram = async () => {
+    if (!parentForm.name.trim()) {
+        toast.current?.show({
+            severity: 'warn',
+            summary: 'Warning',
+            detail: 'Please enter program name',
+            life: 3000
+        });
+        return;
+    }
 
+    if (!parentForm.type) {
+        toast.current?.show({
+            severity: 'warn',
+            summary: 'Warning',
+            detail: 'Please select program type',
+            life: 3000
+        });
+        return;
+    }
+
+    try {
+        setParentSaving(true);
+
+        await createProgram({
+            name: parentForm.name.trim(),
+            description: parentForm.description.trim(),
+            type: parentForm.type as 'edu' | 'sport' | 'teacher'
+        });
+
+        toast.current?.show({
+            severity: 'success',
+            summary: 'Success',
+            detail: 'Create parent program successfully',
+            life: 3000
+        });
+
+        setParentDialogVisible(false);
+        setParentForm({
+            name: '',
+            description: '',
+            type: ''
+        });
+
+        await loadPrograms();
+    } catch (error) {
+        toast.current?.show({
+            severity: 'error',
+            summary: 'Error',
+            detail: error instanceof Error ? error.message : 'Failed to create parent program',
+            life: 3000
+        });
+    } finally {
+        setParentSaving(false);
+    }
+};
     const typeBodyTemplate = (rowData: ProgramRow) => {
         if (rowData.type === 'edu') return 'Education';
         if (rowData.type === 'sport') return 'Sport';
@@ -90,11 +160,20 @@ const Program = () => {
                             </p>
                         </div>
 
-                        <Button
-                            label="Create Program"
-                            icon="pi pi-plus"
-                            onClick={() => router.push('/program/create')}
-                        />
+                        <div className="flex gap-2">
+    <Button
+        label="Create Parent Program"
+        icon="pi pi-plus"
+        severity="success"
+        onClick={() => setParentDialogVisible(true)}
+    />
+
+    <Button
+        label="Create Child Program"
+        icon="pi pi-sitemap"
+        onClick={() => router.push('/program/create')}
+    />
+</div>
                     </div>
 
                     <div className="mb-3">
@@ -173,6 +252,90 @@ const Program = () => {
                     </DataTable>
                 </div>
             </div>
+
+
+            <Dialog
+    header="Create Parent Program"
+    visible={parentDialogVisible}
+    style={{ width: '450px' }}
+    modal
+    onHide={() => setParentDialogVisible(false)}
+    footer={
+        <div className="flex justify-content-end gap-2">
+            <Button
+                label="Cancel"
+                severity="secondary"
+                outlined
+                onClick={() => setParentDialogVisible(false)}
+            />
+
+            <Button
+                label="Create"
+                loading={parentSaving}
+                onClick={handleCreateParentProgram}
+            />
+        </div>
+    }
+>
+    <div className="flex flex-column gap-3">
+
+        <div>
+            <label className="font-bold mb-2 block">
+                Program Name
+            </label>
+
+            <InputText
+                className="w-full"
+                value={parentForm.name}
+                onChange={(e) =>
+                    setParentForm({
+                        ...parentForm,
+                        name: e.target.value
+                    })
+                }
+            />
+        </div>
+
+        <div>
+            <label className="font-bold mb-2 block">
+                Description
+            </label>
+
+            <InputText
+                className="w-full"
+                value={parentForm.description}
+                onChange={(e) =>
+                    setParentForm({
+                        ...parentForm,
+                        description: e.target.value
+                    })
+                }
+            />
+        </div>
+
+        <div>
+            <label className="font-bold mb-2 block">
+                Type
+            </label>
+
+            <Dropdown
+                className="w-full"
+                value={parentForm.type}
+                options={parentTypeOptions}
+                optionLabel="label"
+                optionValue="value"
+                placeholder="Select Program Type"
+                onChange={(e) =>
+                    setParentForm({
+                        ...parentForm,
+                        type: e.value
+                    })
+                }
+            />
+        </div>
+
+    </div>
+</Dialog>
         </>
     );
 };
