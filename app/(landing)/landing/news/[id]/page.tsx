@@ -8,14 +8,17 @@ import { getNewsArticleById } from '../../../../../demo/service/NewsArticleServi
 
 
 
-const normalizeDriveThumbnailUrl = (url?: string) => {
+const getImageUrl = (url?: string) => {
     if (!url) return '';
 
-    const match = url.match(/id=([^&]+)/);
+    const idMatch =
+        url.match(/[?&]id=([^&]+)/) ||
+        url.match(/\/file\/d\/([^/]+)/) ||
+        url.match(/\/d\/([^/]+)/);
 
-    if (!match) return url;
+    if (!idMatch) return url;
 
-    return `https://drive.google.com/thumbnail?id=${match[1]}&sz=w1000`;
+    return `https://lh3.googleusercontent.com/d/${idMatch[1]}=w1000`;
 };
 export default function NewsDetailPage() {
     const params = useParams();
@@ -92,7 +95,7 @@ export default function NewsDetailPage() {
                 >
                     {article.thumbnail_url && (
                         <img
-                           src={normalizeDriveThumbnailUrl(article.thumbnail_url)}
+                           src={getImageUrl(article.thumbnail_url)}
                             alt={article.title}
                             style={{
                                 width: '100%',

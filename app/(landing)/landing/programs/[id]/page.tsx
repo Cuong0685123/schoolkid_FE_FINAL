@@ -5,6 +5,18 @@ import { useParams, useRouter } from 'next/navigation';
 import { Button } from 'primereact/button';
 import { getProgramById } from '../../../../../demo/service/ProgramService';
 
+const getImageUrl = (url?: string) => {
+    if (!url) return '';
+
+    const idMatch =
+        url.match(/[?&]id=([^&]+)/) ||
+        url.match(/\/file\/d\/([^/]+)/) ||
+        url.match(/\/d\/([^/]+)/);
+
+    if (!idMatch) return url;
+
+    return `https://lh3.googleusercontent.com/d/${idMatch[1]}=w1000`;
+};
 export default function ProgramDetailPage() {
     const params = useParams();
     const router = useRouter();
@@ -155,9 +167,10 @@ export default function ProgramDetailPage() {
                                     }}
                                 >
                                   {item.thumbnail_url && (
-    <img
-        src={item.thumbnail_url}
-        alt={item.title || item.full_name}
+    
+       <img
+    src={getImageUrl(item.thumbnail_url || item.profile_image_url)}
+    alt={item.title || item.full_name}
         style={{
             width: '100%',
             height: 180,
