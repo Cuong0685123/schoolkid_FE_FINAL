@@ -706,27 +706,7 @@ const getImageUrl = (url?: string) => {
     />
 )}
 
-                <button
-                    type="button"
-                    onClick={() => window.open(latestVideo.video_url, '_blank')}
-                    style={{
-                        position: 'absolute',
-                        top: '50%',
-                        left: '50%',
-                        transform: 'translate(-50%, -50%)',
-                        width: 86,
-                        height: 86,
-                        borderRadius: '50%',
-                        border: 'none',
-                        background: '#ff2f92',
-                        color: '#fff',
-                        fontSize: 34,
-                        cursor: 'pointer',
-                        boxShadow: '0 12px 30px rgba(255,47,146,.35)'
-                    }}
-                >
-                    ▶
-                </button>
+                
             </div>
         ) : (
             <p>{t.noVideo}</p>
