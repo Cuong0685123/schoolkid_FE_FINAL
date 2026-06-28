@@ -529,11 +529,11 @@ const getImageUrl = (url?: string) => {
             ? normalizeDriveThumbnailUrl(latestVideo.thumbnail_image_url)
             : ''
     }
-    referrerPolicy="no-referrer"
+     referrerPolicy="no-referrer"
     alt={latestVideo?.title || t.brandName}
     style={{
         width: '100%',
-        height: 450,
+        height: 'clamp(240px, 52vw, 450px)',
         objectFit: 'cover',
         display: 'block'
     }}
@@ -553,19 +553,21 @@ const getImageUrl = (url?: string) => {
                         />
 
                         <Carousel
-                            value={displayPrograms}
-                            numVisible={3}
-                            numScroll={1}
-                            circular
-                            autoplayInterval={3000}
-                            showIndicators
-                            showNavigators
-                            responsiveOptions={[
-                                { breakpoint: '1024px', numVisible: 2, numScroll: 1 },
-                                { breakpoint: '768px', numVisible: 1, numScroll: 1 }
-                            ]}
-                            itemTemplate={programTemplate}
-                        />
+    value={displayPrograms}
+    numVisible={3}
+    numScroll={1}
+    circular
+    autoplayInterval={3000}
+    showIndicators
+    showNavigators={false}
+    responsiveOptions={[
+        { breakpoint: '1400px', numVisible: 3, numScroll: 1 },
+        { breakpoint: '1024px', numVisible: 2, numScroll: 1 },
+        { breakpoint: '768px', numVisible: 1, numScroll: 1 },
+        { breakpoint: '480px', numVisible: 1, numScroll: 1 }
+    ]}
+    itemTemplate={programTemplate}
+/>
                     </div>
                 </section>
 
@@ -638,20 +640,22 @@ const getImageUrl = (url?: string) => {
                             desc={t.teachersDesc}
                         />
 
-                        <Carousel
-                            value={displayTeachers}
-                            numVisible={4}
-                            numScroll={1}
-                            circular
-                            autoplayInterval={2500}
-                            showIndicators
-                            showNavigators
-                            responsiveOptions={[
-                                { breakpoint: '1024px', numVisible: 2, numScroll: 1 },
-                                { breakpoint: '768px', numVisible: 1, numScroll: 1 }
-                            ]}
-                            itemTemplate={teacherTemplate}
-                        />
+                       <Carousel
+    value={displayTeachers}
+    numVisible={4}
+    numScroll={1}
+    circular
+    autoplayInterval={2500}
+    showIndicators
+    showNavigators={false}
+    responsiveOptions={[
+        { breakpoint: '1400px', numVisible: 4, numScroll: 1 },
+        { breakpoint: '1024px', numVisible: 2, numScroll: 1 },
+        { breakpoint: '768px', numVisible: 1, numScroll: 1 },
+        { breakpoint: '480px', numVisible: 1, numScroll: 1 }
+    ]}
+    itemTemplate={teacherTemplate}
+/>
                     </div>
                 </section>
 
