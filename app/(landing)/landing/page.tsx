@@ -19,6 +19,7 @@ import { getSiteContents, type SiteContent } from '../../../demo/service/SiteCon
 import { useRouter } from 'next/navigation';
 import { landingText } from './lang';
 import styles from './landing.module.scss';
+import Image from 'next/image';
 type ProgramRow = {
     id: number | string;
     name?: string;
@@ -178,7 +179,7 @@ export default function NangHongLandingPage() {
             });
         });
     }, []);
-const getImageUrl = (url?: string) => {
+const getImageUrl = (url?: string, width = 400) => {
     if (!url) return '';
 
     const idMatch =
@@ -188,7 +189,7 @@ const getImageUrl = (url?: string) => {
 
     if (!idMatch) return url;
 
-    return `https://lh3.googleusercontent.com/d/${idMatch[1]}=w1000`;
+    return `https://lh3.googleusercontent.com/d/${idMatch[1]}=w${width}`;
 };
     const featuredPrograms = getProgramChildren(programs);
     const teachers = getTeachers(programs);
@@ -303,7 +304,7 @@ const getImageUrl = (url?: string) => {
                 }}
             >
                 {item.thumbnail_url && (
-   <img
+   <Image
    src={getImageUrl(item.thumbnail_url)}
     alt={item.title}
     onLoad={() => {
@@ -358,7 +359,7 @@ const getImageUrl = (url?: string) => {
                 }}
             >
                {teacher.profile_image_url ? (
-    <img
+    <Image
         className={styles.imageHover}
         src={getImageUrl(teacher.profile_image_url)}
         alt={teacher.full_name || t.teacherAlt}
@@ -890,13 +891,18 @@ const getImageUrl = (url?: string) => {
                                         }}
                                     >
                                         {article.thumbnail_url ? (
-                                            <img
-                                                className={styles.imageHover}
-                                                src={getImageUrl(article.thumbnail_url)}
-                                                alt={article.title}
-                                                style={{ width: '100%', height: 190, objectFit: 'cover', borderRadius: 22 }}
-                                            />
-                                        ) : null}
+    <div style={{ position: 'relative', width: '100%', height: 190, borderRadius: 22, overflow: 'hidden' }}>
+        <Image
+            className={styles.imageHover}
+            src={getImageUrl(article.thumbnail_url, 400)}
+            alt={String(article.title || 'News thumbnail')}
+            fill
+            sizes="(max-width: 768px) 100vw, 33vw"
+            style={{ objectFit: 'cover' }}
+            loading="lazy"
+        />
+    </div>
+) : null}
 
                                         <h3 className="text-2xl">{article.title}</h3>
 
