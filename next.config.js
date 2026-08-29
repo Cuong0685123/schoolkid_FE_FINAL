@@ -2,7 +2,21 @@
 const nextConfig = {
     reactStrictMode: true,
     images: {
-        domains: ['drive.google.com'],
+        remotePatterns: [
+            {
+                protocol: 'https',
+                hostname: 'lh3.googleusercontent.com',
+            },
+            {
+                protocol: 'https',
+                hostname: 'drive.google.com',
+            },
+            {
+                protocol: 'https',
+                hostname: 'img.youtube.com',
+            }
+        ],
+        minimumCacheTTL: 2592000, // Cache ảnh 30 ngày trên Vercel CDN
     },
     async redirects() {
         return [
