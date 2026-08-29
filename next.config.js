@@ -5,6 +5,10 @@ const nextConfig = {
         remotePatterns: [
             {
                 protocol: 'https',
+                hostname: 'wsrv.nl',
+            },
+            {
+                protocol: 'https',
                 hostname: 'lh3.googleusercontent.com',
             },
             {
@@ -16,7 +20,6 @@ const nextConfig = {
                 hostname: 'img.youtube.com',
             }
         ],
-        minimumCacheTTL: 2592000, // Cache ảnh 30 ngày trên Vercel CDN
     },
     async redirects() {
         return [

@@ -179,7 +179,7 @@ export default function NangHongLandingPage() {
             });
         });
     }, []);
-const getImageUrl = (url?: string, width = 400) => {
+const getImageUrl = (url?: string, width = 500) => {
     if (!url) return '';
 
     const idMatch =
@@ -189,7 +189,11 @@ const getImageUrl = (url?: string, width = 400) => {
 
     if (!idMatch) return url;
 
-    return `https://lh3.googleusercontent.com/d/${idMatch[1]}=w${width}`;
+    // Direct link tới Google Drive content
+    const driveDirect = `https://lh3.googleusercontent.com/d/${idMatch[1]}`;
+    
+    // Đẩy qua Cloudflare Image CDN (wsrv.nl) nén webp chất lượng cao, tối ưu tải
+    return `https://wsrv.nl/?url=${encodeURIComponent(driveDirect)}&w=${width}&output=webp&q=80`;
 };
     const featuredPrograms = getProgramChildren(programs);
     const teachers = getTeachers(programs);
