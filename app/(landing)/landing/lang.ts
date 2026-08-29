@@ -80,7 +80,7 @@ export const landingText = {
         messagePlaceholder: 'Phụ huynh cần tư vấn lớp học, học phí...',
         submitApplication: 'Gửi đăng ký',
         newsBadge: 'News',
-        newsTitle: 'Tin tức Nắng Hồng',
+        newsTitle: 'Tin Tức Nắng Hồng',
         newsDesc: 'Những hoạt động và thông báo mới nhất của nhà trường.',
         noContent: 'Chưa có nội dung.',
         byAuthor: 'bởi',
@@ -96,7 +96,7 @@ export const landingText = {
         footerNews: 'Tin tức',
         footerContact: 'Liên hệ',
         contactTitle: 'Liên hệ',
-        defaultAddress: 'Thành phố Hồ Chí Minh'
+        defaultAddress: 'Thành Phố Hồ Chí Minh'
     },
     en: {
         brandName: 'Nang Hong Kindergarten',
