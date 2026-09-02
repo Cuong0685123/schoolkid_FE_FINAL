@@ -19,6 +19,7 @@ import LazyImage from '../../../demo/components/LazyImage';
 import HighlightsSection from '../../../demo/components/HighlightsSection';
 import FacilitiesSection from '../../../demo/components/FacilitiesSection';
 import NutritionSection from '../../../demo/components/NutritionSection';
+import TuitionSection from '../../../demo/components/TuitionSection';
 type ProgramRow = {
     id: number | string;
     name?: string;
@@ -588,6 +589,9 @@ export default function NangHongLandingPage() {
 
                 {/* 🥗 Section 7: Dinh dưỡng & Chăm sóc */}
                 <NutritionSection lang={lang} />
+
+                {/* 💰 Section 8: Học phí & Ưu đãi */}
+                <TuitionSection lang={lang} onApplyClick={() => scrollTo('apply')} />
 
                 <section id="video" className={`px-4 py-8 ${styles.videoSection} ${styles.sectionMotion}`} style={{ background: `linear-gradient(135deg,${COLORS.green},${COLORS.blue},${COLORS.purple})` }}>
                     <SectionFloatingIcons icons={['🎬', '✨', '☁️', '💙']} />
