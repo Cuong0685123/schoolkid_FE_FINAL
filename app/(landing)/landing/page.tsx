@@ -22,6 +22,7 @@ import styles from './landing.module.scss';
 import Image from 'next/image';
 import LazyImage from '../../../demo/components/LazyImage';
 import HighlightsSection from '../../../demo/components/HighlightsSection';
+import FacilitiesSection from '../../../demo/components/FacilitiesSection';
 type ProgramRow = {
     id: number | string;
     name?: string;
@@ -664,6 +665,9 @@ const getImageUrl = (url?: string, width = 400) => {
 />
                     </div>
                 </section>
+
+                {/* 🏢 Section 6: Cơ sở vật chất */}
+                <FacilitiesSection lang={lang} getImageUrl={getImageUrl} />
 
                 <section id="video" className={`px-4 py-8 ${styles.videoSection} ${styles.sectionMotion}`} style={{ background: `linear-gradient(135deg,${COLORS.green},${COLORS.blue},${COLORS.purple})` }}>
                     <SectionFloatingIcons icons={['🎬', '✨', '☁️', '💙']} />
