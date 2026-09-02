@@ -8,12 +8,7 @@ import { Carousel } from 'primereact/carousel';
 import { createApplication } from '../../../demo/service/ApplicationService';
 import { getPrograms } from '../../../demo/service/ProgramService';
 import { getNewsArticles, type NewsArticle } from '../../../demo/service/NewsArticleService';
-import {
-    getPromotionalVideos,
-    normalizeDriveThumbnailUrl,
-    getYoutubeEmbedUrl,
-    type PromotionalVideo
-} from '../../../demo/service/PromotionalVideoService';
+import { getPromotionalVideos, normalizeDriveThumbnailUrl, getYoutubeEmbedUrl, type PromotionalVideo } from '../../../demo/service/PromotionalVideoService';
 import { createNewsletterSubscriber } from '../../../demo/service/NewsletterService';
 import { getSiteContents, type SiteContent } from '../../../demo/service/SiteContentService';
 import { useRouter } from 'next/navigation';
@@ -23,6 +18,7 @@ import Image from 'next/image';
 import LazyImage from '../../../demo/components/LazyImage';
 import HighlightsSection from '../../../demo/components/HighlightsSection';
 import FacilitiesSection from '../../../demo/components/FacilitiesSection';
+import NutritionSection from '../../../demo/components/NutritionSection';
 type ProgramRow = {
     id: number | string;
     name?: string;
@@ -81,21 +77,10 @@ const getTeachers = (programs: ProgramRow[]) => {
     return programs.flatMap((item) => item.ProgramTeachers || []);
 };
 
-const SectionTitle = ({
-    badge,
-    title,
-    desc
-}: {
-    badge?: string;
-    title: string;
-    desc?: string;
-}) => (
+const SectionTitle = ({ badge, title, desc }: { badge?: string; title: string; desc?: string }) => (
     <div className={`text-center mb-5 ${styles.sectionTitle} ${styles.fadeUp}`}>
         {badge ? (
-            <div
-                className="inline-block px-4 py-2 border-round-3xl font-bold mb-3"
-                style={{ background: COLORS.lightYellow, color: COLORS.pink }}
-            >
+            <div className="inline-block px-4 py-2 border-round-3xl font-bold mb-3" style={{ background: COLORS.lightYellow, color: COLORS.pink }}>
                 {badge}
             </div>
         ) : null}
@@ -108,11 +93,7 @@ const SectionTitle = ({
     </div>
 );
 
-const DecorativeBubble = ({
-    style
-}: {
-    style: React.CSSProperties;
-}) => (
+const DecorativeBubble = ({ style }: { style: React.CSSProperties }) => (
     <div
         className={styles.bubbleDrift}
         style={{
@@ -125,11 +106,7 @@ const DecorativeBubble = ({
     />
 );
 
-const SectionFloatingIcons = ({
-    icons
-}: {
-    icons: string[];
-}) => (
+const SectionFloatingIcons = ({ icons }: { icons: string[] }) => (
     <div className={styles.sectionFloatingIcons} aria-hidden="true">
         {icons.map((icon, index) => (
             <span key={`${icon}-${index}`} className={`${styles.sectionIcon} ${styles[`sectionIcon${index + 1}`] || ''}`}>
@@ -160,12 +137,7 @@ export default function NangHongLandingPage() {
     const [message, setMessage] = useState('');
     useEffect(() => {
         const loadData = async () => {
-            const [programData, articleData, videoData, siteData] = await Promise.all([
-                getPrograms(),
-                getNewsArticles(),
-                getPromotionalVideos(),
-                getSiteContents()
-            ]);
+            const [programData, articleData, videoData, siteData] = await Promise.all([getPrograms(), getNewsArticles(), getPromotionalVideos(), getSiteContents()]);
 
             setPrograms(Array.isArray(programData) ? programData : []);
             setArticles(Array.isArray(articleData) ? articleData : []);
@@ -182,19 +154,16 @@ export default function NangHongLandingPage() {
             });
         });
     }, []);
-const getImageUrl = (url?: string, width = 400) => {
-    if (!url) return '';
+    const getImageUrl = (url?: string, width = 400) => {
+        if (!url) return '';
 
-    const idMatch =
-        url.match(/[?&]id=([^&]+)/) ||
-        url.match(/\/file\/d\/([^/]+)/) ||
-        url.match(/\/d\/([^/]+)/);
+        const idMatch = url.match(/[?&]id=([^&]+)/) || url.match(/\/file\/d\/([^/]+)/) || url.match(/\/d\/([^/]+)/);
 
-    if (!idMatch) return url;
+        if (!idMatch) return url;
 
-    // Endpoint thumbnail trực tiếp từ Google Drive, bypass qua các bước redirect
-    return `https://drive.google.com/thumbnail?id=${idMatch[1]}&sz=w${width}`;
-};
+        // Endpoint thumbnail trực tiếp từ Google Drive, bypass qua các bước redirect
+        return `https://drive.google.com/thumbnail?id=${idMatch[1]}&sz=w${width}`;
+    };
     const featuredPrograms = getProgramChildren(programs);
     const teachers = getTeachers(programs);
     const latestNews = articles.slice(0, 3);
@@ -237,63 +206,62 @@ const getImageUrl = (url?: string, width = 400) => {
         }
     };
     const handleApply = async () => {
-    if (!parentName.trim() || !parentPhone.trim() || !childName.trim()) {
-        toast.current?.show({
-            severity: 'warn',
-            summary: t.applyMissingSummary,
-            detail: t.applyMissingDetail,
-            life: 3000
-        });
-        return;
+        if (!parentName.trim() || !parentPhone.trim() || !childName.trim()) {
+            toast.current?.show({
+                severity: 'warn',
+                summary: t.applyMissingSummary,
+                detail: t.applyMissingDetail,
+                life: 3000
+            });
+            return;
+        }
+        if (!selectedProgramId) {
+            toast.current?.show({
+                severity: 'warn',
+                summary: t.applyMissingProgramSummary,
+                detail: t.applyMissingProgramDetail,
+                life: 3000
+            });
+            return;
+        }
 
-    }
-    if (!selectedProgramId) {
-    toast.current?.show({
-        severity: 'warn',
-        summary: t.applyMissingProgramSummary,
-        detail: t.applyMissingProgramDetail,
-        life: 3000
-    });
-    return;
-}
+        try {
+            setApplying(true);
 
-    try {
-        setApplying(true);
+            await createApplication({
+                parent_name: parentName.trim(),
+                parent_phone: parentPhone.trim(),
+                parent_email: parentEmail.trim(),
+                child_name: childName.trim(),
+                child_age: Number(childAge) || undefined,
+                program_id: Number(selectedProgramId),
+                message: message.trim()
+            });
 
-       await createApplication({
-    parent_name: parentName.trim(),
-    parent_phone: parentPhone.trim(),
-    parent_email: parentEmail.trim(),
-    child_name: childName.trim(),
-    child_age: Number(childAge) || undefined,
-    program_id: Number(selectedProgramId),
-    message: message.trim()
-});
+            toast.current?.show({
+                severity: 'success',
+                summary: t.applySuccessSummary,
+                detail: t.applySuccessDetail,
+                life: 3000
+            });
 
-        toast.current?.show({
-            severity: 'success',
-            summary: t.applySuccessSummary,
-            detail: t.applySuccessDetail,
-            life: 3000
-        });
-
-        setParentName('');
-        setParentPhone('');
-        setParentEmail('');
-        setChildName('');
-        setChildAge('');
-        setMessage('');
-    } catch {
-        toast.current?.show({
-            severity: 'error',
-            summary: t.errorSummary,
-            detail: t.applyError,
-            life: 3000
-        });
-    } finally {
-        setApplying(false);
-    }
-};
+            setParentName('');
+            setParentPhone('');
+            setParentEmail('');
+            setChildName('');
+            setChildAge('');
+            setMessage('');
+        } catch {
+            toast.current?.show({
+                severity: 'error',
+                summary: t.errorSummary,
+                detail: t.applyError,
+                life: 3000
+            });
+        } finally {
+            setApplying(false);
+        }
+    };
 
     const programTemplate = (item: any) => (
         <div className="p-3">
@@ -308,44 +276,30 @@ const getImageUrl = (url?: string, width = 400) => {
                 }}
             >
                 {item.thumbnail_url && (
-   <Image
-   src={getImageUrl(item.thumbnail_url)}
-    alt={item.title}
-    onLoad={() => {
-        console.log("IMAGE LOADED:", item.title);
-    }}
-    onError={() => {
-        console.log("IMAGE ERROR:", item.thumbnail_url);
-        console.log(
-            "CONVERTED:",
-            normalizeDriveThumbnailUrl(item.thumbnail_url)
-        );
-    }}
-    style={{
-        width: '100%',
-        height: 170,
-        objectFit: 'cover',
-        borderRadius: 24
-    }}
-/>
-)}
+                    <Image
+                        src={getImageUrl(item.thumbnail_url)}
+                        alt={item.title}
+                        onLoad={() => {
+                            console.log('IMAGE LOADED:', item.title);
+                        }}
+                        onError={() => {
+                            console.log('IMAGE ERROR:', item.thumbnail_url);
+                            console.log('CONVERTED:', normalizeDriveThumbnailUrl(item.thumbnail_url));
+                        }}
+                        style={{
+                            width: '100%',
+                            height: 170,
+                            objectFit: 'cover',
+                            borderRadius: 24
+                        }}
+                    />
+                )}
 
                 <h3 className="text-2xl mb-2">{item.title || t.programAlt}</h3>
 
-                <p className="text-600 line-height-3">
-                    {item.detail || t.programFallbackDetail}
-                </p>
+                <p className="text-600 line-height-3">{item.detail || t.programFallbackDetail}</p>
 
-                <Button
-    className={styles.buttonPop}
-    label={t.viewDetail}
-    rounded
-    text
-    style={{ color: COLORS.pink }}
-    onClick={() =>
-        router.push(`/landing/programs/${item.program_id || item.id}`)
-    }
-/>
+                <Button className={styles.buttonPop} label={t.viewDetail} rounded text style={{ color: COLORS.pink }} onClick={() => router.push(`/landing/programs/${item.program_id || item.id}`)} />
             </div>
         </div>
     );
@@ -362,39 +316,27 @@ const getImageUrl = (url?: string, width = 400) => {
                     boxShadow: '0 16px 35px rgba(0,200,150,.2)'
                 }}
             >
-               {teacher.profile_image_url ? (
-    <Image
-        className={styles.imageHover}
-        src={getImageUrl(teacher.profile_image_url)}
-        alt={teacher.full_name || t.teacherAlt}
-        onLoad={() => {
-            console.log(
-                'TEACHER IMAGE LOADED:',
-                teacher.full_name,
-                teacher.profile_image_url
-            );
-        }}
-        onError={() => {
-            console.log(
-                'TEACHER IMAGE ERROR:',
-                teacher.profile_image_url
-            );
+                {teacher.profile_image_url ? (
+                    <Image
+                        className={styles.imageHover}
+                        src={getImageUrl(teacher.profile_image_url)}
+                        alt={teacher.full_name || t.teacherAlt}
+                        onLoad={() => {
+                            console.log('TEACHER IMAGE LOADED:', teacher.full_name, teacher.profile_image_url);
+                        }}
+                        onError={() => {
+                            console.log('TEACHER IMAGE ERROR:', teacher.profile_image_url);
 
-            console.log(
-                'TEACHER CONVERTED:',
-                normalizeDriveThumbnailUrl(
-                    teacher.profile_image_url
-                )
-            );
-        }}
-        referrerPolicy="no-referrer"
-        style={{
-            width: '100%',
-            height: 235,
-            objectFit: 'cover',
-            borderRadius: 26
-        }}
-    />
+                            console.log('TEACHER CONVERTED:', normalizeDriveThumbnailUrl(teacher.profile_image_url));
+                        }}
+                        referrerPolicy="no-referrer"
+                        style={{
+                            width: '100%',
+                            height: 235,
+                            objectFit: 'cover',
+                            borderRadius: 26
+                        }}
+                    />
                 ) : (
                     <div
                         className="mx-auto mb-4 border-circle flex align-items-center justify-content-center"
@@ -451,20 +393,24 @@ const getImageUrl = (url?: string, width = 400) => {
                     </div>
 
                     <nav className="hidden md:flex gap-4 align-items-center font-semibold">
-                        <button className={`p-link ${styles.navLink}`} onClick={() => scrollTo('home')}>{t.navHome}</button>
-                        <button className={`p-link ${styles.navLink}`} onClick={() => scrollTo('about')}>{t.navAbout}</button>
-                        <button className={`p-link ${styles.navLink}`} onClick={() => scrollTo('programs')}>{t.navPrograms}</button>
-                        <button className={`p-link ${styles.navLink}`} onClick={() => scrollTo('news')}>{t.navNews}</button>
-                        <button className={`p-link ${styles.navLink}`} onClick={() => scrollTo('contact')}>{t.navContact}</button>
+                        <button className={`p-link ${styles.navLink}`} onClick={() => scrollTo('home')}>
+                            {t.navHome}
+                        </button>
+                        <button className={`p-link ${styles.navLink}`} onClick={() => scrollTo('about')}>
+                            {t.navAbout}
+                        </button>
+                        <button className={`p-link ${styles.navLink}`} onClick={() => scrollTo('programs')}>
+                            {t.navPrograms}
+                        </button>
+                        <button className={`p-link ${styles.navLink}`} onClick={() => scrollTo('news')}>
+                            {t.navNews}
+                        </button>
+                        <button className={`p-link ${styles.navLink}`} onClick={() => scrollTo('contact')}>
+                            {t.navContact}
+                        </button>
                     </nav>
 
-                    <Button
-                        label={lang === 'vi' ? 'EN' : 'VI'}
-                        rounded
-                        outlined
-                        style={{ color: COLORS.pink, borderColor: COLORS.pink, fontWeight: 700 }}
-                        onClick={() => setLang(lang === 'vi' ? 'en' : 'vi')}
-                    />
+                    <Button label={lang === 'vi' ? 'EN' : 'VI'} rounded outlined style={{ color: COLORS.pink, borderColor: COLORS.pink, fontWeight: 700 }} onClick={() => setLang(lang === 'vi' ? 'en' : 'vi')} />
 
                     <Button label={t.applyNow} rounded style={buttonPink} onClick={() => scrollTo('apply')} />
                 </div>
@@ -489,10 +435,7 @@ const getImageUrl = (url?: string, width = 400) => {
 
                     <div className={`grid align-items-center relative z-1 ${styles.sectionContentMotion}`} style={sectionStyle}>
                         <div className={`col-12 lg:col-6 ${styles.fadeUp}`}>
-                            <div
-                                className={`inline-block px-4 py-2 border-round-3xl font-bold mb-3 ${styles.badgeCandy}`}
-                                style={{ background: '#fff', color: COLORS.pink, boxShadow: '0 8px 18px rgba(255,95,162,.18)' }}
-                            >
+                            <div className={`inline-block px-4 py-2 border-round-3xl font-bold mb-3 ${styles.badgeCandy}`} style={{ background: '#fff', color: COLORS.pink, boxShadow: '0 8px 18px rgba(255,95,162,.18)' }}>
                                 {t.heroBadge}
                             </div>
 
@@ -500,21 +443,11 @@ const getImageUrl = (url?: string, width = 400) => {
                                 {t.heroTitle}
                             </h1>
 
-                            <p className="text-xl line-height-3 text-700 mb-5">
-                                {t.heroDesc}
-                            </p>
+                            <p className="text-xl line-height-3 text-700 mb-5">{t.heroDesc}</p>
 
                             <div className="flex gap-3 flex-wrap">
                                 <Button className={styles.buttonPop} label={t.admission} rounded icon="pi pi-send" style={buttonYellow} onClick={() => scrollTo('apply')} />
-                                <Button
-                                    className={styles.buttonPop}
-                                    label={t.viewPrograms}
-                                    rounded
-                                    outlined
-                                    icon="pi pi-arrow-right"
-                                    style={{ color: COLORS.pink, borderColor: COLORS.pink, fontWeight: 700 }}
-                                    onClick={() => scrollTo('programs')}
-                                />
+                                <Button className={styles.buttonPop} label={t.viewPrograms} rounded outlined icon="pi pi-arrow-right" style={{ color: COLORS.pink, borderColor: COLORS.pink, fontWeight: 700 }} onClick={() => scrollTo('programs')} />
                             </div>
                         </div>
 
@@ -528,21 +461,17 @@ const getImageUrl = (url?: string, width = 400) => {
                                 }}
                             >
                                 <img
-    className={styles.imageHover}
-    src={
-        latestVideo?.thumbnail_image_url
-            ? normalizeDriveThumbnailUrl(latestVideo.thumbnail_image_url)
-            : ''
-    }
-     referrerPolicy="no-referrer"
-    alt={latestVideo?.title || t.brandName}
-    style={{
-        width: '100%',
-        height: 'clamp(240px, 52vw, 450px)',
-        objectFit: 'cover',
-        display: 'block'
-    }}
-/>
+                                    className={styles.imageHover}
+                                    src={latestVideo?.thumbnail_image_url ? normalizeDriveThumbnailUrl(latestVideo.thumbnail_image_url) : ''}
+                                    referrerPolicy="no-referrer"
+                                    alt={latestVideo?.title || t.brandName}
+                                    style={{
+                                        width: '100%',
+                                        height: 'clamp(240px, 52vw, 450px)',
+                                        objectFit: 'cover',
+                                        display: 'block'
+                                    }}
+                                />
                             </div>
                         </div>
                     </div>
@@ -553,28 +482,24 @@ const getImageUrl = (url?: string, width = 400) => {
                 <section id="programs" className={`px-4 py-8 ${styles.pinkSection} ${styles.colorfulSection} ${styles.sectionMotion}`}>
                     <SectionFloatingIcons icons={['🎈', '🌸', '⭐', '🧸']} />
                     <div className={styles.sectionContentMotion} style={sectionStyle}>
-                        <SectionTitle
-                            badge={t.programsBadge}
-                            title={t.programsTitle}
-                            desc={t.programsDesc}
-                        />
+                        <SectionTitle badge={t.programsBadge} title={t.programsTitle} desc={t.programsDesc} />
 
                         <Carousel
-    value={displayPrograms}
-    numVisible={3}
-    numScroll={1}
-    circular
-    autoplayInterval={3000}
-    showIndicators
-    showNavigators={false}
-    responsiveOptions={[
-        { breakpoint: '1400px', numVisible: 3, numScroll: 1 },
-        { breakpoint: '1024px', numVisible: 2, numScroll: 1 },
-        { breakpoint: '768px', numVisible: 1, numScroll: 1 },
-        { breakpoint: '480px', numVisible: 1, numScroll: 1 }
-    ]}
-    itemTemplate={programTemplate}
-/>
+                            value={displayPrograms}
+                            numVisible={3}
+                            numScroll={1}
+                            circular
+                            autoplayInterval={3000}
+                            showIndicators
+                            showNavigators={false}
+                            responsiveOptions={[
+                                { breakpoint: '1400px', numVisible: 3, numScroll: 1 },
+                                { breakpoint: '1024px', numVisible: 2, numScroll: 1 },
+                                { breakpoint: '768px', numVisible: 1, numScroll: 1 },
+                                { breakpoint: '480px', numVisible: 1, numScroll: 1 }
+                            ]}
+                            itemTemplate={programTemplate}
+                        />
                     </div>
                 </section>
 
@@ -593,21 +518,17 @@ const getImageUrl = (url?: string, width = 400) => {
                                 }}
                             >
                                 <img
-    className={styles.imageHover}
-    src={
-        latestVideo?.thumbnail_image_url
-            ? normalizeDriveThumbnailUrl(latestVideo.thumbnail_image_url)
-            : ''
-    }
-    referrerPolicy="no-referrer"
-    alt={latestVideo?.title || t.brandName}
-    style={{
-        width: '100%',
-        height: 450,
-        objectFit: 'cover',
-        display: 'block'
-    }}
-/>
+                                    className={styles.imageHover}
+                                    src={latestVideo?.thumbnail_image_url ? normalizeDriveThumbnailUrl(latestVideo.thumbnail_image_url) : ''}
+                                    referrerPolicy="no-referrer"
+                                    alt={latestVideo?.title || t.brandName}
+                                    style={{
+                                        width: '100%',
+                                        height: 450,
+                                        objectFit: 'cover',
+                                        display: 'block'
+                                    }}
+                                />
                             </div>
                         </div>
 
@@ -616,9 +537,7 @@ const getImageUrl = (url?: string, width = 400) => {
                                 {t.aboutTitle}
                             </h2>
 
-                            <p className="text-700 text-lg line-height-3">
-                                {siteContent?.about_section_quote || t.aboutDefaultQuote}
-                            </p>
+                            <p className="text-700 text-lg line-height-3">{siteContent?.about_section_quote || t.aboutDefaultQuote}</p>
 
                             <div className="grid mt-4">
                                 {[
@@ -628,7 +547,9 @@ const getImageUrl = (url?: string, width = 400) => {
                                 ].map((item) => (
                                     <div key={item.label} className="col-4">
                                         <div className={`card text-center h-full ${styles.cardHover}`} style={{ borderRadius: 22 }}>
-                                            <div className="font-bold text-4xl" style={{ color: item.color }}>{item.value}</div>
+                                            <div className="font-bold text-4xl" style={{ color: item.color }}>
+                                                {item.value}
+                                            </div>
                                             <div className="text-600 mt-2">{item.label}</div>
                                         </div>
                                     </div>
@@ -641,252 +562,179 @@ const getImageUrl = (url?: string, width = 400) => {
                 <section className={`px-4 py-8 ${styles.pinkSection} ${styles.colorfulSection} ${styles.sectionMotion}`}>
                     <SectionFloatingIcons icons={['🎨', '🧸', '🌟', '💛']} />
                     <div className={styles.sectionContentMotion} style={sectionStyle}>
-                        <SectionTitle
-                            badge={t.teachersBadge}
-                            title={t.teachersTitle}
-                            desc={t.teachersDesc}
-                        />
+                        <SectionTitle badge={t.teachersBadge} title={t.teachersTitle} desc={t.teachersDesc} />
 
-                       <Carousel
-    value={displayTeachers}
-    numVisible={4}
-    numScroll={1}
-    circular
-    autoplayInterval={2500}
-    showIndicators
-    showNavigators={false}
-    responsiveOptions={[
-        { breakpoint: '1400px', numVisible: 4, numScroll: 1 },
-        { breakpoint: '1024px', numVisible: 2, numScroll: 1 },
-        { breakpoint: '768px', numVisible: 1, numScroll: 1 },
-        { breakpoint: '480px', numVisible: 1, numScroll: 1 }
-    ]}
-    itemTemplate={teacherTemplate}
-/>
+                        <Carousel
+                            value={displayTeachers}
+                            numVisible={4}
+                            numScroll={1}
+                            circular
+                            autoplayInterval={2500}
+                            showIndicators
+                            showNavigators={false}
+                            responsiveOptions={[
+                                { breakpoint: '1400px', numVisible: 4, numScroll: 1 },
+                                { breakpoint: '1024px', numVisible: 2, numScroll: 1 },
+                                { breakpoint: '768px', numVisible: 1, numScroll: 1 },
+                                { breakpoint: '480px', numVisible: 1, numScroll: 1 }
+                            ]}
+                            itemTemplate={teacherTemplate}
+                        />
                     </div>
                 </section>
 
                 {/* 🏢 Section 6: Cơ sở vật chất */}
                 <FacilitiesSection lang={lang} getImageUrl={getImageUrl} />
 
+                {/* 🥗 Section 7: Dinh dưỡng & Chăm sóc */}
+                <NutritionSection lang={lang} />
+
                 <section id="video" className={`px-4 py-8 ${styles.videoSection} ${styles.sectionMotion}`} style={{ background: `linear-gradient(135deg,${COLORS.green},${COLORS.blue},${COLORS.purple})` }}>
                     <SectionFloatingIcons icons={['🎬', '✨', '☁️', '💙']} />
                     <div className={`grid align-items-center text-white ${styles.sectionContentMotion}`} style={sectionStyle}>
                         <div className="col-12 lg:col-5">
-                            <h2 className="m-0 mb-3" style={{ ...titleStyle, fontSize: 'clamp(2.2rem, 4vw, 4rem)' }}>{t.videoTitle}</h2>
+                            <h2 className="m-0 mb-3" style={{ ...titleStyle, fontSize: 'clamp(2.2rem, 4vw, 4rem)' }}>
+                                {t.videoTitle}
+                            </h2>
                             <p className="text-lg line-height-3">{t.videoDesc}</p>
 
-                            {latestVideo ? (
-                                <Button
-                                    label={t.openVideo}
-                                    rounded
-                                    severity="warning"
-                                    icon="pi pi-play"
-                                    onClick={() => window.open(latestVideo.video_url, '_blank')}
-                                />
-                            ) : null}
+                            {latestVideo ? <Button label={t.openVideo} rounded severity="warning" icon="pi pi-play" onClick={() => window.open(latestVideo.video_url, '_blank')} /> : null}
                         </div>
 
                         <div className="col-12 lg:col-7">
-    <div
-        className={`card ${styles.videoCard}`}
-        style={{
-            borderRadius: 28,
-            overflow: 'hidden'
-        }}
-    >
-        {latestVideo ? (
-            <div
-                style={{
-                    position: 'relative',
-                    width: '100%',
-                    height: 420,
-                    borderRadius: 20,
-                    overflow: 'hidden',
-                    background: '#000'
-                }}
-            >
-                {latestVideo?.video_url && (
-    <iframe
-        src={getYoutubeEmbedUrl(latestVideo.video_url)}
-        title={latestVideo.title}
-        allowFullScreen
-        style={{
-            width: '100%',
-            height: '100%',
-            border: 'none',
-            display: 'block'
-        }}
-    />
-)}
-
-                
-            </div>
-        ) : (
-            <p>{t.noVideo}</p>
-        )}
-    </div>
-</div>
+                            <div
+                                className={`card ${styles.videoCard}`}
+                                style={{
+                                    borderRadius: 28,
+                                    overflow: 'hidden'
+                                }}
+                            >
+                                {latestVideo ? (
+                                    <div
+                                        style={{
+                                            position: 'relative',
+                                            width: '100%',
+                                            height: 420,
+                                            borderRadius: 20,
+                                            overflow: 'hidden',
+                                            background: '#000'
+                                        }}
+                                    >
+                                        {latestVideo?.video_url && (
+                                            <iframe
+                                                src={getYoutubeEmbedUrl(latestVideo.video_url)}
+                                                title={latestVideo.title}
+                                                allowFullScreen
+                                                style={{
+                                                    width: '100%',
+                                                    height: '100%',
+                                                    border: 'none',
+                                                    display: 'block'
+                                                }}
+                                            />
+                                        )}
+                                    </div>
+                                ) : (
+                                    <p>{t.noVideo}</p>
+                                )}
+                            </div>
+                        </div>
                     </div>
                 </section>
 
-<section id="apply" className={`px-4 py-8 ${styles.pinkSection} ${styles.colorfulSection} ${styles.sectionMotion}`}>
-    <SectionFloatingIcons icons={['📝', '💌', '🌸', '⭐']} />
-    <div
-        className={`p-5 ${styles.applyBox}`}
-        style={{
-            ...sectionStyle,
-            borderRadius: 36,
-            background: `linear-gradient(135deg,${COLORS.lightYellow},${COLORS.lightPink},${COLORS.lightGreen})`,
-            border: '3px dashed #ffc1dc',
-            boxShadow: '0 18px 45px rgba(255,95,162,.16)'
-        }}
-    >
-        <div className="grid align-items-center">
-            <div className="col-12 lg:col-5">
-                <div
-                    className="inline-block px-4 py-2 border-round-3xl font-bold mb-3"
-                    style={{ background: '#fff', color: COLORS.pink }}
-                >
-                    {t.applyBadge}
-                </div>
+                <section id="apply" className={`px-4 py-8 ${styles.pinkSection} ${styles.colorfulSection} ${styles.sectionMotion}`}>
+                    <SectionFloatingIcons icons={['📝', '💌', '🌸', '⭐']} />
+                    <div
+                        className={`p-5 ${styles.applyBox}`}
+                        style={{
+                            ...sectionStyle,
+                            borderRadius: 36,
+                            background: `linear-gradient(135deg,${COLORS.lightYellow},${COLORS.lightPink},${COLORS.lightGreen})`,
+                            border: '3px dashed #ffc1dc',
+                            boxShadow: '0 18px 45px rgba(255,95,162,.16)'
+                        }}
+                    >
+                        <div className="grid align-items-center">
+                            <div className="col-12 lg:col-5">
+                                <div className="inline-block px-4 py-2 border-round-3xl font-bold mb-3" style={{ background: '#fff', color: COLORS.pink }}>
+                                    {t.applyBadge}
+                                </div>
 
-                <h2
-                    className="m-0 mb-3"
-                    style={{
-                        ...titleStyle,
-                        fontSize: 'clamp(2.2rem, 4vw, 4rem)'
-                    }}
-                >
-                    {t.applyTitle}
-                </h2>
+                                <h2
+                                    className="m-0 mb-3"
+                                    style={{
+                                        ...titleStyle,
+                                        fontSize: 'clamp(2.2rem, 4vw, 4rem)'
+                                    }}
+                                >
+                                    {t.applyTitle}
+                                </h2>
 
-                <p className="text-700 text-lg line-height-3">
-                    {t.applyDescPrefix}{' '}
-                    {siteContent?.admission_period || t.openNow}.
-                    {t.applyDescSuffix}
-                </p>
-            </div>
+                                <p className="text-700 text-lg line-height-3">
+                                    {t.applyDescPrefix} {siteContent?.admission_period || t.openNow}.{t.applyDescSuffix}
+                                </p>
+                            </div>
 
-            <div className="col-12 lg:col-7">
-                <div className={`card ${styles.cardHover}`} style={{ borderRadius: 28 }}>
-                    <div className="grid">
-                        <div className="col-12 md:col-6">
-                            <label className="block mb-2 font-bold">
-                                {t.parentName}
-                            </label>
-                            <InputText
-                                value={parentName}
-                                onChange={(event) => setParentName(event.target.value)}
-                                className="w-full"
-                                placeholder={t.parentNamePlaceholder}
-                            />
-                        </div>
+                            <div className="col-12 lg:col-7">
+                                <div className={`card ${styles.cardHover}`} style={{ borderRadius: 28 }}>
+                                    <div className="grid">
+                                        <div className="col-12 md:col-6">
+                                            <label className="block mb-2 font-bold">{t.parentName}</label>
+                                            <InputText value={parentName} onChange={(event) => setParentName(event.target.value)} className="w-full" placeholder={t.parentNamePlaceholder} />
+                                        </div>
 
-                        <div className="col-12 md:col-6">
-                            <label className="block mb-2 font-bold">
-                                {t.phone}
-                            </label>
-                            <InputText
-                                value={parentPhone}
-                                onChange={(event) => setParentPhone(event.target.value)}
-                                className="w-full"
-                                placeholder={t.phonePlaceholder}
-                            />
-                        </div>
+                                        <div className="col-12 md:col-6">
+                                            <label className="block mb-2 font-bold">{t.phone}</label>
+                                            <InputText value={parentPhone} onChange={(event) => setParentPhone(event.target.value)} className="w-full" placeholder={t.phonePlaceholder} />
+                                        </div>
 
-                        <div className="col-12 md:col-6">
-                            <label className="block mb-2 font-bold">
-                                {t.email}
-                            </label>
-                            <InputText
-                                value={parentEmail}
-                                onChange={(event) => setParentEmail(event.target.value)}
-                                className="w-full"
-                                placeholder={t.emailPlaceholder}
-                            />
-                        </div>
+                                        <div className="col-12 md:col-6">
+                                            <label className="block mb-2 font-bold">{t.email}</label>
+                                            <InputText value={parentEmail} onChange={(event) => setParentEmail(event.target.value)} className="w-full" placeholder={t.emailPlaceholder} />
+                                        </div>
 
-                        <div className="col-12 md:col-6">
-                            <label className="block mb-2 font-bold">
-                                {t.childName}
-                            </label>
-                            <InputText
-                                value={childName}
-                                onChange={(event) => setChildName(event.target.value)}
-                                className="w-full"
-                                placeholder={t.childNamePlaceholder}
-                            />
-                        </div>
+                                        <div className="col-12 md:col-6">
+                                            <label className="block mb-2 font-bold">{t.childName}</label>
+                                            <InputText value={childName} onChange={(event) => setChildName(event.target.value)} className="w-full" placeholder={t.childNamePlaceholder} />
+                                        </div>
 
-                        <div className="col-12 md:col-6">
-                            <label className="block mb-2 font-bold">
-                                {t.childAge}
-                            </label>
-                            <InputText
-                                value={childAge}
-                                onChange={(event) => setChildAge(event.target.value)}
-                                className="w-full"
-                                placeholder={t.childAgePlaceholder}
-                            />
-                        </div>
-                        <div className="col-12 md:col-6"></div>
-<div className="col-12 md:col-6">
-    <label className="block mb-2 font-bold">
-        {t.programRequired}
-    </label>
+                                        <div className="col-12 md:col-6">
+                                            <label className="block mb-2 font-bold">{t.childAge}</label>
+                                            <InputText value={childAge} onChange={(event) => setChildAge(event.target.value)} className="w-full" placeholder={t.childAgePlaceholder} />
+                                        </div>
+                                        <div className="col-12 md:col-6"></div>
+                                        <div className="col-12 md:col-6">
+                                            <label className="block mb-2 font-bold">{t.programRequired}</label>
 
-    <select
-        value={selectedProgramId}
-        onChange={(event) => setSelectedProgramId(event.target.value)}
-        className="w-full p-inputtext p-component"
-    >
-        <option value="">{t.selectProgram}</option>
+                                            <select value={selectedProgramId} onChange={(event) => setSelectedProgramId(event.target.value)} className="w-full p-inputtext p-component">
+                                                <option value="">{t.selectProgram}</option>
 
-        {programs.map((program) => (
-            <option key={program.id} value={program.id}>
-                {program.name}
-            </option>
-        ))}
-    </select>
-</div>
-                        <div className="col-12">
-                            <label className="block mb-2 font-bold">
-                                {t.message}
-                            </label>
-                            <InputText
-                                value={message}
-                                onChange={(event) => setMessage(event.target.value)}
-                                className="w-full"
-                                placeholder={t.messagePlaceholder}
-                            />
-                        </div>
+                                                {programs.map((program) => (
+                                                    <option key={program.id} value={program.id}>
+                                                        {program.name}
+                                                    </option>
+                                                ))}
+                                            </select>
+                                        </div>
+                                        <div className="col-12">
+                                            <label className="block mb-2 font-bold">{t.message}</label>
+                                            <InputText value={message} onChange={(event) => setMessage(event.target.value)} className="w-full" placeholder={t.messagePlaceholder} />
+                                        </div>
 
-                        <div className="col-12">
-                            <Button
-                                label={t.submitApplication}
-                                icon="pi pi-send"
-                                rounded
-                                loading={applying}
-                                style={buttonPink}
-                                onClick={handleApply}
-                            />
+                                        <div className="col-12">
+                                            <Button label={t.submitApplication} icon="pi pi-send" rounded loading={applying} style={buttonPink} onClick={handleApply} />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
+                </section>
 
                 <section id="news" className={`px-4 py-8 ${styles.newsSection} ${styles.sectionMotion}`} style={{ background: COLORS.lightPink }}>
                     <SectionFloatingIcons icons={['📰', '🎈', '💖', '🌼']} />
                     <div className={styles.sectionContentMotion} style={sectionStyle}>
-                        <SectionTitle
-                            badge={t.newsBadge}
-                            title={t.newsTitle}
-                            desc={t.newsDesc}
-                        />
+                        <SectionTitle badge={t.newsBadge} title={t.newsTitle} desc={t.newsDesc} />
 
                         <div className="grid">
                             {latestNews.map((article) => (
@@ -900,35 +748,25 @@ const getImageUrl = (url?: string, width = 400) => {
                                         }}
                                     >
                                         {article.thumbnail_url ? (
-    <div style={{ position: 'relative', width: '100%', height: 190, borderRadius: 22, overflow: 'hidden' }}>
-        <LazyImage
-            className={styles.imageHover}
-            src={getImageUrl(article.thumbnail_url, 400)}
-            alt={String(article.title || 'News thumbnail')}
-            sizes="(max-width: 768px) 100vw, 33vw"
-            style={{ objectFit: 'cover' }}
-            
-        />
-    </div>
-) : null}
+                                            <div style={{ position: 'relative', width: '100%', height: 190, borderRadius: 22, overflow: 'hidden' }}>
+                                                <LazyImage
+                                                    className={styles.imageHover}
+                                                    src={getImageUrl(article.thumbnail_url, 400)}
+                                                    alt={String(article.title || 'News thumbnail')}
+                                                    sizes="(max-width: 768px) 100vw, 33vw"
+                                                    style={{ objectFit: 'cover' }}
+                                                />
+                                            </div>
+                                        ) : null}
 
                                         <h3 className="text-2xl">{article.title}</h3>
 
-                                        <p className="text-600 line-height-3">
-                                            {article.content ? `${article.content.replace(/\s+/g, ' ').slice(0, 120)}...` : t.noContent}
-                                        </p>
+                                        <p className="text-600 line-height-3">{article.content ? `${article.content.replace(/\s+/g, ' ').slice(0, 120)}...` : t.noContent}</p>
 
                                         <div className="text-sm text-500">
                                             {t.byAuthor} {article.author_name || 'Admin'}
                                         </div>
-                                        <Button
-    label={t.readMore}
-    icon="pi pi-arrow-right"
-    text
-    className="mt-3"
-    style={{ color: COLORS.pink }}
-    onClick={() => router.push(`/landing/news/${article.id}`)}
-/>
+                                        <Button label={t.readMore} icon="pi pi-arrow-right" text className="mt-3" style={{ color: COLORS.pink }} onClick={() => router.push(`/landing/news/${article.id}`)} />
                                     </div>
                                 </div>
                             ))}
@@ -955,12 +793,7 @@ const getImageUrl = (url?: string, width = 400) => {
 
                             <div className="col-12 lg:col-6">
                                 <div className="flex flex-column sm:flex-row gap-2">
-                                    <InputText
-                                        value={email}
-                                        onChange={(event) => setEmail(event.target.value)}
-                                        placeholder={t.newsletterPlaceholder}
-                                        className="w-full"
-                                    />
+                                    <InputText value={email} onChange={(event) => setEmail(event.target.value)} placeholder={t.newsletterPlaceholder} className="w-full" />
 
                                     <Button label={t.subscribe} rounded severity="warning" loading={subscribing} onClick={handleSubscribe} />
                                 </div>
@@ -975,9 +808,7 @@ const getImageUrl = (url?: string, width = 400) => {
                 <div className={`grid ${styles.sectionContentMotion}`} style={sectionStyle}>
                     <div className="col-12 md:col-4">
                         <h2>{t.brandName}</h2>
-                        <p className="text-600 line-height-3">
-                            {siteContent?.footer_description || t.footerDefault}
-                        </p>
+                        <p className="text-600 line-height-3">{siteContent?.footer_description || t.footerDefault}</p>
                     </div>
 
                     <div className="col-12 md:col-4">
