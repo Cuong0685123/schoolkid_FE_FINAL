@@ -306,7 +306,7 @@ const getImageUrl = (url?: string, width = 400) => {
                 }}
             >
                 {item.thumbnail_url && (
-   <LazyImage
+   <Image
    src={getImageUrl(item.thumbnail_url)}
     alt={item.title}
     onLoad={() => {
@@ -361,7 +361,7 @@ const getImageUrl = (url?: string, width = 400) => {
                 }}
             >
                {teacher.profile_image_url ? (
-    <LazyImage
+    <Image
         className={styles.imageHover}
         src={getImageUrl(teacher.profile_image_url)}
         alt={teacher.full_name || t.teacherAlt}
