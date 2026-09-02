@@ -96,7 +96,23 @@ export const landingText = {
         footerNews: 'Tin tức',
         footerContact: 'Liên hệ',
         contactTitle: 'Liên hệ',
-        defaultAddress: 'Thành Phố Hồ Chí Minh'
+        defaultAddress: 'Thành Phố Hồ Chí Minh',
+        // Highlights Section
+        highlightsBadge: 'Điểm Nổi Bật',
+        highlightsTitle: 'Vì sao phụ huynh tin chọn Nắng Hồng?',
+        highlightsDesc: 'Những giá trị nền tảng giúp bé phát triển toàn diện và hạnh phúc mỗi ngày.',
+        highlight1Title: 'Phương Pháp Tiên Tiến',
+        highlight1Desc: 'Ứng dụng giáo dục sớm lấy trẻ làm trung tâm, tôn trọng sự phát triển tự nhiên của bé.',
+        highlight2Title: 'Camera Trực Tuyến 24/7',
+        highlight2Desc: 'Hệ thống camera góc rộng tại các lớp giúp ba mẹ luôn an tâm dõi theo từng khoảnh khắc của con.',
+        highlight3Title: 'Không Gian Mở & Xanh',
+        highlight3Desc: 'Sân chơi tự nhiên tràn ngập ánh sáng, cây xanh cùng khu vận động thể chất an toàn.',
+        highlight4Title: 'Dinh Dưỡng Hữu Cơ',
+        highlight4Desc: 'Thực đơn cân đối theo tiêu chuẩn viện dinh dưỡng, 100% nguyên liệu tươi sạch rõ nguồn gốc.',
+        highlight5Title: 'Sĩ Số Lớp Học Nhỏ',
+        highlight5Desc: 'Tỷ lệ cô/trẻ chuẩn giúp các cô chăm sóc tỉ mỉ, sát sao theo tính cách từng bé.',
+        highlight6Title: 'Y Tế & Vệ Sinh Nghiêm Ngặt',
+        highlight6Desc: 'Kiểm tra thân nhiệt mỗi sáng, đồ dùng đồ chơi được tiệt trùng hàng ngày theo quy chuẩn y tế.',
     },
     en: {
         brandName: 'Nang Hong Kindergarten',
@@ -195,7 +211,23 @@ export const landingText = {
         footerNews: 'News',
         footerContact: 'Contact',
         contactTitle: 'Contact',
-        defaultAddress: 'Ho Chi Minh City'
+        defaultAddress: 'Ho Chi Minh City',
+        // Highlights Section
+        highlightsBadge: 'Key Highlights',
+        highlightsTitle: 'Why Parents Choose Nang Hong?',
+        highlightsDesc: 'Core values that foster holistic growth and daily joy for every child.',
+        highlight1Title: 'Modern Methodology',
+        highlight1Desc: 'Child-centered early education respecting each child’s natural developmental pace.',
+        highlight2Title: '24/7 Online Camera',
+        highlight2Desc: 'Wide-angle camera system across classrooms giving parents peace of mind anytime, anywhere.',
+        highlight3Title: 'Green & Open Space',
+        highlight3Desc: 'Sunlit outdoor playground with green trees and child-safe physical activity zones.',
+        highlight4Title: 'Organic Nutrition',
+        highlight4Desc: 'Balanced meals based on nutrition institute standards with 100% fresh, traceable ingredients.',
+        highlight5Title: 'Low Student-Teacher Ratio',
+        highlight5Desc: 'Small class sizes allow teachers to closely care for and understand each child individually.',
+        highlight6Title: 'Strict Hygiene & Healthcare',
+        highlight6Desc: 'Daily morning temperature check-ins and toys sanitized daily following medical guidelines.',
     }
 } as const;
 

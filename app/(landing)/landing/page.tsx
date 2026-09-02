@@ -21,6 +21,7 @@ import { landingText } from './lang';
 import styles from './landing.module.scss';
 import Image from 'next/image';
 import LazyImage from '../../../demo/components/LazyImage';
+import HighlightsSection from '../../../demo/components/HighlightsSection';
 type ProgramRow = {
     id: number | string;
     name?: string;
@@ -545,6 +546,8 @@ const getImageUrl = (url?: string, width = 400) => {
                         </div>
                     </div>
                 </section>
+                {/* ⭐ Section 2: Điểm nổi bật */}
+                <HighlightsSection lang={lang} />
 
                 <section id="programs" className={`px-4 py-8 ${styles.pinkSection} ${styles.colorfulSection} ${styles.sectionMotion}`}>
                     <SectionFloatingIcons icons={['🎈', '🌸', '⭐', '🧸']} />
