@@ -20,6 +20,7 @@ import { useRouter } from 'next/navigation';
 import { landingText } from './lang';
 import styles from './landing.module.scss';
 import Image from 'next/image';
+import LazyImage from '../../../demo/components/LazyImage';
 type ProgramRow = {
     id: number | string;
     name?: string;
@@ -179,7 +180,7 @@ export default function NangHongLandingPage() {
             });
         });
     }, []);
-const getImageUrl = (url?: string, width = 500) => {
+const getImageUrl = (url?: string, width = 400) => {
     if (!url) return '';
 
     const idMatch =
@@ -189,11 +190,8 @@ const getImageUrl = (url?: string, width = 500) => {
 
     if (!idMatch) return url;
 
-    // Direct link tới Google Drive content
-    const driveDirect = `https://lh3.googleusercontent.com/d/${idMatch[1]}`;
-    
-    // Đẩy qua Cloudflare Image CDN (wsrv.nl) nén webp chất lượng cao, tối ưu tải
-    return `https://wsrv.nl/?url=${encodeURIComponent(driveDirect)}&w=${width}&output=webp&q=80`;
+    // Endpoint thumbnail trực tiếp từ Google Drive, bypass qua các bước redirect
+    return `https://drive.google.com/thumbnail?id=${idMatch[1]}&sz=w${width}`;
 };
     const featuredPrograms = getProgramChildren(programs);
     const teachers = getTeachers(programs);
@@ -308,7 +306,7 @@ const getImageUrl = (url?: string, width = 500) => {
                 }}
             >
                 {item.thumbnail_url && (
-   <Image
+   <LazyImage
    src={getImageUrl(item.thumbnail_url)}
     alt={item.title}
     onLoad={() => {
@@ -363,7 +361,7 @@ const getImageUrl = (url?: string, width = 500) => {
                 }}
             >
                {teacher.profile_image_url ? (
-    <Image
+    <LazyImage
         className={styles.imageHover}
         src={getImageUrl(teacher.profile_image_url)}
         alt={teacher.full_name || t.teacherAlt}
@@ -896,14 +894,13 @@ const getImageUrl = (url?: string, width = 500) => {
                                     >
                                         {article.thumbnail_url ? (
     <div style={{ position: 'relative', width: '100%', height: 190, borderRadius: 22, overflow: 'hidden' }}>
-        <Image
+        <LazyImage
             className={styles.imageHover}
             src={getImageUrl(article.thumbnail_url, 400)}
             alt={String(article.title || 'News thumbnail')}
-            fill
             sizes="(max-width: 768px) 100vw, 33vw"
             style={{ objectFit: 'cover' }}
-            loading="lazy"
+            
         />
     </div>
 ) : null}
