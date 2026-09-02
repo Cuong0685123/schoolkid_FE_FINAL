@@ -1,8 +1,8 @@
 'use client';
 
 import React from 'react';
-import styles from '../landing.module.scss';
-import { landingText, type LandingLanguage } from '../../app/(landing)/landing/lang'
+import styles from '../../app/(landing)/landing/landing.module.scss';
+import { landingText, type LandingLanguage } from '../../app/(landing)/landing/lang';
 
 interface HighlightsSectionProps {
     lang: LandingLanguage;
