@@ -198,7 +198,7 @@ export default function TuitionSection({ lang, onApplyClick }: TuitionSectionPro
                         </div>
                     </div>
 
-                    {/* Banner khuyến mãi */}
+                    {/* Banner khuyến mãi
                     <div className="col-12 md:col-6 p-3">
                         <div
                             className={`p-4 h-full flex flex-column justify-content-between text-white ${styles.rainbowCard}`}
@@ -229,7 +229,7 @@ export default function TuitionSection({ lang, onApplyClick }: TuitionSectionPro
                                 />
                             </div>
                         </div>
-                    </div>
+                    </div> */}
                 </div>
             </div>
         </section>

@@ -20,6 +20,7 @@ import HighlightsSection from '../../../demo/components/HighlightsSection';
 import FacilitiesSection from '../../../demo/components/FacilitiesSection';
 import NutritionSection from '../../../demo/components/NutritionSection';
 import TuitionSection from '../../../demo/components/TuitionSection';
+import GoogleMapEmbed from '../../../demo/components/GoogleMapEmbed';
 type ProgramRow = {
     id: number | string;
     name?: string;
@@ -593,6 +594,7 @@ export default function NangHongLandingPage() {
                 {/* 💰 Section 8: Học phí & Ưu đãi */}
                 <TuitionSection lang={lang} onApplyClick={() => scrollTo('apply')} />
 
+
                 <section id="video" className={`px-4 py-8 ${styles.videoSection} ${styles.sectionMotion}`} style={{ background: `linear-gradient(135deg,${COLORS.green},${COLORS.blue},${COLORS.purple})` }}>
                     <SectionFloatingIcons icons={['🎬', '✨', '☁️', '💙']} />
                     <div className={`grid align-items-center text-white ${styles.sectionContentMotion}`} style={sectionStyle}>
@@ -805,6 +807,8 @@ export default function NangHongLandingPage() {
                         </div>
                     </div>
                 </section>
+                {/* 📍 Section Bản đồ & Vị trí */}
+                <GoogleMapEmbed lang={lang} siteContent={siteContent} />
             </main>
 
             <footer id="contact" className={`px-4 py-6 bg-white ${styles.footerGlow} ${styles.sectionMotion}`}>

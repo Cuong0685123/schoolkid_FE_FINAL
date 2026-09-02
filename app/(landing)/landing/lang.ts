@@ -176,6 +176,14 @@ export const landingText = {
         tuitionDiscountBannerTitle: '🎁 Ưu đãi tuyển sinh niên khóa mới',
         tuitionDiscountBannerDesc: 'Giảm ngay 10% học phí trọn năm cho 20 phụ huynh hoàn tất thủ tục nhập học sớm nhất.',
         tuitionRegisterNow: 'Nhận ưu đãi ngay',
+        // Map & Location
+        mapBadge: 'Vị Trí & Liên Hệ',
+        mapTitle: 'Ghé thăm Mầm Non Nắng Hồng',
+        mapDesc: 'Nhà trường luôn chào đón quý phụ huynh và các bé đến tham quan trực tiếp khuôn viên trường.',
+        mapAddressLabel: 'Địa chỉ trường:',
+        mapWorkingHoursLabel: 'Giờ đón tiếp phụ huynh:',
+        mapWorkingHoursValue: 'Thứ 2 - Thứ 6: 7:00 - 17:30 | Thứ 7: 7:30 - 11:30',
+        mapGetDirections: 'Xem chỉ đường trên Google Maps',
     },
     en: {
         brandName: 'Nang Hong Kindergarten',
@@ -354,6 +362,14 @@ export const landingText = {
         tuitionDiscountBannerTitle: '🎁 New Academic Year Promotion',
         tuitionDiscountBannerDesc: 'Instant 10% annual tuition discount for the first 20 early enrolled children.',
         tuitionRegisterNow: 'Claim Offer Now',
+        // Map & Location
+        mapBadge: 'Location & Campus',
+        mapTitle: 'Visit Nang Hong Kindergarten',
+        mapDesc: 'We warmly welcome parents and children to visit and tour our school campus.',
+        mapAddressLabel: 'Campus Address:',
+        mapWorkingHoursLabel: 'Visiting Hours:',
+        mapWorkingHoursValue: 'Mon - Fri: 7:00 AM - 5:30 PM | Sat: 7:30 AM - 11:30 AM',
+        mapGetDirections: 'Open in Google Maps',
     }
 } as const;
 
