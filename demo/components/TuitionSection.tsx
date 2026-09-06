@@ -13,28 +13,21 @@ interface TuitionSectionProps {
 export default function TuitionSection({ lang, onApplyClick }: TuitionSectionProps) {
     const t = landingText[lang];
 
-    const benefits = [
-        t.tuitionFeatureMeal,
-        t.tuitionFeatureCamera,
-        t.tuitionFeatureInsurance,
-        t.tuitionFeatureActivities
-    ];
-
     return (
         <section
             id="tuition"
             className={`px-4 py-8 relative ${styles.softSection} ${styles.sectionMotion}`}
         >
             <div className={styles.sectionFloatingIcons} aria-hidden="true">
-                <span className={`${styles.sectionIcon} ${styles.sectionIcon1}`}>🎁</span>
-                <span className={`${styles.sectionIcon} ${styles.sectionIcon2}`}>⭐</span>
-                <span className={`${styles.sectionIcon} ${styles.sectionIcon3}`}>🎈</span>
+                <span className={`${styles.sectionIcon} ${styles.sectionIcon1}`}>⭐</span>
+                <span className={`${styles.sectionIcon} ${styles.sectionIcon2}`}>🎈</span>
+                <span className={`${styles.sectionIcon} ${styles.sectionIcon3}`}>🌸</span>
                 <span className={`${styles.sectionIcon} ${styles.sectionIcon4}`}>💖</span>
             </div>
 
-            <div style={{ maxWidth: '1080px', margin: '0 auto' }} className={styles.sectionContentMotion}>
+            <div style={{ maxWidth: '820px', margin: '0 auto' }} className={styles.sectionContentMotion}>
                 {/* Header */}
-                <div className={`text-center mb-6 ${styles.sectionTitle} ${styles.fadeUp}`}>
+                <div className={`text-center mb-5 ${styles.sectionTitle} ${styles.fadeUp}`}>
                     <div
                         className={`inline-block px-4 py-2 border-round-3xl font-bold mb-3 ${styles.badgeCandy}`}
                         style={{
@@ -57,116 +50,59 @@ export default function TuitionSection({ lang, onApplyClick }: TuitionSectionPro
                         {t.tuitionTitle}
                     </h2>
 
-                    <p className="text-600 text-lg line-height-3 m-0" style={{ maxWidth: 640, margin: '0 auto' }}>
+                    <p className="text-600 text-lg line-height-3 mx-auto my-0" style={{ maxWidth: 580 }}>
                         {t.tuitionDesc}
                     </p>
                 </div>
 
-                {/* Banner Học phí chính */}
+                {/* Card Học phí duy nhất */}
                 <div
-                    className={`card mb-5 p-5 md:p-6 ${styles.cardHover} ${styles.rainbowCard}`}
+                    className={`card p-5 md:p-6 text-center ${styles.cardHover} ${styles.rainbowCard}`}
                     style={{
-                        borderRadius: 36,
-                        background: 'linear-gradient(135deg, #ffffff 0%, #fff7fb 100%)',
+                        borderRadius: 32,
+                        background: 'linear-gradient(180deg, #ffffff 0%, #fff7fb 100%)',
                         border: '3px solid #ffc1e3',
-                        boxShadow: '0 20px 48px rgba(255,47,146,.16)'
+                        boxShadow: '0 18px 45px rgba(255,47,146,.14)'
                     }}
                 >
-                    <div className="grid align-items-center">
-                        <div className="col-12 lg:col-7">
-                            <span
-                                className="px-3 py-1 border-round-2xl font-bold text-xs inline-block mb-3"
-                                style={{ background: '#ffeaf4', color: '#ff2f92' }}
-                            >
-                                Học phí chính khóa
-                            </span>
+                    <span
+                        className="px-4 py-1 border-round-2xl font-bold text-sm inline-block mb-3"
+                        style={{ background: '#ffeaf4', color: '#ff2f92' }}
+                    >
+                        {lang === 'vi' ? 'Lớp Mầm • Chồi • Lá (3 - 5 tuổi)' : 'Mam • Choi • La Classes (3 - 5 Years Old)'}
+                    </span>
 
-                            <div className="flex align-items-baseline gap-2 mb-2 flex-wrap">
-                                <span
-                                    className="text-4xl md:text-5xl font-black"
-                                    style={{ color: '#ff2f92', letterSpacing: '-0.02em' }}
-                                >
-                                    {t.tuitionRangePrice}
-                                </span>
-                                <span className="text-700 text-lg font-bold">{t.tuitionMonth}</span>
-                            </div>
-
-                            <p className="text-700 font-semibold mb-4 line-height-3">
-                                {t.tuitionScope}
-                            </p>
-
-                            <div className="grid">
-                                {benefits.map((benefit, idx) => (
-                                    <div key={idx} className="col-12 sm:col-6 flex align-items-center gap-2 mb-2">
-                                        <i className="pi pi-check-circle" style={{ color: '#00c896', fontSize: '1.2rem' }} />
-                                        <span className="text-700 text-sm font-medium">{benefit}</span>
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
-
-                        <div className="col-12 lg:col-5 text-center lg:text-right mt-4 lg:mt-0">
-                            <div
-                                className="p-4 inline-block text-left w-full border-round-3xl"
-                                style={{ background: 'rgba(255,255,255,0.85)', border: '2px dashed #ffd86f' }}
-                            >
-                                <div className="text-sm font-bold text-800 mb-2">📌 {t.tuitionFeeInclude}</div>
-                                <div className="text-xs text-600 mb-2 flex justify-content-between">
-                                    <span>{t.tuitionMealFeeTitle}</span>
-                                    <span className="font-bold text-800">{t.tuitionMealFeeValue}</span>
-                                </div>
-                                <div className="text-xs text-600 mb-3 flex justify-content-between">
-                                    <span>{t.tuitionMaterialFeeTitle}</span>
-                                    <span className="font-bold text-800">{t.tuitionMaterialFeeValue}</span>
-                                </div>
-                                <Button
-                                    label={t.tuitionRegisterNow}
-                                    icon="pi pi-send"
-                                    rounded
-                                    className="w-full"
-                                    style={{
-                                        background: '#ff2f92',
-                                        borderColor: '#ff2f92',
-                                        fontWeight: 800,
-                                        boxShadow: '0 8px 20px rgba(255,47,146,.3)'
-                                    }}
-                                    onClick={onApplyClick}
-                                />
-                            </div>
-                        </div>
+                    <div className="flex align-items-baseline justify-content-center gap-2 my-2 flex-wrap">
+                        <span
+                            className="text-4xl md:text-6xl font-black"
+                            style={{ color: '#ff2f92', letterSpacing: '-0.02em' }}
+                        >
+                            {t.tuitionRangePrice}
+                        </span>
+                        <span className="text-700 text-xl font-bold">{t.tuitionMonth}</span>
                     </div>
-                </div>
 
-                {/* Banner Ưu đãi tuyển sinh */}
-                <div
-                    className="p-4 flex flex-column md:flex-row justify-content-between align-items-center gap-3 text-white"
-                    style={{
-                        borderRadius: 24,
-                        background: 'linear-gradient(135deg, #ff8a00 0%, #ffd86f 100%)',
-                        boxShadow: '0 12px 28px rgba(255,138,0,.2)'
-                    }}
-                >
-                    <div>
-                        <h4 className="m-0 mb-1 text-lg md:text-xl font-bold text-900">
-                            {t.tuitionDiscountBannerTitle}
-                        </h4>
-                        <p className="m-0 text-sm text-800 font-medium">
-                            {t.tuitionDiscountBannerDesc}
-                        </p>
+                    <p className="text-600 font-medium my-3">
+                        {lang === 'vi'
+                            ? 'Mức học phí áp dụng đồng đều cho các khối lớp học tại trường'
+                            : 'Standard tuition rate across preschool classes'}
+                    </p>
+
+                    <div className="mt-4">
+                        <Button
+                            label={t.applyNow}
+                            icon="pi pi-send"
+                            rounded
+                            style={{
+                                background: '#ff2f92',
+                                borderColor: '#ff2f92',
+                                fontWeight: 800,
+                                padding: '12px 32px',
+                                boxShadow: '0 8px 22px rgba(255,47,146,.3)'
+                            }}
+                            onClick={onApplyClick}
+                        />
                     </div>
-                    <Button
-                        label={lang === 'vi' ? 'Nhận tư vấn ngay' : 'Get Details'}
-                        icon="pi pi-arrow-right"
-                        rounded
-                        style={{
-                            background: '#ffffff',
-                            color: '#e67300',
-                            border: 'none',
-                            fontWeight: 800,
-                            whiteSpace: 'nowrap'
-                        }}
-                        onClick={onApplyClick}
-                    />
                 </div>
             </div>
         </section>

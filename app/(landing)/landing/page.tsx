@@ -21,6 +21,7 @@ import FacilitiesSection from '../../../demo/components/FacilitiesSection';
 import NutritionSection from '../../../demo/components/NutritionSection';
 import TuitionSection from '../../../demo/components/TuitionSection';
 import GoogleMapEmbed from '../../../demo/components/GoogleMapEmbed';
+
 type ProgramRow = {
     id: number | string;
     name?: string;
@@ -63,10 +64,10 @@ const buttonYellow: React.CSSProperties = {
 };
 
 const titleStyle: React.CSSProperties = {
-    fontSize: 'clamp(2.35rem, 5vw, 4.6rem)',
+    fontSize: 'clamp(2.35rem, 4.8vw, 4.2rem)',
     fontWeight: 900,
-    lineHeight: 1.08,
-    letterSpacing: '-0.04em'
+    lineHeight: 1.15,
+    letterSpacing: '-0.035em'
 };
 
 const getProgramChildren = (programs: ProgramRow[]) => {
@@ -80,18 +81,28 @@ const getTeachers = (programs: ProgramRow[]) => {
 };
 
 const SectionTitle = ({ badge, title, desc }: { badge?: string; title: string; desc?: string }) => (
-    <div className={`text-center mb-5 ${styles.sectionTitle} ${styles.fadeUp}`}>
+    <div className={`text-center mb-6 flex flex-column align-items-center ${styles.sectionTitle} ${styles.fadeUp}`}>
         {badge ? (
-            <div className="inline-block px-4 py-2 border-round-3xl font-bold mb-3" style={{ background: COLORS.lightYellow, color: COLORS.pink }}>
+            <div
+                className={`inline-block px-4 py-2 border-round-3xl font-bold mb-3 ${styles.badgeCandy}`}
+                style={{ background: '#fff', color: COLORS.pink, boxShadow: '0 8px 18px rgba(255,95,162,.16)' }}
+            >
                 {badge}
             </div>
         ) : null}
 
-        <h2 className="m-0 mb-3" style={{ ...titleStyle, fontSize: 'clamp(2.2rem, 4vw, 4rem)' }}>
+        <h2 className="m-0 mb-3 text-center w-full" style={{ ...titleStyle, fontSize: 'clamp(2.1rem, 3.8vw, 3.5rem)' }}>
             {title}
         </h2>
 
-        {desc ? <p className="text-600 text-lg line-height-3 m-0">{desc}</p> : null}
+        {desc ? (
+            <p
+                className="text-700 text-lg line-height-3 mx-auto my-0 text-center font-normal"
+                style={{ maxWidth: 720, lineHeight: 1.7 }}
+            >
+                {desc}
+            </p>
+        ) : null}
     </div>
 );
 
@@ -137,9 +148,15 @@ export default function NangHongLandingPage() {
     const [childAge, setChildAge] = useState('');
     const [selectedProgramId, setSelectedProgramId] = useState('');
     const [message, setMessage] = useState('');
+
     useEffect(() => {
         const loadData = async () => {
-            const [programData, articleData, videoData, siteData] = await Promise.all([getPrograms(), getNewsArticles(), getPromotionalVideos(), getSiteContents()]);
+            const [programData, articleData, videoData, siteData] = await Promise.all([
+                getPrograms(),
+                getNewsArticles(),
+                getPromotionalVideos(),
+                getSiteContents()
+            ]);
 
             setPrograms(Array.isArray(programData) ? programData : []);
             setArticles(Array.isArray(articleData) ? articleData : []);
@@ -156,23 +173,20 @@ export default function NangHongLandingPage() {
             });
         });
     }, []);
+
     const getImageUrl = (url?: string, width = 400) => {
         if (!url) return '';
-
         const idMatch = url.match(/[?&]id=([^&]+)/) || url.match(/\/file\/d\/([^/]+)/) || url.match(/\/d\/([^/]+)/);
-
         if (!idMatch) return url;
-
-        // Endpoint thumbnail trực tiếp từ Google Drive, bypass qua các bước redirect
         return `https://drive.google.com/thumbnail?id=${idMatch[1]}&sz=w${width}`;
     };
+
     const featuredPrograms = getProgramChildren(programs);
     const teachers = getTeachers(programs);
     const latestNews = articles.slice(0, 3);
     const latestVideo = videos[0];
 
     const displayPrograms = featuredPrograms;
-
     const displayTeachers = teachers;
 
     const scrollTo = (id: string) => {
@@ -207,6 +221,7 @@ export default function NangHongLandingPage() {
             setSubscribing(false);
         }
     };
+
     const handleApply = async () => {
         if (!parentName.trim() || !parentPhone.trim() || !childName.trim()) {
             toast.current?.show({
@@ -229,7 +244,6 @@ export default function NangHongLandingPage() {
 
         try {
             setApplying(true);
-
             await createApplication({
                 parent_name: parentName.trim(),
                 parent_phone: parentPhone.trim(),
@@ -271,37 +285,45 @@ export default function NangHongLandingPage() {
                 className={`card text-center h-full ${styles.cardHover} ${styles.rainbowCard}`}
                 style={{
                     borderRadius: 32,
-                    minHeight: 350,
+                    minHeight: 390,
                     background: 'linear-gradient(180deg,#ffffff 0%,#fff0fb 100%)',
                     border: '3px solid #ffc1e3',
-                    boxShadow: '0 16px 35px rgba(255,47,146,.22)'
+                    boxShadow: '0 16px 35px rgba(255,47,146,.16)',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    justifyContent: 'space-between',
+                    padding: '24px'
                 }}
             >
-                {item.thumbnail_url && (
-                    <Image
-                        src={getImageUrl(item.thumbnail_url)}
-                        alt={item.title}
-                        onLoad={() => {
-                            console.log('IMAGE LOADED:', item.title);
-                        }}
-                        onError={() => {
-                            console.log('IMAGE ERROR:', item.thumbnail_url);
-                            console.log('CONVERTED:', normalizeDriveThumbnailUrl(item.thumbnail_url));
-                        }}
-                        style={{
-                            width: '100%',
-                            height: 170,
-                            objectFit: 'cover',
-                            borderRadius: 24
-                        }}
+                <div>
+                    {item.thumbnail_url && (
+                        <div style={{ position: 'relative', width: '100%', height: 180, marginBottom: 16 }}>
+                            <Image
+                                src={getImageUrl(item.thumbnail_url)}
+                                alt={item.title}
+                                fill
+                                style={{
+                                    objectFit: 'cover',
+                                    borderRadius: 20
+                                }}
+                            />
+                        </div>
+                    )}
+                    <h3 className="text-2xl font-bold mb-2 text-900">{item.title || t.programAlt}</h3>
+                    <p className="text-700 line-height-3 text-sm m-0" style={{ lineHeight: 1.6 }}>
+                        {item.detail || t.programFallbackDetail}
+                    </p>
+                </div>
+                <div className="mt-3">
+                    <Button
+                        className={styles.buttonPop}
+                        label={t.viewDetail}
+                        rounded
+                        text
+                        style={{ color: COLORS.pink, fontWeight: 800 }}
+                        onClick={() => router.push(`/landing/programs/${item.program_id || item.id}`)}
                     />
-                )}
-
-                <h3 className="text-2xl mb-2">{item.title || t.programAlt}</h3>
-
-                <p className="text-600 line-height-3">{item.detail || t.programFallbackDetail}</p>
-
-                <Button className={styles.buttonPop} label={t.viewDetail} rounded text style={{ color: COLORS.pink }} onClick={() => router.push(`/landing/programs/${item.program_id || item.id}`)} />
+                </div>
             </div>
         </div>
     );
@@ -312,89 +334,88 @@ export default function NangHongLandingPage() {
                 className={`card text-center h-full ${styles.cardHover} ${styles.rainbowCard}`}
                 style={{
                     borderRadius: 32,
-                    minHeight: 350,
+                    minHeight: 370,
                     background: 'linear-gradient(180deg,#ffffff 0%,#efffff 100%)',
                     border: '3px solid #a7fff0',
-                    boxShadow: '0 16px 35px rgba(0,200,150,.2)'
+                    boxShadow: '0 16px 35px rgba(0,200,150,.15)',
+                    padding: '24px'
                 }}
             >
                 {teacher.profile_image_url ? (
-                    <Image
-                        className={styles.imageHover}
-                        src={getImageUrl(teacher.profile_image_url)}
-                        alt={teacher.full_name || t.teacherAlt}
-                        onLoad={() => {
-                            console.log('TEACHER IMAGE LOADED:', teacher.full_name, teacher.profile_image_url);
-                        }}
-                        onError={() => {
-                            console.log('TEACHER IMAGE ERROR:', teacher.profile_image_url);
-
-                            console.log('TEACHER CONVERTED:', normalizeDriveThumbnailUrl(teacher.profile_image_url));
-                        }}
-                        referrerPolicy="no-referrer"
-                        style={{
-                            width: '100%',
-                            height: 235,
-                            objectFit: 'cover',
-                            borderRadius: 26
-                        }}
-                    />
+                    <div style={{ position: 'relative', width: '100%', height: 230, marginBottom: 16 }}>
+                        <Image
+                            className={styles.imageHover}
+                            src={getImageUrl(teacher.profile_image_url)}
+                            alt={teacher.full_name || t.teacherAlt}
+                            fill
+                            referrerPolicy="no-referrer"
+                            style={{
+                                objectFit: 'cover',
+                                borderRadius: 22
+                            }}
+                        />
+                    </div>
                 ) : (
                     <div
                         className="mx-auto mb-4 border-circle flex align-items-center justify-content-center"
                         style={{
-                            width: 145,
-                            height: 145,
+                            width: 140,
+                            height: 140,
                             background: COLORS.lightPink,
                             color: COLORS.pink,
-                            border: '6px solid #fff'
+                            border: '6px solid #fff',
+                            boxShadow: '0 8px 20px rgba(255,47,146,.15)'
                         }}
                     >
                         <i className="pi pi-heart-fill text-5xl" />
                     </div>
                 )}
 
-                <h3 className="mb-1 text-2xl">{teacher.full_name || t.teacherAlt}</h3>
-                <p className="text-600 m-0">{teacher.role || t.kindergartenTeacher}</p>
+                <h3 className="mb-1 text-2xl font-bold text-900">{teacher.full_name || t.teacherAlt}</h3>
+                <p className="text-600 font-medium m-0 text-sm">{teacher.role || t.kindergartenTeacher}</p>
             </div>
         </div>
     );
 
     return (
-        <div className={styles.landingRoot} style={{ background: COLORS.cream, color: '#263238', overflow: 'hidden' }}>
+        <div className={styles.landingRoot} style={{ background: COLORS.cream, color: '#2b232a', overflow: 'hidden' }}>
             <Toast ref={toast} />
 
+            {/* Header */}
             <header
                 className={`fixed top-0 left-0 right-0 z-5 ${styles.glassHeader}`}
                 style={{
-                    background: 'rgba(255,255,255,.94)',
-                    backdropFilter: 'blur(12px)',
+                    background: 'rgba(255,255,255,.95)',
+                    backdropFilter: 'blur(16px)',
                     borderBottom: '1px solid #ffc1df'
                 }}
             >
                 <div className="flex align-items-center justify-content-between px-4 py-3" style={sectionStyle}>
-                    <div className="flex align-items-center gap-2">
+                    <div className="flex align-items-center gap-3 cursor-pointer" onClick={() => scrollTo('home')}>
                         <div
                             className={`border-circle flex align-items-center justify-content-center ${styles.logoPulse}`}
                             style={{
-                                width: 46,
-                                height: 46,
+                                width: 48,
+                                height: 48,
                                 background: `linear-gradient(135deg,${COLORS.yellow},${COLORS.pink},${COLORS.purple})`,
-                                color: '#fff'
+                                color: '#fff',
+                                boxShadow: '0 8px 20px rgba(255,47,146,.25)'
                             }}
                         >
-                            <i className="pi pi-sun text-xl" />
+                            <i className="pi pi-sun text-2xl" />
                         </div>
 
                         <div>
-                            <div className="font-bold text-2xl">{t.brandName}</div>
-                            <div className="text-sm font-semibold" style={{ color: COLORS.green }}>
+                            <div className="font-black text-2xl" style={{ color: '#2b232a', letterSpacing: '-0.02em' }}>
+                                {t.brandName}
+                            </div>
+                            <div className="text-xs font-bold" style={{ color: COLORS.green }}>
                                 {t.slogan}
                             </div>
                         </div>
                     </div>
 
-                    <nav className="hidden md:flex gap-4 align-items-center font-semibold">
+                    <nav className="hidden md:flex gap-4 align-items-center font-bold">
                         <button className={`p-link ${styles.navLink}`} onClick={() => scrollTo('home')}>
                             {t.navHome}
                         </button>
@@ -404,6 +425,12 @@ export default function NangHongLandingPage() {
                         <button className={`p-link ${styles.navLink}`} onClick={() => scrollTo('programs')}>
                             {t.navPrograms}
                         </button>
+                        <button className={`p-link ${styles.navLink}`} onClick={() => scrollTo('facilities')}>
+                            {lang === 'vi' ? 'Cơ sở vật chất' : 'Facilities'}
+                        </button>
+                        <button className={`p-link ${styles.navLink}`} onClick={() => scrollTo('tuition')}>
+                            {lang === 'vi' ? 'Học phí' : 'Tuition'}
+                        </button>
                         <button className={`p-link ${styles.navLink}`} onClick={() => scrollTo('news')}>
                             {t.navNews}
                         </button>
@@ -412,13 +439,21 @@ export default function NangHongLandingPage() {
                         </button>
                     </nav>
 
-                    <Button label={lang === 'vi' ? 'EN' : 'VI'} rounded outlined style={{ color: COLORS.pink, borderColor: COLORS.pink, fontWeight: 700 }} onClick={() => setLang(lang === 'vi' ? 'en' : 'vi')} />
-
-                    <Button label={t.applyNow} rounded style={buttonPink} onClick={() => scrollTo('apply')} />
+                    <div className="flex align-items-center gap-2">
+                        <Button
+                            label={lang === 'vi' ? 'EN' : 'VI'}
+                            rounded
+                            outlined
+                            style={{ color: COLORS.pink, borderColor: COLORS.pink, fontWeight: 800 }}
+                            onClick={() => setLang(lang === 'vi' ? 'en' : 'vi')}
+                        />
+                        <Button label={t.applyNow} rounded style={buttonPink} onClick={() => scrollTo('apply')} />
+                    </div>
                 </div>
             </header>
 
             <main id="home" style={{ paddingTop: 84 }}>
+                {/* 1. Hero Section */}
                 <section
                     className={`px-4 py-8 relative ${styles.heroSection} ${styles.sectionMotion}`}
                     style={{
@@ -437,7 +472,10 @@ export default function NangHongLandingPage() {
 
                     <div className={`grid align-items-center relative z-1 ${styles.sectionContentMotion}`} style={sectionStyle}>
                         <div className={`col-12 lg:col-6 ${styles.fadeUp}`}>
-                            <div className={`inline-block px-4 py-2 border-round-3xl font-bold mb-3 ${styles.badgeCandy}`} style={{ background: '#fff', color: COLORS.pink, boxShadow: '0 8px 18px rgba(255,95,162,.18)' }}>
+                            <div
+                                className={`inline-block px-4 py-2 border-round-3xl font-bold mb-3 ${styles.badgeCandy}`}
+                                style={{ background: '#fff', color: COLORS.pink, boxShadow: '0 8px 18px rgba(255,95,162,.18)' }}
+                            >
                                 {t.heroBadge}
                             </div>
 
@@ -445,11 +483,28 @@ export default function NangHongLandingPage() {
                                 {t.heroTitle}
                             </h1>
 
-                            <p className="text-xl line-height-3 text-700 mb-5">{t.heroDesc}</p>
+                            <p className="text-xl text-700 mb-5 font-normal" style={{ lineHeight: 1.75, maxWidth: 540 }}>
+                                {t.heroDesc}
+                            </p>
 
                             <div className="flex gap-3 flex-wrap">
-                                <Button className={styles.buttonPop} label={t.admission} rounded icon="pi pi-send" style={buttonYellow} onClick={() => scrollTo('apply')} />
-                                <Button className={styles.buttonPop} label={t.viewPrograms} rounded outlined icon="pi pi-arrow-right" style={{ color: COLORS.pink, borderColor: COLORS.pink, fontWeight: 700 }} onClick={() => scrollTo('programs')} />
+                                <Button
+                                    className={styles.buttonPop}
+                                    label={t.admission}
+                                    rounded
+                                    icon="pi pi-send"
+                                    style={{ ...buttonYellow, padding: '14px 28px', fontSize: '1.05rem' }}
+                                    onClick={() => scrollTo('apply')}
+                                />
+                                <Button
+                                    className={styles.buttonPop}
+                                    label={t.viewPrograms}
+                                    rounded
+                                    outlined
+                                    icon="pi pi-arrow-right"
+                                    style={{ color: COLORS.pink, borderColor: COLORS.pink, fontWeight: 700, padding: '14px 28px' }}
+                                    onClick={() => scrollTo('programs')}
+                                />
                             </div>
                         </div>
 
@@ -469,7 +524,7 @@ export default function NangHongLandingPage() {
                                     alt={latestVideo?.title || t.brandName}
                                     style={{
                                         width: '100%',
-                                        height: 'clamp(240px, 52vw, 450px)',
+                                        height: 'clamp(260px, 52vw, 460px)',
                                         objectFit: 'cover',
                                         display: 'block'
                                     }}
@@ -478,9 +533,11 @@ export default function NangHongLandingPage() {
                         </div>
                     </div>
                 </section>
-                {/* ⭐ Section 2: Điểm nổi bật */}
+
+                {/* 2. Điểm nổi bật (Highlights) */}
                 <HighlightsSection lang={lang} />
 
+                {/* 3. Chương trình đào tạo (Programs) */}
                 <section id="programs" className={`px-4 py-8 ${styles.pinkSection} ${styles.colorfulSection} ${styles.sectionMotion}`}>
                     <SectionFloatingIcons icons={['🎈', '🌸', '⭐', '🧸']} />
                     <div className={styles.sectionContentMotion} style={sectionStyle}>
@@ -491,7 +548,7 @@ export default function NangHongLandingPage() {
                             numVisible={3}
                             numScroll={1}
                             circular
-                            autoplayInterval={3000}
+                            autoplayInterval={3500}
                             showIndicators
                             showNavigators={false}
                             responsiveOptions={[
@@ -505,6 +562,7 @@ export default function NangHongLandingPage() {
                     </div>
                 </section>
 
+                {/* 4. Về nhà trường & Triết lý giáo dục (About) */}
                 <section id="about" className={`px-4 py-8 relative ${styles.aboutSection} ${styles.softSection} ${styles.sectionMotion}`}>
                     <SectionFloatingIcons icons={['☁️', '💖', '🌼', '🌈']} />
                     <DecorativeBubble style={{ width: 180, height: 180, background: COLORS.yellow, top: 40, right: -50 }} />
@@ -516,7 +574,7 @@ export default function NangHongLandingPage() {
                                 style={{
                                     borderRadius: '45% 55% 55% 45%',
                                     border: '10px solid #fff',
-                                    boxShadow: '0 18px 40px rgba(25,199,159,.2)'
+                                    boxShadow: '0 20px 45px rgba(25,199,159,.18)'
                                 }}
                             >
                                 <img
@@ -526,7 +584,7 @@ export default function NangHongLandingPage() {
                                     alt={latestVideo?.title || t.brandName}
                                     style={{
                                         width: '100%',
-                                        height: 450,
+                                        height: 480,
                                         objectFit: 'cover',
                                         display: 'block'
                                     }}
@@ -534,25 +592,43 @@ export default function NangHongLandingPage() {
                             </div>
                         </div>
 
-                        <div className="col-12 lg:col-6">
-                            <h2 className="m-0 mb-3" style={{ ...titleStyle, fontSize: 'clamp(2.2rem, 4vw, 4.2rem)' }}>
+                        <div className="col-12 lg:col-6 pl-lg-5">
+                            <div
+                                className={`inline-block px-4 py-2 border-round-3xl font-bold mb-3 ${styles.badgeCandy}`}
+                                style={{ background: '#fff', color: COLORS.green }}
+                            >
+                                {lang === 'vi' ? 'Triết Lý Giáo Dục' : 'Our Philosophy'}
+                            </div>
+
+                            <h2 className="m-0 mb-4" style={{ ...titleStyle, fontSize: 'clamp(2.1rem, 3.8vw, 3.6rem)' }}>
                                 {t.aboutTitle}
                             </h2>
 
-                            <p className="text-700 text-lg line-height-3">{siteContent?.about_section_quote || t.aboutDefaultQuote}</p>
+                            <p className="text-700 text-lg line-height-3 mb-4 font-normal" style={{ lineHeight: 1.8 }}>
+                                {siteContent?.about_section_quote || t.aboutDefaultQuote}
+                            </p>
 
-                            <div className="grid mt-4">
+                            <p className="text-600 line-height-3 text-base mb-5" style={{ lineHeight: 1.75 }}>
+                                {lang === 'vi'
+                                    ? 'Tại Nắng Hồng, mỗi ngày của bé là một hành trình kỳ diệu. Chúng tôi kết hợp nhuần nhuyễn giữa phương pháp giáo dục trực quan, nề nếp kỷ luật tích cực và những cái ôm vỗ về đầy kiên nhẫn. Sự phát triển tự nhiên, khỏe mạnh và hạnh phúc của bé chính là thước đo thành công lớn nhất của nhà trường.'
+                                    : 'At Nang Hong, each day is a magical journey. We seamlessly combine intuitive learning, positive discipline, and warm patient care. A child’s natural, healthy, and joyous growth remains our greatest measure of success.'}
+                            </p>
+
+                            <div className="grid">
                                 {[
                                     { value: siteContent?.stat_years_experience || '14+', label: t.yearsExperience, color: COLORS.green },
                                     { value: siteContent?.stat_students_info || '500+', label: t.studentsPerYear, color: COLORS.yellow },
                                     { value: siteContent?.stat_awards_info || '20+', label: t.achievements, color: COLORS.pink }
                                 ].map((item) => (
                                     <div key={item.label} className="col-4">
-                                        <div className={`card text-center h-full ${styles.cardHover}`} style={{ borderRadius: 22 }}>
-                                            <div className="font-bold text-4xl" style={{ color: item.color }}>
+                                        <div
+                                            className={`card text-center h-full p-3 ${styles.cardHover}`}
+                                            style={{ borderRadius: 24, background: '#fff', border: '2px solid #fff' }}
+                                        >
+                                            <div className="font-black text-3xl md:text-4xl" style={{ color: item.color }}>
                                                 {item.value}
                                             </div>
-                                            <div className="text-600 mt-2">{item.label}</div>
+                                            <div className="text-600 text-xs md:text-sm font-semibold mt-2">{item.label}</div>
                                         </div>
                                     </div>
                                 ))}
@@ -561,6 +637,7 @@ export default function NangHongLandingPage() {
                     </div>
                 </section>
 
+                {/* 5. Đội ngũ giáo viên (Teachers) */}
                 <section className={`px-4 py-8 ${styles.pinkSection} ${styles.colorfulSection} ${styles.sectionMotion}`}>
                     <SectionFloatingIcons icons={['🎨', '🧸', '🌟', '💛']} />
                     <div className={styles.sectionContentMotion} style={sectionStyle}>
@@ -571,7 +648,7 @@ export default function NangHongLandingPage() {
                             numVisible={4}
                             numScroll={1}
                             circular
-                            autoplayInterval={2500}
+                            autoplayInterval={3000}
                             showIndicators
                             showNavigators={false}
                             responsiveOptions={[
@@ -585,26 +662,41 @@ export default function NangHongLandingPage() {
                     </div>
                 </section>
 
-                {/* 🏢 Section 6: Cơ sở vật chất */}
+                {/* 6. Cơ sở vật chất (Facilities) */}
                 <FacilitiesSection lang={lang} getImageUrl={getImageUrl} />
 
-                {/* 🥗 Section 7: Dinh dưỡng & Chăm sóc */}
+                {/* 7. Chế độ dinh dưỡng & Sức khỏe (Nutrition) */}
                 <NutritionSection lang={lang} />
 
-                {/* 💰 Section 8: Học phí & Ưu đãi */}
+                {/* 8. Học phí minh bạch (Tuition) */}
                 <TuitionSection lang={lang} onApplyClick={() => scrollTo('apply')} />
 
-
-                <section id="video" className={`px-4 py-8 ${styles.videoSection} ${styles.sectionMotion}`} style={{ background: `linear-gradient(135deg,${COLORS.green},${COLORS.blue},${COLORS.purple})` }}>
+                {/* 9. Video thực tế tại trường (Video) */}
+                <section
+                    id="video"
+                    className={`px-4 py-8 ${styles.videoSection} ${styles.sectionMotion}`}
+                    style={{ background: `linear-gradient(135deg,${COLORS.green},${COLORS.blue},${COLORS.purple})` }}
+                >
                     <SectionFloatingIcons icons={['🎬', '✨', '☁️', '💙']} />
                     <div className={`grid align-items-center text-white ${styles.sectionContentMotion}`} style={sectionStyle}>
                         <div className="col-12 lg:col-5">
-                            <h2 className="m-0 mb-3" style={{ ...titleStyle, fontSize: 'clamp(2.2rem, 4vw, 4rem)' }}>
+                            <h2 className="m-0 mb-3" style={{ ...titleStyle, fontSize: 'clamp(2.1rem, 3.8vw, 3.8rem)' }}>
                                 {t.videoTitle}
                             </h2>
-                            <p className="text-lg line-height-3">{t.videoDesc}</p>
+                            <p className="text-lg mb-4 font-normal" style={{ lineHeight: 1.75, opacity: 0.95 }}>
+                                {t.videoDesc}
+                            </p>
 
-                            {latestVideo ? <Button label={t.openVideo} rounded severity="warning" icon="pi pi-play" onClick={() => window.open(latestVideo.video_url, '_blank')} /> : null}
+                            {latestVideo ? (
+                                <Button
+                                    label={t.openVideo}
+                                    rounded
+                                    severity="warning"
+                                    icon="pi pi-play"
+                                    style={{ fontWeight: 800, padding: '12px 28px' }}
+                                    onClick={() => window.open(latestVideo.video_url, '_blank')}
+                                />
+                            ) : null}
                         </div>
 
                         <div className="col-12 lg:col-7">
@@ -612,7 +704,9 @@ export default function NangHongLandingPage() {
                                 className={`card ${styles.videoCard}`}
                                 style={{
                                     borderRadius: 28,
-                                    overflow: 'hidden'
+                                    overflow: 'hidden',
+                                    border: '4px solid rgba(255,255,255,0.85)',
+                                    boxShadow: '0 20px 50px rgba(0,0,0,.25)'
                                 }}
                             >
                                 {latestVideo ? (
@@ -641,80 +735,110 @@ export default function NangHongLandingPage() {
                                         )}
                                     </div>
                                 ) : (
-                                    <p>{t.noVideo}</p>
+                                    <p className="p-4 text-center">{t.noVideo}</p>
                                 )}
                             </div>
                         </div>
                     </div>
                 </section>
 
+                {/* 10. Form Tuyển sinh & Tư vấn (Apply) */}
                 <section id="apply" className={`px-4 py-8 ${styles.pinkSection} ${styles.colorfulSection} ${styles.sectionMotion}`}>
                     <SectionFloatingIcons icons={['📝', '💌', '🌸', '⭐']} />
                     <div
-                        className={`p-5 ${styles.applyBox}`}
+                        className={`p-5 md:p-6 ${styles.applyBox}`}
                         style={{
                             ...sectionStyle,
                             borderRadius: 36,
                             background: `linear-gradient(135deg,${COLORS.lightYellow},${COLORS.lightPink},${COLORS.lightGreen})`,
                             border: '3px dashed #ffc1dc',
-                            boxShadow: '0 18px 45px rgba(255,95,162,.16)'
+                            boxShadow: '0 20px 48px rgba(255,95,162,.18)'
                         }}
                     >
                         <div className="grid align-items-center">
                             <div className="col-12 lg:col-5">
-                                <div className="inline-block px-4 py-2 border-round-3xl font-bold mb-3" style={{ background: '#fff', color: COLORS.pink }}>
+                                <div
+                                    className="inline-block px-4 py-2 border-round-3xl font-bold mb-3"
+                                    style={{ background: '#fff', color: COLORS.pink }}
+                                >
                                     {t.applyBadge}
                                 </div>
 
-                                <h2
-                                    className="m-0 mb-3"
-                                    style={{
-                                        ...titleStyle,
-                                        fontSize: 'clamp(2.2rem, 4vw, 4rem)'
-                                    }}
-                                >
+                                <h2 className="m-0 mb-3" style={{ ...titleStyle, fontSize: 'clamp(2.1rem, 3.8vw, 3.8rem)' }}>
                                     {t.applyTitle}
                                 </h2>
 
-                                <p className="text-700 text-lg line-height-3">
-                                    {t.applyDescPrefix} {siteContent?.admission_period || t.openNow}.{t.applyDescSuffix}
+                                <p className="text-700 text-lg mb-4 font-normal" style={{ lineHeight: 1.75 }}>
+                                    {t.applyDescPrefix} <span className="font-bold text-pink-500">{siteContent?.admission_period || t.openNow}</span>. {t.applyDescSuffix}
                                 </p>
+
+                                <div className="p-3 border-round-2xl surface-card inline-block text-sm text-700 font-medium">
+                                    📞 {lang === 'vi' ? 'Hotline hỗ trợ trực tiếp:' : 'Direct Hotline:'}{' '}
+                                    <strong className="text-900">{siteContent?.phone_number || '012-345-6789'}</strong>
+                                </div>
                             </div>
 
                             <div className="col-12 lg:col-7">
-                                <div className={`card ${styles.cardHover}`} style={{ borderRadius: 28 }}>
+                                <div className={`card p-4 md:p-5 ${styles.cardHover}`} style={{ borderRadius: 28, background: '#fff' }}>
                                     <div className="grid">
                                         <div className="col-12 md:col-6">
-                                            <label className="block mb-2 font-bold">{t.parentName}</label>
-                                            <InputText value={parentName} onChange={(event) => setParentName(event.target.value)} className="w-full" placeholder={t.parentNamePlaceholder} />
+                                            <label className="block mb-2 font-bold text-800">{t.parentName}</label>
+                                            <InputText
+                                                value={parentName}
+                                                onChange={(event) => setParentName(event.target.value)}
+                                                className="w-full"
+                                                placeholder={t.parentNamePlaceholder}
+                                            />
                                         </div>
 
                                         <div className="col-12 md:col-6">
-                                            <label className="block mb-2 font-bold">{t.phone}</label>
-                                            <InputText value={parentPhone} onChange={(event) => setParentPhone(event.target.value)} className="w-full" placeholder={t.phonePlaceholder} />
+                                            <label className="block mb-2 font-bold text-800">{t.phone}</label>
+                                            <InputText
+                                                value={parentPhone}
+                                                onChange={(event) => setParentPhone(event.target.value)}
+                                                className="w-full"
+                                                placeholder={t.phonePlaceholder}
+                                            />
                                         </div>
 
                                         <div className="col-12 md:col-6">
-                                            <label className="block mb-2 font-bold">{t.email}</label>
-                                            <InputText value={parentEmail} onChange={(event) => setParentEmail(event.target.value)} className="w-full" placeholder={t.emailPlaceholder} />
+                                            <label className="block mb-2 font-bold text-800">{t.email}</label>
+                                            <InputText
+                                                value={parentEmail}
+                                                onChange={(event) => setParentEmail(event.target.value)}
+                                                className="w-full"
+                                                placeholder={t.emailPlaceholder}
+                                            />
                                         </div>
 
                                         <div className="col-12 md:col-6">
-                                            <label className="block mb-2 font-bold">{t.childName}</label>
-                                            <InputText value={childName} onChange={(event) => setChildName(event.target.value)} className="w-full" placeholder={t.childNamePlaceholder} />
+                                            <label className="block mb-2 font-bold text-800">{t.childName}</label>
+                                            <InputText
+                                                value={childName}
+                                                onChange={(event) => setChildName(event.target.value)}
+                                                className="w-full"
+                                                placeholder={t.childNamePlaceholder}
+                                            />
                                         </div>
 
                                         <div className="col-12 md:col-6">
-                                            <label className="block mb-2 font-bold">{t.childAge}</label>
-                                            <InputText value={childAge} onChange={(event) => setChildAge(event.target.value)} className="w-full" placeholder={t.childAgePlaceholder} />
+                                            <label className="block mb-2 font-bold text-800">{t.childAge}</label>
+                                            <InputText
+                                                value={childAge}
+                                                onChange={(event) => setChildAge(event.target.value)}
+                                                className="w-full"
+                                                placeholder={t.childAgePlaceholder}
+                                            />
                                         </div>
-                                        <div className="col-12 md:col-6"></div>
-                                        <div className="col-12 md:col-6">
-                                            <label className="block mb-2 font-bold">{t.programRequired}</label>
 
-                                            <select value={selectedProgramId} onChange={(event) => setSelectedProgramId(event.target.value)} className="w-full p-inputtext p-component">
+                                        <div className="col-12 md:col-6">
+                                            <label className="block mb-2 font-bold text-800">{t.programRequired}</label>
+                                            <select
+                                                value={selectedProgramId}
+                                                onChange={(event) => setSelectedProgramId(event.target.value)}
+                                                className="w-full p-inputtext p-component font-medium"
+                                            >
                                                 <option value="">{t.selectProgram}</option>
-
                                                 {programs.map((program) => (
                                                     <option key={program.id} value={program.id}>
                                                         {program.name}
@@ -722,13 +846,26 @@ export default function NangHongLandingPage() {
                                                 ))}
                                             </select>
                                         </div>
-                                        <div className="col-12">
-                                            <label className="block mb-2 font-bold">{t.message}</label>
-                                            <InputText value={message} onChange={(event) => setMessage(event.target.value)} className="w-full" placeholder={t.messagePlaceholder} />
-                                        </div>
 
                                         <div className="col-12">
-                                            <Button label={t.submitApplication} icon="pi pi-send" rounded loading={applying} style={buttonPink} onClick={handleApply} />
+                                            <label className="block mb-2 font-bold text-800">{t.message}</label>
+                                            <InputText
+                                                value={message}
+                                                onChange={(event) => setMessage(event.target.value)}
+                                                className="w-full"
+                                                placeholder={t.messagePlaceholder}
+                                            />
+                                        </div>
+
+                                        <div className="col-12 mt-2">
+                                            <Button
+                                                label={t.submitApplication}
+                                                icon="pi pi-send"
+                                                rounded
+                                                loading={applying}
+                                                style={{ ...buttonPink, width: '100%', padding: '14px 28px', fontSize: '1.05rem' }}
+                                                onClick={handleApply}
+                                            />
                                         </div>
                                     </div>
                                 </div>
@@ -737,6 +874,7 @@ export default function NangHongLandingPage() {
                     </div>
                 </section>
 
+                {/* 11. Bảng tin hoạt động (News) */}
                 <section id="news" className={`px-4 py-8 ${styles.newsSection} ${styles.sectionMotion}`} style={{ background: COLORS.lightPink }}>
                     <SectionFloatingIcons icons={['📰', '🎈', '💖', '🌼']} />
                     <div className={styles.sectionContentMotion} style={sectionStyle}>
@@ -746,33 +884,48 @@ export default function NangHongLandingPage() {
                             {latestNews.map((article) => (
                                 <div key={article.id} className="col-12 md:col-4">
                                     <div
-                                        className={`card h-full ${styles.cardHover} ${styles.rainbowCard}`}
+                                        className={`card h-full p-4 ${styles.cardHover} ${styles.rainbowCard}`}
                                         style={{
                                             borderRadius: 28,
                                             border: '3px solid #ffc1e3',
-                                            boxShadow: '0 12px 28px rgba(255,47,146,.18)'
+                                            boxShadow: '0 12px 28px rgba(255,47,146,.15)',
+                                            background: '#fff',
+                                            display: 'flex',
+                                            flexDirection: 'column',
+                                            justifyContent: 'space-between'
                                         }}
                                     >
-                                        {article.thumbnail_url ? (
-                                            <div style={{ position: 'relative', width: '100%', height: 190, borderRadius: 22, overflow: 'hidden' }}>
-                                                <LazyImage
-                                                    className={styles.imageHover}
-                                                    src={getImageUrl(article.thumbnail_url, 400)}
-                                                    alt={String(article.title || 'News thumbnail')}
-                                                    sizes="(max-width: 768px) 100vw, 33vw"
-                                                    style={{ objectFit: 'cover' }}
-                                                />
-                                            </div>
-                                        ) : null}
+                                        <div>
+                                            {article.thumbnail_url ? (
+                                                <div style={{ position: 'relative', width: '100%', height: 200, borderRadius: 20, overflow: 'hidden', marginBottom: 16 }}>
+                                                    <LazyImage
+                                                        className={styles.imageHover}
+                                                        src={getImageUrl(article.thumbnail_url, 450)}
+                                                        alt={String(article.title || 'News thumbnail')}
+                                                        sizes="(max-width: 768px) 100vw, 33vw"
+                                                        style={{ objectFit: 'cover' }}
+                                                    />
+                                                </div>
+                                            ) : null}
 
-                                        <h3 className="text-2xl">{article.title}</h3>
-
-                                        <p className="text-600 line-height-3">{article.content ? `${article.content.replace(/\s+/g, ' ').slice(0, 120)}...` : t.noContent}</p>
-
-                                        <div className="text-sm text-500">
-                                            {t.byAuthor} {article.author_name || 'Admin'}
+                                            <h3 className="text-xl font-bold mb-2 text-900 line-height-2">{article.title}</h3>
+                                            <p className="text-600 text-sm mb-3" style={{ lineHeight: 1.65 }}>
+                                                {article.content ? `${article.content.replace(/\s+/g, ' ').slice(0, 130)}...` : t.noContent}
+                                            </p>
                                         </div>
-                                        <Button label={t.readMore} icon="pi pi-arrow-right" text className="mt-3" style={{ color: COLORS.pink }} onClick={() => router.push(`/landing/news/${article.id}`)} />
+
+                                        <div className="pt-2 border-top-1 border-100 flex align-items-center justify-content-between">
+                                            <span className="text-xs text-500 font-medium">
+                                                {t.byAuthor} {article.author_name || 'Admin'}
+                                            </span>
+                                            <Button
+                                                label={t.readMore}
+                                                icon="pi pi-arrow-right"
+                                                text
+                                                style={{ color: COLORS.pink, fontWeight: 800, padding: 0 }}
+                                                onClick={() => router.push(`/landing/news/${article.id}`)}
+                                            />
+                                        </div>
                                     </div>
                                 </div>
                             ))}
@@ -780,10 +933,11 @@ export default function NangHongLandingPage() {
                     </div>
                 </section>
 
+                {/* 12. Bản tin điện tử (Newsletter) */}
                 <section className={`px-4 py-8 ${styles.softSection} ${styles.sectionMotion}`}>
                     <SectionFloatingIcons icons={['📬', '⭐', '💛', '☁️']} />
                     <div
-                        className={`p-5 text-white ${styles.newsletterBox} ${styles.sectionContentMotion}`}
+                        className={`p-5 md:p-6 text-white ${styles.newsletterBox} ${styles.sectionContentMotion}`}
                         style={{
                             ...sectionStyle,
                             borderRadius: 36,
@@ -793,45 +947,102 @@ export default function NangHongLandingPage() {
                     >
                         <div className="grid align-items-center">
                             <div className="col-12 lg:col-6">
-                                <h2 className="text-4xl font-bold mt-0">{t.newsletterTitle}</h2>
-                                <p className="text-lg">{t.newsletterDesc}</p>
+                                <h2 className="text-3xl md:text-4xl font-black mt-0 mb-2">{t.newsletterTitle}</h2>
+                                <p className="text-base md:text-lg m-0 font-medium opacity-90" style={{ lineHeight: 1.6 }}>
+                                    {t.newsletterDesc}
+                                </p>
                             </div>
 
                             <div className="col-12 lg:col-6">
                                 <div className="flex flex-column sm:flex-row gap-2">
-                                    <InputText value={email} onChange={(event) => setEmail(event.target.value)} placeholder={t.newsletterPlaceholder} className="w-full" />
-
-                                    <Button label={t.subscribe} rounded severity="warning" loading={subscribing} onClick={handleSubscribe} />
+                                    <InputText
+                                        value={email}
+                                        onChange={(event) => setEmail(event.target.value)}
+                                        placeholder={t.newsletterPlaceholder}
+                                        className="w-full"
+                                        style={{ padding: '14px 20px', borderRadius: 24 }}
+                                    />
+                                    <Button
+                                        label={t.subscribe}
+                                        rounded
+                                        severity="warning"
+                                        loading={subscribing}
+                                        style={{ fontWeight: 800, padding: '14px 28px', whiteSpace: 'nowrap' }}
+                                        onClick={handleSubscribe}
+                                    />
                                 </div>
                             </div>
                         </div>
                     </div>
                 </section>
-                {/* 📍 Section Bản đồ & Vị trí */}
+
+                {/* 13. Bản đồ vị trí khuôn viên trường */}
                 <GoogleMapEmbed lang={lang} siteContent={siteContent} />
             </main>
 
-            <footer id="contact" className={`px-4 py-6 bg-white ${styles.footerGlow} ${styles.sectionMotion}`}>
+            {/* Footer */}
+            <footer id="contact" className={`px-4 py-7 bg-white ${styles.footerGlow} ${styles.sectionMotion}`}>
                 <SectionFloatingIcons icons={['🌻', '☁️', '💗', '⭐']} />
                 <div className={`grid ${styles.sectionContentMotion}`} style={sectionStyle}>
-                    <div className="col-12 md:col-4">
-                        <h2>{t.brandName}</h2>
-                        <p className="text-600 line-height-3">{siteContent?.footer_description || t.footerDefault}</p>
+                    <div className="col-12 md:col-4 pr-md-4">
+                        <div className="flex align-items-center gap-2 mb-3">
+                            <div
+                                className="border-circle flex align-items-center justify-content-center"
+                                style={{ width: 40, height: 40, background: COLORS.pink, color: '#fff' }}
+                            >
+                                <i className="pi pi-sun text-xl" />
+                            </div>
+                            <h2 className="m-0 text-2xl font-bold" style={{ color: '#2b232a' }}>
+                                {t.brandName}
+                            </h2>
+                        </div>
+                        <p className="text-600 line-height-3 text-sm font-normal" style={{ lineHeight: 1.75 }}>
+                            {siteContent?.footer_description || t.footerDefault}
+                        </p>
                     </div>
 
                     <div className="col-12 md:col-4">
-                        <h3>{t.quickLinks}</h3>
-                        <p>{t.footerAbout}</p>
-                        <p>{t.footerPrograms}</p>
-                        <p>{t.footerNews}</p>
-                        <p>{t.footerContact}</p>
+                        <h3 className="text-lg font-bold mb-3 text-900">{t.quickLinks}</h3>
+                        <div className="flex flex-column gap-2 text-sm text-600 font-medium">
+                            <span className="cursor-pointer hover:text-pink-500 transition-colors" onClick={() => scrollTo('about')}>
+                                {t.footerAbout}
+                            </span>
+                            <span className="cursor-pointer hover:text-pink-500 transition-colors" onClick={() => scrollTo('programs')}>
+                                {t.footerPrograms}
+                            </span>
+                            <span className="cursor-pointer hover:text-pink-500 transition-colors" onClick={() => scrollTo('facilities')}>
+                                {lang === 'vi' ? 'Cơ sở vật chất' : 'Facilities'}
+                            </span>
+                            <span className="cursor-pointer hover:text-pink-500 transition-colors" onClick={() => scrollTo('tuition')}>
+                                {lang === 'vi' ? 'Học phí' : 'Tuition'}
+                            </span>
+                            <span className="cursor-pointer hover:text-pink-500 transition-colors" onClick={() => scrollTo('news')}>
+                                {t.footerNews}
+                            </span>
+                            <span className="cursor-pointer hover:text-pink-500 transition-colors" onClick={() => scrollTo('contact')}>
+                                {t.footerContact}
+                            </span>
+                        </div>
                     </div>
 
                     <div className="col-12 md:col-4">
-                        <h3>{t.contactTitle}</h3>
-                        <p>{siteContent?.address || t.defaultAddress}</p>
-                        <p>{siteContent?.phone_number || '012-345-6789'}</p>
-                        <p>{siteContent?.support_email || 'support@nanghong.edu.vn'}</p>
+                        <h3 className="text-lg font-bold mb-3 text-900">{t.contactTitle}</h3>
+                        <div className="flex flex-column gap-3 text-sm text-700">
+                            <div className="flex align-items-start gap-2">
+                                <i className="pi pi-map-marker text-pink-500 mt-1" />
+                                <span className="line-height-3">{siteContent?.address || t.defaultAddress}</span>
+                            </div>
+                            <div className="flex align-items-center gap-2">
+                                <i className="pi pi-phone text-green-500" />
+                                <a href={`tel:${siteContent?.phone_number || '0123456789'}`} className="text-700 no-underline font-semibold hover:underline">
+                                    {siteContent?.phone_number || '012-345-6789'}
+                                </a>
+                            </div>
+                            <div className="flex align-items-center gap-2">
+                                <i className="pi pi-envelope text-blue-500" />
+                                <span>{siteContent?.support_email || 'support@nanghong.edu.vn'}</span>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </footer>
