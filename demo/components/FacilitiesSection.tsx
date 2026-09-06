@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React from 'react';
 import styles from '../../app/(landing)/landing/landing.module.scss';
 import { landingText, type LandingLanguage } from '../../app/(landing)/landing/lang';
 import LazyImage from './LazyImage';
@@ -12,70 +12,57 @@ interface FacilitiesSectionProps {
 
 export default function FacilitiesSection({ lang, getImageUrl }: FacilitiesSectionProps) {
     const t = landingText[lang];
-    const [selectedTab, setSelectedTab] = useState<'all' | 'indoor' | 'outdoor'>('all');
 
-    // Dữ liệu mẫu cơ sở vật chất (sử dụng ảnh placeholder minh họa nhẹ, phụ huynh nhìn thấy ngay)
     const facilities = [
         {
             id: 1,
-            title: t.facilityClassroom,
-            desc: t.facilityClassroomDesc,
-            category: 'indoor',
-            badge: 'Montessori',
-            icon: '🏫',
-            // Dùng ảnh demo minh họa chất lượng cao qua unsplash CDN (rất nhẹ và nhanh)
+            title: t.facilityMam,
+            desc: t.facilityMamDesc,
+            badge: 'Lớp học',
+            icon: '🌱',
             imageUrl: 'https://images.unsplash.com/photo-1580582932707-520aed937b7b?w=600&auto=format&fit=crop&q=80'
         },
         {
             id: 2,
-            title: t.facilityPlayground,
-            desc: t.facilityPlaygroundDesc,
-            category: 'outdoor',
-            badge: 'Outdoor',
-            icon: '🎠',
-            imageUrl: 'https://images.unsplash.com/photo-1576495199011-eb94736d05d6?w=600&auto=format&fit=crop&q=80'
-        },
-        {
-            id: 3,
-            title: t.facilityArtMusic,
-            desc: t.facilityArtMusicDesc,
-            category: 'indoor',
-            badge: 'Creativity',
-            icon: '🎨',
+            title: t.facilityChoi,
+            desc: t.facilityChoiDesc,
+            badge: 'Lớp học',
+            icon: '🌿',
             imageUrl: 'https://images.unsplash.com/photo-1509062522246-3755977927d7?w=600&auto=format&fit=crop&q=80'
         },
         {
-            id: 4,
-            title: t.facilityKitchen,
-            desc: t.facilityKitchenDesc,
-            category: 'indoor',
-            badge: 'Nutrition',
-            icon: '🍲',
-            imageUrl: 'https://images.unsplash.com/photo-1556910103-1c02745aae4d?w=600&auto=format&fit=crop&q=80'
-        },
-        {
-            id: 5,
-            title: t.facilityLibrary,
-            desc: t.facilityLibraryDesc,
-            category: 'indoor',
-            badge: 'Books',
-            icon: '📚',
+            id: 3,
+            title: t.facilityLa,
+            desc: t.facilityLaDesc,
+            badge: 'Lớp học',
+            icon: '🌳',
             imageUrl: 'https://images.unsplash.com/photo-1512820790803-83ca734da794?w=600&auto=format&fit=crop&q=80'
         },
         {
+            id: 4,
+            title: t.facilityPlayCorner,
+            desc: t.facilityPlayCornerDesc,
+            badge: 'Vui chơi',
+            icon: '🧸',
+            imageUrl: 'https://images.unsplash.com/photo-1596464716127-f2a829822301?w=600&auto=format&fit=crop&q=80'
+        },
+        {
+            id: 5,
+            title: t.facilityFreePlay,
+            desc: t.facilityFreePlayDesc,
+            badge: 'Vận động',
+            icon: '🏃',
+            imageUrl: 'https://images.unsplash.com/photo-1576495199011-eb94736d05d6?w=600&auto=format&fit=crop&q=80'
+        },
+        {
             id: 6,
-            title: t.facilityMedical,
-            desc: t.facilityMedicalDesc,
-            category: 'indoor',
-            badge: 'Care',
-            icon: '🩺',
-            imageUrl: 'https://images.unsplash.com/photo-1584515979956-d9f6e5d09982?w=600&auto=format&fit=crop&q=80'
+            title: t.facilityOffice,
+            desc: t.facilityOfficeDesc,
+            badge: 'Tiếp đón',
+            icon: '📋',
+            imageUrl: 'https://images.unsplash.com/photo-1497366216548-37526070297c?w=600&auto=format&fit=crop&q=80'
         }
     ];
-
-    const filtered = selectedTab === 'all' 
-        ? facilities 
-        : facilities.filter(f => f.category === selectedTab);
 
     return (
         <section
@@ -90,7 +77,7 @@ export default function FacilitiesSection({ lang, getImageUrl }: FacilitiesSecti
             </div>
 
             <div style={{ maxWidth: '1180px', margin: '0 auto' }} className={styles.sectionContentMotion}>
-                <div className={`text-center mb-5 ${styles.sectionTitle} ${styles.fadeUp}`}>
+                <div className={`text-center mb-6 ${styles.sectionTitle} ${styles.fadeUp}`}>
                     <div
                         className={`inline-block px-4 py-2 border-round-3xl font-bold mb-3 ${styles.badgeCandy}`}
                         style={{
@@ -116,36 +103,10 @@ export default function FacilitiesSection({ lang, getImageUrl }: FacilitiesSecti
                     <p className="text-600 text-lg line-height-3 m-0" style={{ maxWidth: 640, margin: '0 auto' }}>
                         {t.facilitiesDesc}
                     </p>
-
-                    {/* Filter Tabs */}
-                    <div className="flex justify-content-center gap-2 mt-4 flex-wrap">
-                        {[
-                            { key: 'all', label: lang === 'vi' ? 'Tất cả không gian' : 'All Areas' },
-                            { key: 'indoor', label: lang === 'vi' ? 'Trong lớp học' : 'Indoor Rooms' },
-                            { key: 'outdoor', label: lang === 'vi' ? 'Khu ngoài trời' : 'Outdoor Spaces' }
-                        ].map((tab) => (
-                            <button
-                                key={tab.key}
-                                type="button"
-                                onClick={() => setSelectedTab(tab.key as any)}
-                                className="px-4 py-2 border-round-3xl font-bold transition-all transition-duration-200 border-none cursor-pointer"
-                                style={{
-                                    background: selectedTab === tab.key ? '#ff2f92' : '#ffffff',
-                                    color: selectedTab === tab.key ? '#ffffff' : '#554751',
-                                    boxShadow: selectedTab === tab.key 
-                                        ? '0 8px 20px rgba(255,47,146,.3)' 
-                                        : '0 4px 12px rgba(0,0,0,.05)'
-                                }}
-                            >
-                                {tab.label}
-                            </button>
-                        ))}
-                    </div>
                 </div>
 
-                {/* Grid Lưới hình ảnh cơ sở vật chất */}
                 <div className="grid">
-                    {filtered.map((item) => (
+                    {facilities.map((item) => (
                         <div key={item.id} className="col-12 md:col-6 lg:col-4 p-3">
                             <div
                                 className={`card h-full ${styles.cardHover} ${styles.rainbowCard}`}
@@ -159,7 +120,6 @@ export default function FacilitiesSection({ lang, getImageUrl }: FacilitiesSecti
                                     flexDirection: 'column'
                                 }}
                             >
-                                {/* Khung ảnh LazyImage */}
                                 <div style={{ position: 'relative', width: '100%', height: 210, overflow: 'hidden' }}>
                                     <LazyImage
                                         className={styles.imageHover}
@@ -174,7 +134,7 @@ export default function FacilitiesSection({ lang, getImageUrl }: FacilitiesSecti
                                             top: 12,
                                             right: 12,
                                             background: 'rgba(255,255,255,0.92)',
-                                            color: '#ff2f92',
+                                            color: '#00c896',
                                             boxShadow: '0 4px 10px rgba(0,0,0,0.1)'
                                         }}
                                     >

@@ -907,3 +907,21 @@
     0%, 100% { transform: translateY(0) rotate(0deg); }
     50% { transform: translateY(14px) rotate(10deg); }
 }
+
+/* Căn giữa tuyệt đối cho tiêu đề và mô tả các Section */
+.sectionTitle {
+    text-align: center;
+    width: 100%;
+
+    h2 {
+        text-align: center;
+        width: 100%;
+    }
+
+    p {
+        text-align: center;
+        margin-left: auto !important;
+        margin-right: auto !important;
+        display: block;
+    }
+}

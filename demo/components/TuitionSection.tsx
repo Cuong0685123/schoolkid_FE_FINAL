@@ -13,31 +13,11 @@ interface TuitionSectionProps {
 export default function TuitionSection({ lang, onApplyClick }: TuitionSectionProps) {
     const t = landingText[lang];
 
-    const plans = [
-        {
-            name: t.tuitionPlan1Name,
-            price: t.tuitionPlan1Price,
-            desc: t.tuitionPlan1Desc,
-            color: '#ff2f92',
-            badge: '12 - 24M',
-            highlight: false
-        },
-        {
-            name: t.tuitionPlan2Name,
-            price: t.tuitionPlan2Price,
-            desc: t.tuitionPlan2Desc,
-            color: '#ff8a00',
-            badge: '25 - 36M',
-            highlight: true
-        },
-        {
-            name: t.tuitionPlan3Name,
-            price: t.tuitionPlan3Price,
-            desc: t.tuitionPlan3Desc,
-            color: '#00c896',
-            badge: '3 - 5 Yrs',
-            highlight: false
-        }
+    const benefits = [
+        t.tuitionFeatureMeal,
+        t.tuitionFeatureCamera,
+        t.tuitionFeatureInsurance,
+        t.tuitionFeatureActivities
     ];
 
     return (
@@ -52,7 +32,7 @@ export default function TuitionSection({ lang, onApplyClick }: TuitionSectionPro
                 <span className={`${styles.sectionIcon} ${styles.sectionIcon4}`}>💖</span>
             </div>
 
-            <div style={{ maxWidth: '1180px', margin: '0 auto' }} className={styles.sectionContentMotion}>
+            <div style={{ maxWidth: '1080px', margin: '0 auto' }} className={styles.sectionContentMotion}>
                 {/* Header */}
                 <div className={`text-center mb-6 ${styles.sectionTitle} ${styles.fadeUp}`}>
                     <div
@@ -82,154 +62,111 @@ export default function TuitionSection({ lang, onApplyClick }: TuitionSectionPro
                     </p>
                 </div>
 
-                {/* 3 Cột bảng giá */}
-                <div className="grid align-items-stretch mb-5">
-                    {plans.map((plan, index) => (
-                        <div key={index} className="col-12 lg:col-4 p-3">
-                            <div
-                                className={`card h-full p-4 flex flex-column justify-content-between ${styles.cardHover} ${
-                                    plan.highlight ? styles.rainbowCard : ''
-                                }`}
-                                style={{
-                                    borderRadius: 30,
-                                    background: '#ffffff',
-                                    border: plan.highlight ? `3px solid ${plan.color}` : '2px solid rgba(0,0,0,0.06)',
-                                    boxShadow: plan.highlight
-                                        ? '0 20px 45px rgba(255,138,0,.22)'
-                                        : '0 12px 30px rgba(0,0,0,.05)',
-                                    transform: plan.highlight ? 'scale(1.02)' : 'none'
-                                }}
+                {/* Banner Học phí chính */}
+                <div
+                    className={`card mb-5 p-5 md:p-6 ${styles.cardHover} ${styles.rainbowCard}`}
+                    style={{
+                        borderRadius: 36,
+                        background: 'linear-gradient(135deg, #ffffff 0%, #fff7fb 100%)',
+                        border: '3px solid #ffc1e3',
+                        boxShadow: '0 20px 48px rgba(255,47,146,.16)'
+                    }}
+                >
+                    <div className="grid align-items-center">
+                        <div className="col-12 lg:col-7">
+                            <span
+                                className="px-3 py-1 border-round-2xl font-bold text-xs inline-block mb-3"
+                                style={{ background: '#ffeaf4', color: '#ff2f92' }}
                             >
-                                <div>
-                                    <div className="flex justify-content-between align-items-center mb-3">
-                                        <span
-                                            className="px-3 py-1 border-round-2xl font-bold text-xs"
-                                            style={{
-                                                background: `${plan.color}18`,
-                                                color: plan.color
-                                            }}
-                                        >
-                                            {plan.badge}
-                                        </span>
-                                        {plan.highlight && (
-                                            <span
-                                                className="px-3 py-1 border-round-2xl font-bold text-xs"
-                                                style={{ background: '#ff8a00', color: '#fff' }}
-                                            >
-                                                Phổ biến nhất
-                                            </span>
-                                        )}
+                                Học phí chính khóa
+                            </span>
+
+                            <div className="flex align-items-baseline gap-2 mb-2 flex-wrap">
+                                <span
+                                    className="text-4xl md:text-5xl font-black"
+                                    style={{ color: '#ff2f92', letterSpacing: '-0.02em' }}
+                                >
+                                    {t.tuitionRangePrice}
+                                </span>
+                                <span className="text-700 text-lg font-bold">{t.tuitionMonth}</span>
+                            </div>
+
+                            <p className="text-700 font-semibold mb-4 line-height-3">
+                                {t.tuitionScope}
+                            </p>
+
+                            <div className="grid">
+                                {benefits.map((benefit, idx) => (
+                                    <div key={idx} className="col-12 sm:col-6 flex align-items-center gap-2 mb-2">
+                                        <i className="pi pi-check-circle" style={{ color: '#00c896', fontSize: '1.2rem' }} />
+                                        <span className="text-700 text-sm font-medium">{benefit}</span>
                                     </div>
+                                ))}
+                            </div>
+                        </div>
 
-                                    <h3 className="text-xl font-bold mb-2 m-0" style={{ color: '#2b232a' }}>
-                                        {plan.name}
-                                    </h3>
-
-                                    <div className="my-3 flex align-items-baseline gap-1">
-                                        <span className="text-4xl font-extrabold" style={{ color: plan.color }}>
-                                            {plan.price}
-                                        </span>
-                                        <span className="text-600 text-sm">{t.tuitionMonth}</span>
-                                    </div>
-
-                                    <p className="text-600 line-height-3 text-sm mb-4">{plan.desc}</p>
-
-                                    {/* Danh sách quyền lợi */}
-                                    <div className="flex flex-column gap-2 mb-4 text-sm">
-                                        {[
-                                            t.tuitionFeatureMeal,
-                                            t.tuitionFeatureCamera,
-                                            t.tuitionFeatureInsurance,
-                                            t.tuitionFeatureActivities
-                                        ].map((feature, fIdx) => (
-                                            <div key={fIdx} className="flex align-items-center gap-2">
-                                                <i className="pi pi-check-circle" style={{ color: '#00c896' }} />
-                                                <span className="text-700">{feature}</span>
-                                            </div>
-                                        ))}
-                                    </div>
+                        <div className="col-12 lg:col-5 text-center lg:text-right mt-4 lg:mt-0">
+                            <div
+                                className="p-4 inline-block text-left w-full border-round-3xl"
+                                style={{ background: 'rgba(255,255,255,0.85)', border: '2px dashed #ffd86f' }}
+                            >
+                                <div className="text-sm font-bold text-800 mb-2">📌 {t.tuitionFeeInclude}</div>
+                                <div className="text-xs text-600 mb-2 flex justify-content-between">
+                                    <span>{t.tuitionMealFeeTitle}</span>
+                                    <span className="font-bold text-800">{t.tuitionMealFeeValue}</span>
                                 </div>
-
+                                <div className="text-xs text-600 mb-3 flex justify-content-between">
+                                    <span>{t.tuitionMaterialFeeTitle}</span>
+                                    <span className="font-bold text-800">{t.tuitionMaterialFeeValue}</span>
+                                </div>
                                 <Button
-                                    label={t.applyNow}
+                                    label={t.tuitionRegisterNow}
                                     icon="pi pi-send"
                                     rounded
+                                    className="w-full"
                                     style={{
-                                        background: plan.highlight ? '#ff8a00' : plan.color,
-                                        borderColor: plan.highlight ? '#ff8a00' : plan.color,
-                                        fontWeight: 700
+                                        background: '#ff2f92',
+                                        borderColor: '#ff2f92',
+                                        fontWeight: 800,
+                                        boxShadow: '0 8px 20px rgba(255,47,146,.3)'
                                     }}
                                     onClick={onApplyClick}
                                 />
-                            </div>
-                        </div>
-                    ))}
-                </div>
-
-                {/* Các khoản phí phụ trợ & Banner ưu đãi */}
-                <div className="grid">
-                    {/* Bảng phí khác */}
-                    <div className="col-12 md:col-6 p-3">
-                        <div
-                            className="p-4 h-full"
-                            style={{
-                                background: 'rgba(255, 255, 255, 0.9)',
-                                borderRadius: 24,
-                                border: '2px solid #ffe5f1'
-                            }}
-                        >
-                            <h4 className="m-0 mb-3 text-lg font-bold" style={{ color: '#ff2f92' }}>
-                                📌 {t.tuitionFeeInclude}
-                            </h4>
-                            <div className="flex flex-column gap-3 text-sm">
-                                <div className="flex justify-content-between border-bottom-1 border-100 pb-2">
-                                    <span className="font-semibold text-700">{t.tuitionMealFeeTitle}</span>
-                                    <span className="font-bold text-900">{t.tuitionMealFeeValue}</span>
-                                </div>
-                                <div className="flex justify-content-between border-bottom-1 border-100 pb-2">
-                                    <span className="font-semibold text-700">{t.tuitionMaterialFeeTitle}</span>
-                                    <span className="font-bold text-900">{t.tuitionMaterialFeeValue}</span>
-                                </div>
-                                <div className="flex justify-content-between">
-                                    <span className="font-semibold text-700">{t.tuitionLateFeeTitle}</span>
-                                    <span className="font-bold text-900">{t.tuitionLateFeeValue}</span>
-                                </div>
                             </div>
                         </div>
                     </div>
+                </div>
 
-                    {/* Banner khuyến mãi
-                    <div className="col-12 md:col-6 p-3">
-                        <div
-                            className={`p-4 h-full flex flex-column justify-content-between text-white ${styles.rainbowCard}`}
-                            style={{
-                                borderRadius: 24,
-                                background: 'linear-gradient(135deg, #ff2f92 0%, #ff8a00 100%)',
-                                boxShadow: '0 14px 30px rgba(255,47,146,.22)'
-                            }}
-                        >
-                            <div>
-                                <h4 className="m-0 mb-2 text-xl font-bold">{t.tuitionDiscountBannerTitle}</h4>
-                                <p className="line-height-3 text-sm opacity-90 m-0">
-                                    {t.tuitionDiscountBannerDesc}
-                                </p>
-                            </div>
-                            <div className="mt-4">
-                                <Button
-                                    label={t.tuitionRegisterNow}
-                                    icon="pi pi-arrow-right"
-                                    rounded
-                                    style={{
-                                        background: '#ffffff',
-                                        color: '#ff2f92',
-                                        fontWeight: 800,
-                                        border: 'none'
-                                    }}
-                                    onClick={onApplyClick}
-                                />
-                            </div>
-                        </div>
-                    </div> */}
+                {/* Banner Ưu đãi tuyển sinh */}
+                <div
+                    className="p-4 flex flex-column md:flex-row justify-content-between align-items-center gap-3 text-white"
+                    style={{
+                        borderRadius: 24,
+                        background: 'linear-gradient(135deg, #ff8a00 0%, #ffd86f 100%)',
+                        boxShadow: '0 12px 28px rgba(255,138,0,.2)'
+                    }}
+                >
+                    <div>
+                        <h4 className="m-0 mb-1 text-lg md:text-xl font-bold text-900">
+                            {t.tuitionDiscountBannerTitle}
+                        </h4>
+                        <p className="m-0 text-sm text-800 font-medium">
+                            {t.tuitionDiscountBannerDesc}
+                        </p>
+                    </div>
+                    <Button
+                        label={lang === 'vi' ? 'Nhận tư vấn ngay' : 'Get Details'}
+                        icon="pi pi-arrow-right"
+                        rounded
+                        style={{
+                            background: '#ffffff',
+                            color: '#e67300',
+                            border: 'none',
+                            fontWeight: 800,
+                            whiteSpace: 'nowrap'
+                        }}
+                        onClick={onApplyClick}
+                    />
                 </div>
             </div>
         </section>
