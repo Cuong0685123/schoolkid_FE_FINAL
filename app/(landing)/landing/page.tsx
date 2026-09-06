@@ -187,7 +187,6 @@ export default function NangHongLandingPage() {
     const latestVideo = videos[0];
 
     const displayPrograms = featuredPrograms;
-    const displayTeachers = teachers;
 
     const scrollTo = (id: string) => {
         document.getElementById(id)?.scrollIntoView({
@@ -324,55 +323,6 @@ export default function NangHongLandingPage() {
                         onClick={() => router.push(`/landing/programs/${item.program_id || item.id}`)}
                     />
                 </div>
-            </div>
-        </div>
-    );
-
-    const teacherTemplate = (teacher: any) => (
-        <div className="p-3">
-            <div
-                className={`card text-center h-full ${styles.cardHover} ${styles.rainbowCard}`}
-                style={{
-                    borderRadius: 32,
-                    minHeight: 370,
-                    background: 'linear-gradient(180deg,#ffffff 0%,#efffff 100%)',
-                    border: '3px solid #a7fff0',
-                    boxShadow: '0 16px 35px rgba(0,200,150,.15)',
-                    padding: '24px'
-                }}
-            >
-                {teacher.profile_image_url ? (
-                    <div style={{ position: 'relative', width: '100%', height: 230, marginBottom: 16 }}>
-                        <Image
-                            className={styles.imageHover}
-                            src={getImageUrl(teacher.profile_image_url)}
-                            alt={teacher.full_name || t.teacherAlt}
-                            fill
-                            referrerPolicy="no-referrer"
-                            style={{
-                                objectFit: 'cover',
-                                borderRadius: 22
-                            }}
-                        />
-                    </div>
-                ) : (
-                    <div
-                        className="mx-auto mb-4 border-circle flex align-items-center justify-content-center"
-                        style={{
-                            width: 140,
-                            height: 140,
-                            background: COLORS.lightPink,
-                            color: COLORS.pink,
-                            border: '6px solid #fff',
-                            boxShadow: '0 8px 20px rgba(255,47,146,.15)'
-                        }}
-                    >
-                        <i className="pi pi-heart-fill text-5xl" />
-                    </div>
-                )}
-
-                <h3 className="mb-1 text-2xl font-bold text-900">{teacher.full_name || t.teacherAlt}</h3>
-                <p className="text-600 font-medium m-0 text-sm">{teacher.role || t.kindergartenTeacher}</p>
             </div>
         </div>
     );
@@ -645,28 +595,64 @@ export default function NangHongLandingPage() {
                     </div>
                 </section>
 
-                {/* 5. Đội ngũ giáo viên (Teachers) */}
-                <section className={`px-4 py-8 ${styles.pinkSection} ${styles.colorfulSection} ${styles.sectionMotion}`}>
+                {/* 5. Đội ngũ giáo viên - Khung ảnh tập thể duy nhất */}
+                <section id="teachers" className={`px-4 py-8 ${styles.pinkSection} ${styles.colorfulSection} ${styles.sectionMotion}`}>
                     <SectionFloatingIcons icons={['🎨', '🧸', '🌟', '💛']} />
                     <div className={styles.sectionContentMotion} style={sectionStyle}>
                         <SectionTitle badge={t.teachersBadge} title={t.teachersTitle} desc={t.teachersDesc} />
 
-                        <Carousel
-                            value={displayTeachers}
-                            numVisible={4}
-                            numScroll={1}
-                            circular
-                            autoplayInterval={3000}
-                            showIndicators
-                            showNavigators={false}
-                            responsiveOptions={[
-                                { breakpoint: '1400px', numVisible: 4, numScroll: 1 },
-                                { breakpoint: '1024px', numVisible: 2, numScroll: 1 },
-                                { breakpoint: '768px', numVisible: 1, numScroll: 1 },
-                                { breakpoint: '480px', numVisible: 1, numScroll: 1 }
-                            ]}
-                            itemTemplate={teacherTemplate}
-                        />
+                        <div className="flex justify-content-center">
+                            <div
+                                className={`card p-3 md:p-4 text-center ${styles.cardHover} ${styles.rainbowCard}`}
+                                style={{
+                                    maxWidth: 960,
+                                    width: '100%',
+                                    borderRadius: 36,
+                                    background: '#ffffff',
+                                    border: '3px solid #a7fff0',
+                                    boxShadow: '0 20px 48px rgba(0,200,150,.18)'
+                                }}
+                            >
+                                <div
+                                    style={{
+                                        position: 'relative',
+                                        width: '100%',
+                                        height: 'clamp(280px, 45vw, 520px)',
+                                        borderRadius: 26,
+                                        overflow: 'hidden'
+                                    }}
+                                >
+                                    <img
+                                        className={styles.imageHover}
+                                        src={
+                                            teachers.find((tc) => tc.profile_image_url)?.profile_image_url
+                                                ? getImageUrl(teachers.find((tc) => tc.profile_image_url)?.profile_image_url, 1200)
+                                                : 'https://images.unsplash.com/photo-1577896851231-70ef18881754?w=1200&auto=format&fit=crop&q=80'
+                                        }
+                                        alt={t.teachersTitle}
+                                        style={{
+                                            width: '100%',
+                                            height: '100%',
+                                            objectFit: 'cover',
+                                            display: 'block'
+                                        }}
+                                    />
+                                </div>
+
+                                <div className="p-3 mt-2">
+                                    <h3 className="m-0 text-xl md:text-2xl font-black text-900 mb-2">
+                                        {lang === 'vi' 
+                                            ? 'Tập Thể Cán Bộ & Giáo Viên Mầm Non Nắng Hồng' 
+                                            : 'Faculty & Educators of Nang Hong Kindergarten'}
+                                    </h3>
+                                    <p className="m-0 text-600 text-sm md:text-base font-medium line-height-3 mx-auto" style={{ maxWidth: 680 }}>
+                                        {lang === 'vi'
+                                            ? 'Đội ngũ giáo viên trẻ trung, tâm huyết, được đào tạo bài bản về chuyên môn và kỹ năng sơ cấp cứu, luôn đồng hành cùng bé bằng tất cả tình yêu thương và sự kiên nhẫn.'
+                                            : 'A dedicated and certified team of educators, equipped with preschool pedagogy and first-aid skills, accompanying children with boundless patience and genuine love.'}
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </section>
 
