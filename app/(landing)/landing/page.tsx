@@ -186,6 +186,9 @@ export default function NangHongLandingPage() {
     const latestNews = articles.slice(0, 3);
     const latestVideo = videos[0];
 
+    // Lấy URL ảnh của giáo viên tải lên, nếu không có thì để rỗng (không dùng ảnh mẫu)
+    const teacherGroupImageUrl = teachers.find((tc) => tc.profile_image_url)?.profile_image_url;
+
     const displayPrograms = featuredPrograms;
 
     const scrollTo = (id: string) => {
@@ -595,7 +598,7 @@ export default function NangHongLandingPage() {
                     </div>
                 </section>
 
-                {/* 5. Đội ngũ giáo viên - Khung ảnh tập thể duy nhất */}
+                {/* 5. Đội ngũ giáo viên - Khung ảnh khổ lớn, căn trọn vẹn khuôn mặt */}
                 <section id="teachers" className={`px-4 py-8 ${styles.pinkSection} ${styles.colorfulSection} ${styles.sectionMotion}`}>
                     <SectionFloatingIcons icons={['🎨', '🧸', '🌟', '💛']} />
                     <div className={styles.sectionContentMotion} style={sectionStyle}>
@@ -605,7 +608,7 @@ export default function NangHongLandingPage() {
                             <div
                                 className={`card p-3 md:p-4 text-center ${styles.cardHover} ${styles.rainbowCard}`}
                                 style={{
-                                    maxWidth: 960,
+                                    maxWidth: 1140,
                                     width: '100%',
                                     borderRadius: 36,
                                     background: '#ffffff',
@@ -613,39 +616,55 @@ export default function NangHongLandingPage() {
                                     boxShadow: '0 20px 48px rgba(0,200,150,.18)'
                                 }}
                             >
-                                <div
-                                    style={{
-                                        position: 'relative',
-                                        width: '100%',
-                                        height: 'clamp(280px, 45vw, 520px)',
-                                        borderRadius: 26,
-                                        overflow: 'hidden'
-                                    }}
-                                >
-                                    <img
-                                        className={styles.imageHover}
-                                        src={
-                                            teachers.find((tc) => tc.profile_image_url)?.profile_image_url
-                                                ? getImageUrl(teachers.find((tc) => tc.profile_image_url)?.profile_image_url, 1200)
-                                                : 'https://images.unsplash.com/photo-1577896851231-70ef18881754?w=1200&auto=format&fit=crop&q=80'
-                                        }
-                                        alt={t.teachersTitle}
+                                {teacherGroupImageUrl ? (
+                                    <div
+                                        style={{
+                                            position: 'relative',
+                                            width: '100%',
+                                            borderRadius: 26,
+                                            overflow: 'hidden',
+                                            background: '#f8fafc'
+                                        }}
+                                    >
+                                        <img
+                                            className={styles.imageHover}
+                                            src={getImageUrl(teacherGroupImageUrl, 1600)}
+                                            alt={t.teachersTitle}
+                                            style={{
+                                                width: '100%',
+                                                height: 'auto',
+                                                maxHeight: '750px',
+                                                objectFit: 'contain',
+                                                display: 'block'
+                                            }}
+                                        />
+                                    </div>
+                                ) : (
+                                    <div
                                         style={{
                                             width: '100%',
-                                            height: '100%',
-                                            objectFit: 'cover',
-                                            display: 'block'
+                                            minHeight: 280,
+                                            borderRadius: 26,
+                                            background: 'linear-gradient(135deg, #f0fdf4 0%, #fff1f2 100%)',
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            justifyContent: 'center',
+                                            border: '2px dashed #bbf7d0'
                                         }}
-                                    />
-                                </div>
+                                    >
+                                        <span className="text-600 font-medium text-base">
+                                            {lang === 'vi' ? 'Đang cập nhật hình ảnh tập thể...' : 'Loading faculty photograph...'}
+                                        </span>
+                                    </div>
+                                )}
 
-                                <div className="p-3 mt-2">
+                                <div className="p-3 mt-3">
                                     <h3 className="m-0 text-xl md:text-2xl font-black text-900 mb-2">
                                         {lang === 'vi' 
                                             ? 'Tập Thể Cán Bộ & Giáo Viên Mầm Non Nắng Hồng' 
                                             : 'Faculty & Educators of Nang Hong Kindergarten'}
                                     </h3>
-                                    <p className="m-0 text-600 text-sm md:text-base font-medium line-height-3 mx-auto" style={{ maxWidth: 680 }}>
+                                    <p className="m-0 text-600 text-sm md:text-base font-medium line-height-3 mx-auto" style={{ maxWidth: 720 }}>
                                         {lang === 'vi'
                                             ? 'Đội ngũ giáo viên trẻ trung, tâm huyết, được đào tạo bài bản về chuyên môn và kỹ năng sơ cấp cứu, luôn đồng hành cùng bé bằng tất cả tình yêu thương và sự kiên nhẫn.'
                                             : 'A dedicated and certified team of educators, equipped with preschool pedagogy and first-aid skills, accompanying children with boundless patience and genuine love.'}
