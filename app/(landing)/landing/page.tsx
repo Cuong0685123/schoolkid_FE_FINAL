@@ -46,7 +46,7 @@ const COLORS = {
 };
 
 const sectionStyle: React.CSSProperties = {
-    maxWidth: '1180px',
+    maxWidth: '1240px',
     margin: '0 auto'
 };
 
@@ -66,7 +66,7 @@ const buttonYellow: React.CSSProperties = {
 const titleStyle: React.CSSProperties = {
     fontSize: 'clamp(2.35rem, 4.8vw, 4.2rem)',
     fontWeight: 900,
-    lineHeight: 1.15,
+    lineHeight: 1.18,
     letterSpacing: '-0.035em'
 };
 
@@ -98,7 +98,7 @@ const SectionTitle = ({ badge, title, desc }: { badge?: string; title: string; d
         {desc ? (
             <p
                 className="text-700 text-lg line-height-3 mx-auto my-0 text-center font-normal"
-                style={{ maxWidth: 720, lineHeight: 1.7 }}
+                style={{ maxWidth: 740, lineHeight: 1.75 }}
             >
                 {desc}
             </p>
@@ -310,7 +310,7 @@ export default function NangHongLandingPage() {
                         </div>
                     )}
                     <h3 className="text-2xl font-bold mb-2 text-900">{item.title || t.programAlt}</h3>
-                    <p className="text-700 line-height-3 text-sm m-0" style={{ lineHeight: 1.6 }}>
+                    <p className="text-700 line-height-3 text-sm m-0" style={{ lineHeight: 1.65 }}>
                         {item.detail || t.programFallbackDetail}
                     </p>
                 </div>
@@ -381,41 +381,43 @@ export default function NangHongLandingPage() {
         <div className={styles.landingRoot} style={{ background: COLORS.cream, color: '#2b232a', overflow: 'hidden' }}>
             <Toast ref={toast} />
 
-            {/* Header */}
+            {/* Header: Thanh điều hướng rộng rãi, chống rớt dòng tuyệt đối */}
             <header
                 className={`fixed top-0 left-0 right-0 z-5 ${styles.glassHeader}`}
                 style={{
-                    background: 'rgba(255,255,255,.95)',
+                    background: 'rgba(255,255,255,.96)',
                     backdropFilter: 'blur(16px)',
                     borderBottom: '1px solid #ffc1df'
                 }}
             >
-                <div className="flex align-items-center justify-content-between px-4 py-3" style={sectionStyle}>
-                    <div className="flex align-items-center gap-3 cursor-pointer" onClick={() => scrollTo('home')}>
+                <div className="flex align-items-center justify-content-between px-3 md:px-4 py-3" style={sectionStyle}>
+                    {/* Logo & Slogan */}
+                    <div className="flex align-items-center gap-3 cursor-pointer flex-shrink-0" onClick={() => scrollTo('home')}>
                         <div
                             className={`border-circle flex align-items-center justify-content-center ${styles.logoPulse}`}
                             style={{
-                                width: 48,
-                                height: 48,
+                                width: 46,
+                                height: 46,
                                 background: `linear-gradient(135deg,${COLORS.yellow},${COLORS.pink},${COLORS.purple})`,
                                 color: '#fff',
-                                boxShadow: '0 8px 20px rgba(255,47,146,.25)'
+                                boxShadow: '0 8px 18px rgba(255,47,146,.25)'
                             }}
                         >
                             <i className="pi pi-sun text-2xl" />
                         </div>
 
                         <div>
-                            <div className="font-black text-2xl" style={{ color: '#2b232a', letterSpacing: '-0.02em' }}>
+                            <div className="font-black text-xl md:text-2xl" style={{ color: '#2b232a', letterSpacing: '-0.02em', whiteSpace: 'nowrap' }}>
                                 {t.brandName}
                             </div>
-                            <div className="text-xs font-bold" style={{ color: COLORS.green }}>
+                            <div className="text-xs font-bold hidden sm:block" style={{ color: COLORS.green, whiteSpace: 'nowrap' }}>
                                 {t.slogan}
                             </div>
                         </div>
                     </div>
 
-                    <nav className="hidden md:flex gap-4 align-items-center font-bold">
+                    {/* Menu Navigation: Đảm bảo không bao giờ gãy dòng */}
+                    <nav className="hidden lg:flex gap-2 xl:gap-4 align-items-center flex-nowrap mx-2">
                         <button className={`p-link ${styles.navLink}`} onClick={() => scrollTo('home')}>
                             {t.navHome}
                         </button>
@@ -426,10 +428,10 @@ export default function NangHongLandingPage() {
                             {t.navPrograms}
                         </button>
                         <button className={`p-link ${styles.navLink}`} onClick={() => scrollTo('facilities')}>
-                            {lang === 'vi' ? 'Cơ sở vật chất' : 'Facilities'}
+                            {t.navFacilities}
                         </button>
                         <button className={`p-link ${styles.navLink}`} onClick={() => scrollTo('tuition')}>
-                            {lang === 'vi' ? 'Học phí' : 'Tuition'}
+                            {t.navTuition}
                         </button>
                         <button className={`p-link ${styles.navLink}`} onClick={() => scrollTo('news')}>
                             {t.navNews}
@@ -439,15 +441,21 @@ export default function NangHongLandingPage() {
                         </button>
                     </nav>
 
-                    <div className="flex align-items-center gap-2">
+                    {/* Nút Đổi Ngôn Ngữ & Đăng Ký */}
+                    <div className="flex align-items-center gap-2 flex-shrink-0">
                         <Button
                             label={lang === 'vi' ? 'EN' : 'VI'}
                             rounded
                             outlined
-                            style={{ color: COLORS.pink, borderColor: COLORS.pink, fontWeight: 800 }}
+                            style={{ color: COLORS.pink, borderColor: COLORS.pink, fontWeight: 800, padding: '8px 16px' }}
                             onClick={() => setLang(lang === 'vi' ? 'en' : 'vi')}
                         />
-                        <Button label={t.applyNow} rounded style={buttonPink} onClick={() => scrollTo('apply')} />
+                        <Button
+                            label={t.applyNow}
+                            rounded
+                            style={{ ...buttonPink, whiteSpace: 'nowrap', padding: '10px 22px' }}
+                            onClick={() => scrollTo('apply')}
+                        />
                     </div>
                 </div>
             </header>
@@ -1011,10 +1019,10 @@ export default function NangHongLandingPage() {
                                 {t.footerPrograms}
                             </span>
                             <span className="cursor-pointer hover:text-pink-500 transition-colors" onClick={() => scrollTo('facilities')}>
-                                {lang === 'vi' ? 'Cơ sở vật chất' : 'Facilities'}
+                                {t.navFacilities}
                             </span>
                             <span className="cursor-pointer hover:text-pink-500 transition-colors" onClick={() => scrollTo('tuition')}>
-                                {lang === 'vi' ? 'Học phí' : 'Tuition'}
+                                {t.navTuition}
                             </span>
                             <span className="cursor-pointer hover:text-pink-500 transition-colors" onClick={() => scrollTo('news')}>
                                 {t.footerNews}
