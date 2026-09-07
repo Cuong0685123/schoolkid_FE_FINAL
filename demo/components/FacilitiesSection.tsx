@@ -20,7 +20,7 @@ export default function FacilitiesSection({ lang, getImageUrl }: FacilitiesSecti
             desc: t.facilityMamDesc,
             badge: 'Lớp học',
             icon: '🌱',
-            imageUrl: 'https://images.unsplash.com/photo-1580582932707-520aed937b7b?w=600&auto=format&fit=crop&q=80'
+            imageUrl: 'https://drive.google.com/file/d/11B49ADJ10_TFnOzgWAAY4eM6sjRJayuB/view?usp=drive_link'
         },
         {
             id: 2,
@@ -28,7 +28,7 @@ export default function FacilitiesSection({ lang, getImageUrl }: FacilitiesSecti
             desc: t.facilityChoiDesc,
             badge: 'Lớp học',
             icon: '🌿',
-            imageUrl: 'https://images.unsplash.com/photo-1509062522246-3755977927d7?w=600&auto=format&fit=crop&q=80'
+            imageUrl: 'https://drive.google.com/file/d/1n7XYmPFdh7ybmlQLK1kMDELPodQu07RG/view?usp=drive_link'
         },
         {
             id: 3,
@@ -36,7 +36,7 @@ export default function FacilitiesSection({ lang, getImageUrl }: FacilitiesSecti
             desc: t.facilityLaDesc,
             badge: 'Lớp học',
             icon: '🌳',
-            imageUrl: 'https://images.unsplash.com/photo-1512820790803-83ca734da794?w=600&auto=format&fit=crop&q=80'
+            imageUrl: 'https://drive.google.com/file/d/1-q3qQK6fLyXhIxRVM2SVaBckeU9qNnfi/view?usp=drive_link'
         },
         {
             id: 4,
@@ -44,23 +44,16 @@ export default function FacilitiesSection({ lang, getImageUrl }: FacilitiesSecti
             desc: t.facilityPlayCornerDesc,
             badge: 'Vui chơi',
             icon: '🧸',
-            imageUrl: 'https://images.unsplash.com/photo-1596464716127-f2a829822301?w=600&auto=format&fit=crop&q=80'
+            imageUrl: 'https://drive.google.com/file/d/1xi8N7ruEu7rraOTXmcI4nbUTp3CmPyEr/view?usp=drive_link'
         },
+      
         {
             id: 5,
-            title: t.facilityFreePlay,
-            desc: t.facilityFreePlayDesc,
-            badge: 'Vận động',
-            icon: '🏃',
-            imageUrl: 'https://images.unsplash.com/photo-1576495199011-eb94736d05d6?w=600&auto=format&fit=crop&q=80'
-        },
-        {
-            id: 6,
             title: t.facilityOffice,
             desc: t.facilityOfficeDesc,
             badge: 'Tiếp đón',
             icon: '📋',
-            imageUrl: 'https://images.unsplash.com/photo-1497366216548-37526070297c?w=600&auto=format&fit=crop&q=80'
+            imageUrl: 'https://drive.google.com/file/d/1rK4Vin5jrSbm-7frMvVWoH4_QrxgafwP/view?usp=drive_link'
         }
     ];
 
