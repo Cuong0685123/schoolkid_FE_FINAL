@@ -14,11 +14,18 @@ interface GoogleMapEmbedProps {
 export default function GoogleMapEmbed({ lang, siteContent }: GoogleMapEmbedProps) {
     const t = landingText[lang];
 
-    const address = siteContent?.address || t.defaultAddress || 'Thành Phố Hồ Chí Minh, Việt Nam';
-    const encodedAddress = encodeURIComponent(address);
-    // Link iframe Google Maps Embed chuẩn hóa miễn phí, không cần API key
-    const mapEmbedUrl = `https://maps.google.com/maps?q=${encodedAddress}&t=&z=15&ie=UTF8&iwloc=&output=embed`;
-    const googleMapsDirectUrl = `https://www.google.com/maps/search/?api=1&query=${encodedAddress}`;
+    const displayAddress = siteContent?.address || 'Tầng trệt chung cư Thái An, Quốc Lộ 1A, Phường Trung Mỹ Tây, Quận 12, TP. Hồ Chí Minh';
+
+    // Rút gọn địa chỉ tìm kiếm địa danh để Google Maps nhận diện chính xác tòa nhà và cắm cờ đỏ (marker) ngay tâm
+    const searchableLocation = 'Chung cư Thái An, Quốc Lộ 1A, Trung Mỹ Tây, Quận 12, Hồ Chí Minh';
+    const encodedLocation = encodeURIComponent(searchableLocation);
+
+    // Link iframe chuẩn xác, cắm pin ngay tâm với độ zoom 17
+   const mapEmbedUrl =
+        (siteContent as any)?.google_map_embed_url ||
+        `https://maps.google.com/maps?q=${encodedLocation}&t=&z=17&ie=UTF8&iwloc=B&output=embed`;
+        
+    const googleMapsDirectUrl = `https://www.google.com/maps/search/?api=1&query=${encodedLocation}`;
 
     return (
         <section
@@ -57,7 +64,7 @@ export default function GoogleMapEmbed({ lang, siteContent }: GoogleMapEmbedProp
                         {t.mapTitle}
                     </h2>
 
-                    <p className="text-600 text-lg line-height-3 m-0" style={{ maxWidth: 640, margin: '0 auto' }}>
+                    <p className="text-600 text-lg line-height-3 mx-auto my-0 text-center" style={{ maxWidth: 640 }}>
                         {t.mapDesc}
                     </p>
                 </div>
@@ -73,7 +80,7 @@ export default function GoogleMapEmbed({ lang, siteContent }: GoogleMapEmbedProp
                     }}
                 >
                     {/* Cột trái: Iframe Bản đồ */}
-                    <div className="col-12 lg:col-8 p-0" style={{ minHeight: 380 }}>
+                    <div className="col-12 lg:col-8 p-0" style={{ minHeight: 420 }}>
                         <iframe
                             title="Nang Hong Kindergarten Location"
                             src={mapEmbedUrl}
@@ -81,7 +88,7 @@ export default function GoogleMapEmbed({ lang, siteContent }: GoogleMapEmbedProp
                             height="100%"
                             style={{
                                 border: 'none',
-                                minHeight: 400,
+                                minHeight: 420,
                                 display: 'block'
                             }}
                             loading="lazy"
@@ -103,7 +110,7 @@ export default function GoogleMapEmbed({ lang, siteContent }: GoogleMapEmbedProp
                                 <div className="text-sm font-bold text-500 mb-1">{t.mapAddressLabel}</div>
                                 <div className="text-800 font-semibold line-height-3 flex align-items-start gap-2">
                                     <i className="pi pi-map-marker text-red-500 mt-1" />
-                                    <span>{address}</span>
+                                    <span>{displayAddress}</span>
                                 </div>
                             </div>
 
@@ -112,10 +119,10 @@ export default function GoogleMapEmbed({ lang, siteContent }: GoogleMapEmbedProp
                                 <div className="text-800 font-semibold flex align-items-center gap-2">
                                     <i className="pi pi-phone text-green-500" />
                                     <a
-                                        href={`tel:${siteContent?.phone_number || '0123456789'}`}
+                                        href={`tel:${siteContent?.phone_number || '0908962789'}`}
                                         className="text-800 no-underline hover:underline"
                                     >
-                                        {siteContent?.phone_number || '012-345-6789'}
+                                        {siteContent?.phone_number || '0908962789'}
                                     </a>
                                 </div>
                             </div>
@@ -124,7 +131,7 @@ export default function GoogleMapEmbed({ lang, siteContent }: GoogleMapEmbedProp
                                 <div className="text-sm font-bold text-500 mb-1">{t.email}</div>
                                 <div className="text-800 font-semibold flex align-items-center gap-2">
                                     <i className="pi pi-envelope text-blue-500" />
-                                    <span>{siteContent?.support_email || 'support@nanghong.edu.vn'}</span>
+                                    <span>{siteContent?.support_email || 'ly.mekhong9@gmail.com'}</span>
                                 </div>
                             </div>
 
